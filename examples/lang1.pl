@@ -1,6 +1,6 @@
 require Locales::Language::am;
-require Locales::Language::en;
 require Locales::Language::de;
+require Locales::Language::en;
 require Locales::Language::fr;
 
 my $am = new Locales::Language::am;

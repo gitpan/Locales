@@ -19,20 +19,20 @@ time to set it as a default:
 
   use Locales::Language ( "fr" );
 
-  print code2language ( "en" ), "\n";
+  print code2language ( "en" ), "\n";  # prints "Anglais"
 
 The Locale module can also be used with an OO interface:
 
   require Locales::Language;  # uses the envirornment locale
 
   my $fr = new Locales::Language ( "fr" );
-  print $fr->code2language ( "en" ), "\n";
+  print $fr->code2language ( "en" ), "\n";  # prints "Anglais"
 
 Much of the pacakge's complexity is owed in part to maintaining both
 an OO and functional interfaces.
 
-The language modules can them selves be directly to instantiate objects,
-but do not export any functions.
+The language modules can themselves be used directly to instantiate
+objects, but do not export any functions.
 
 
   require Locales::Language::de;
@@ -41,8 +41,8 @@ but do not export any functions.
   my $de = new Locales::Language::de;
   my $fr = new Locales::Language::fr;
 
-  print $de->code2language ( "en" ), "\n";
-  print $fr->code2language ( "en" ), "\n";
+  print $de->code2language ( "en" ), "\n";  # prints "Englisch"
+  print $fr->code2language ( "en" ), "\n";  # prints "Anglais"
 
 
 LANGUAGES & RELIABILITY
@@ -53,7 +53,7 @@ The data used in Locales:: comes directly from the ICU CVS repository:
 
 Supported languages at this time are:
 
-  am, de, el, en, es, fi, fr, hi, ja, ko & zh
+  am, de, el, en, es, fa, fi, fr, hi, ja, ko, ru & zh
 
 
 DIFFERENCES FROM Locale::

@@ -3,8 +3,10 @@ use utf8;
 
 BEGIN
 {
-	use base qw( Locales::Language::Base    );
-	use vars qw( $VERSION %LANGUAGES %CODES );
+	use base qw( Locales::Language::Base     );
+	use vars qw( %CODES %LANGUAGES $VERSION );
+
+	$VERSION = "0.02";
 }
 
 __PACKAGE__->setData ( \%CODES, \%LANGUAGES, \*DATA );

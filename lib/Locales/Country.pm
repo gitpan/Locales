@@ -2,9 +2,11 @@ package Locales::Country;
 
 BEGIN
 {
-use strict;
-use base qw( Exporter Locales::Base );
-use vars qw( @EXPORT $FALLBACK_LOCALE %Locales );
+	use strict;
+	use base qw( Exporter Locales::Base    );
+	use vars qw( @EXPORT %Locales $VERSION );
+
+	$VERSION = "0.02";
 
 	@EXPORT = qw(
 		code2country

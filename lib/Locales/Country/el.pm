@@ -3,14 +3,73 @@ use utf8;
 
 BEGIN
 {
-	use base qw( Locales::Country::Base    );
-	use vars qw( $VERSION %LANGUAGES %CODES );
+	use base qw( Locales::Country::Base     );
+	use vars qw( %CODES %COUNTRIES $VERSION );
+
+	$VERSION = "0.02";
 }
 
-__PACKAGE__->setData ( \%CODES, \%LANGUAGES, \*DATA );
+__PACKAGE__->setData ( \%CODES, \%COUNTRIES, \*DATA );
 
 
 1;
+
+
+=head1 NAME
+
+Locales::Country::el - ISO 3166-1 Country Codes in Greek.
+
+=head1 SYNOPSIS
+
+  require Locales::Country::el;
+
+  my $el = new Locales::Country::el;
+
+  print "  ", $el->getLocale, " => ", $el->code2country ( "gb" ), "\n";
+  print "  ", $el->getLocale, " => ", $el->code2country ( "gbr" ), "\n";
+  print "  ", $el->getLocale, " => ", $el->code2country ( "826" ), "\n";
+
+  print "  ", $el->getLocale, " => ", $el->country2code ( "Ηνωμένο Βασίλειο", "alpha2" ), "\n";
+  print "  ", $el->getLocale, " => ", $el->country2code ( "Ηνωμένο Βασίλειο", "alpha3" ), "\n";
+  print "  ", $el->getLocale, " => ", $el->country2code ( "Ηνωμένο Βασίλειο", "numeric" ), "\n";
+
+
+=head1 DESCRIPTION
+
+This module provides an OO interface to Greek language ISO 3166-1
+country codes.  All of the functions available in the Locale::Country
+module are available here as class methods.
+
+This module may be used indirectly through the L<Locales::Country> module
+which also exports functions in the style of L<Locale::Country>.
+
+Documentation remains under development.
+
+
+=head1 COPYRIGHT
+
+This module is free software; you can redistribute it and/or modify it under
+the same terms as Perl itself.
+
+=head1 BUGS
+
+None presently known.
+
+=head1 AUTHOR
+
+Daniel Yacob,  L<dyacob@cpan.org|mailto:dyacob@cpan.org>
+
+=head1 SEE ALSO
+
+L<Locales::Country>
+
+Included with this package:
+
+  examples/country*.pl
+
+=cut
+
+
 __DATA__
 al:alb:008:Αλβανία
 as:asm:016:Ασία (Αγγλικά)

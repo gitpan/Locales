@@ -36,12 +36,12 @@ my ($self, $code) = @_;
 
 sub language2code
 {
-my ($self, $lang) = @_;
+my ($self, $language) = @_;
 
 
-	$lang = lc($lang) || return;
+	$language = lc($language) || return;
 
-	( $self->{LANGUAGES}->{$code} ) ?  $self->{LANGUAGES}->{$code} : undef ;
+	( $self->{LANGUAGES}->{$language} ) ?  $self->{LANGUAGES}->{$language} : undef ;
 }
 
 

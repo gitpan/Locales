@@ -4,7 +4,9 @@ BEGIN
 {
 	use strict;
 	use vars qw( $FALLBACK_LOCALE %LOADS $VERSION );
-	$VERSION = 0.01;
+
+	$VERSION = 0.02;
+
 	$FALLBACK_LOCALE = "en";
 }
 
