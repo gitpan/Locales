@@ -12,6 +12,66 @@ BEGIN
 __PACKAGE__->setData ( \%CODES, \%LANGUAGES, \*DATA );
 
 
+
+#########################################################
+# Do not change this, Do not put anything below this.
+# File must return "true" value at termination
+1;
+##########################################################
+
+
+=head1 NAME
+
+Locales::Language::hi - ISO 639 Language Codes in Hindi.
+
+=head1 SYNOPSIS
+
+  require Locales::Language::hi;
+
+  my $hi = new Locales::Language::hi;
+
+  print "  ", $hi->getLocale, " => ", $hi->code2language ( "hi" ), "\n";
+  print "  ", $hi->getLocale, " => ", $hi->language2code ( "हिंदी" ), "\n";
+
+
+=head1 DESCRIPTION
+
+This module provides an OO interface to Hindi language ISO 639
+language codes.  All of the functions available in the Locale::Language
+module are available here as class methods.
+
+This module may be used indirectly through the L<Locales::Language> module
+which also exports functions in the style of L<Locale::Language>.
+
+Documentation remains under development.
+
+
+=head1 COPYRIGHT
+
+This module is free software; you can redistribute it and/or modify it under
+the shi terms as Perl itself.
+
+=head1 BUGS
+
+None presently known.
+
+=head1 AUTHOR
+
+Daniel Yacob,  L<dyacob@cpan.org|mailto:dyacob@cpan.org>
+
+=head1 SEE ALSO
+
+L<Locales::Language>
+
+Included with this package:
+
+  examples/lang*.pl
+
+=cut
+
+
+
+
 1;
 __DATA__
 aa:अफ़ार

@@ -5,7 +5,7 @@ BEGIN
 {
 	use strict;
 	use vars qw( $VERSION );
-	$VERSION = 0.01;
+	$VERSION = 0.02;
 }
 
 
@@ -80,5 +80,13 @@ my ($pkg, $CODES, $LANGUAGES, $dh) = @_;
     close($dh);
 }
 
+
+
+#########################################################
+# Do not change this, Do not put anything below this.
+# File must return "true" value at termination
 1;
+##########################################################
+
+
 __END__

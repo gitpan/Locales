@@ -25,13 +25,13 @@ Locales::Country::ko - ISO 3166-1 Country Codes in Korean.
 
   my $ko = new Locales::Country::ko;
 
-  print "  ", $ko->getLocale, " => ", $ko->code2country ( "gb" ), "\n";
-  print "  ", $ko->getLocale, " => ", $ko->code2country ( "gbr" ), "\n";
-  print "  ", $ko->getLocale, " => ", $ko->code2country ( "826" ), "\n";
+  print "  ", $ko->getLocale, " => ", $ko->code2country ( "kp" ), "\n";
+  print "  ", $ko->getLocale, " => ", $ko->code2country ( "prk" ), "\n";
+  print "  ", $ko->getLocale, " => ", $ko->code2country ( "408" ), "\n";
 
-  print "  ", $ko->getLocale, " => ", $ko->country2code ( "영국", "alpha2" ), "\n";
-  print "  ", $ko->getLocale, " => ", $ko->country2code ( "영국", "alpha3" ), "\n";
-  print "  ", $ko->getLocale, " => ", $ko->country2code ( "영국", "numeric" ), "\n";
+  print "  ", $ko->getLocale, " => ", $ko->country2code ( "조선 민주주의 인민 공화국", "alpha2" ), "\n";
+  print "  ", $ko->getLocale, " => ", $ko->country2code ( "조선 민주주의 인민 공화국", "alpha3" ), "\n";
+  print "  ", $ko->getLocale, " => ", $ko->country2code ( "조선 민주주의 인민 공화국", "numeric" ), "\n";
 
 
 =head1 DESCRIPTION

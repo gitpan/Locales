@@ -25,13 +25,14 @@ Locales::Country::am - ISO 3166-1 Country Codes in Amharic.
 
   my $am = new Locales::Country::am;
 
-  print "  ", $am->getLocale, " => ", $am->code2country ( "gb" ), "\n";
-  print "  ", $am->getLocale, " => ", $am->code2country ( "gbr" ), "\n";
-  print "  ", $am->getLocale, " => ", $am->code2country ( "826" ), "\n";
+  print "  ", $am->getLocale, " => ", $am->code2country ( "et" ), "\n";
+  print "  ", $am->getLocale, " => ", $am->code2country ( "eth" ), "\n";
+  print "  ", $am->getLocale, " => ", $am->code2country ( "231" ), "\n";
 
-  print "  ", $am->getLocale, " => ", $am->country2code ( "እንግሊዝ", "alpha2" ), "\n";
-  print "  ", $am->getLocale, " => ", $am->country2code ( "እንግሊዝ", "alpha3" ), "\n";
-  print "  ", $am->getLocale, " => ", $am->country2code ( "እንግሊዝ", "numeric" ), "\n";
+  print "  ", $am->getLocale, " => ", $am->country2code ( "ኢትዮጵያ", "alpha2" ), "\n";
+  print "  ", $am->getLocale, " => ", $am->country2code ( "ኢትዮጵያ", "alpha3" ), "\n";
+  print "  ", $am->getLocale, " => ", $am->country2code ( "ኢትዮጵያ", "numeric" ), "\n";
+
 
 =head1 DESCRIPTION
 

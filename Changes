@@ -1,3 +1,6 @@
+0.03 Mon May 26 08:46:26 EDT 2003
+	- documentation started for Locales::Language:: modules.
+
 0.02 Sat May 24 10:03:20 EDT 2003
 	- added examples/country7.pl and examples/lang7.pl.
 	- start of documentation.

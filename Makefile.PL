@@ -7,7 +7,7 @@ use ExtUtils::MakeMaker;
 WriteMakefile(
 	NAME		=> 'Locales',
 	DISTNAME	=> 'Locales',
-	VERSION_FROM	=> 'lib/Locales/Base.pm', # finds $VERSION
+	VERSION		=> '0.03', # finds $VERSION
 	AUTHOR  	=> "Daniel Yacob <Yacob\@EthiopiaOnline.Net>",
 	ABSTRACT	=> "A Multilingual, Object Oriented Locales:: Package.",
 

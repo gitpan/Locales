@@ -25,13 +25,13 @@ Locales::Country::el - ISO 3166-1 Country Codes in Greek.
 
   my $el = new Locales::Country::el;
 
-  print "  ", $el->getLocale, " => ", $el->code2country ( "gb" ), "\n";
-  print "  ", $el->getLocale, " => ", $el->code2country ( "gbr" ), "\n";
-  print "  ", $el->getLocale, " => ", $el->code2country ( "826" ), "\n";
+  print "  ", $el->getLocale, " => ", $el->code2country ( "gr" ), "\n";
+  print "  ", $el->getLocale, " => ", $el->code2country ( "grc" ), "\n";
+  print "  ", $el->getLocale, " => ", $el->code2country ( "300" ), "\n";
 
-  print "  ", $el->getLocale, " => ", $el->country2code ( "Ηνωμένο Βασίλειο", "alpha2" ), "\n";
-  print "  ", $el->getLocale, " => ", $el->country2code ( "Ηνωμένο Βασίλειο", "alpha3" ), "\n";
-  print "  ", $el->getLocale, " => ", $el->country2code ( "Ηνωμένο Βασίλειο", "numeric" ), "\n";
+  print "  ", $el->getLocale, " => ", $el->country2code ( "Ελλάδα", "alpha2" ), "\n";
+  print "  ", $el->getLocale, " => ", $el->country2code ( "Ελλάδα", "alpha3" ), "\n";
+  print "  ", $el->getLocale, " => ", $el->country2code ( "Ελλάδα", "numeric" ), "\n";
 
 
 =head1 DESCRIPTION

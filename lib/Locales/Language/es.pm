@@ -12,7 +12,64 @@ BEGIN
 __PACKAGE__->setData ( \%CODES, \%LANGUAGES, \*DATA );
 
 
+
+#########################################################
+# Do not change this, Do not put anything below this.
+# File must return "true" value at termination
 1;
+##########################################################
+
+
+=head1 NAME
+
+Locales::Language::es - ISO 639 Language Codes in Spanish.
+
+=head1 SYNOPSIS
+
+  require Locales::Language::es;
+
+  my $es = new Locales::Language::es;
+
+  print "  ", $es->getLocale, " => ", $es->code2language ( "es" ), "\n";
+  print "  ", $es->getLocale, " => ", $es->language2code ( "Español" ), "\n";
+
+
+=head1 DESCRIPTION
+
+This module provides an OO interface to Spanish language ISO 639
+language codes.  All of the functions available in the Locale::Language
+module are available here as class methods.
+
+This module may be used indirectly through the L<Locales::Language> module
+which also exports functions in the style of L<Locale::Language>.
+
+Documentation remains under development.
+
+
+=head1 COPYRIGHT
+
+This module is free software; you can redistribute it and/or modify it under
+the same terms as Perl itself.
+
+=head1 BUGS
+
+None presently known.
+
+=head1 AUTHOR
+
+Daniel Yacob,  L<dyacob@cpan.org|mailto:dyacob@cpan.org>
+
+=head1 SEE ALSO
+
+L<Locales::Language>
+
+Included with this package:
+
+  examples/lang*.pl
+
+=cut
+
+
 __DATA__
 af:Afrikaans
 am:Amharic

@@ -25,13 +25,13 @@ Locales::Country::ru - ISO 3166-1 Country Codes in Russian.
 
   my $ru = new Locales::Country::ru;
 
-  print "  ", $ru->getLocale, " => ", $ru->code2country ( "gb" ), "\n";
-  print "  ", $ru->getLocale, " => ", $ru->code2country ( "gbr" ), "\n";
-  print "  ", $ru->getLocale, " => ", $ru->code2country ( "826" ), "\n";
+  print "  ", $ru->getLocale, " => ", $ru->code2country ( "ru" ), "\n";
+  print "  ", $ru->getLocale, " => ", $ru->code2country ( "rus" ), "\n";
+  print "  ", $ru->getLocale, " => ", $ru->code2country ( "643" ), "\n";
 
-  print "  ", $ru->getLocale, " => ", $ru->country2code ( "Великобритания", "alpha2" ), "\n";
-  print "  ", $ru->getLocale, " => ", $ru->country2code ( "Великобритания", "alpha3" ), "\n";
-  print "  ", $ru->getLocale, " => ", $ru->country2code ( "Великобритания", "numeric" ), "\n";
+  print "  ", $ru->getLocale, " => ", $ru->country2code ( "Россия", "alpha2" ), "\n";
+  print "  ", $ru->getLocale, " => ", $ru->country2code ( "Россия", "alpha3" ), "\n";
+  print "  ", $ru->getLocale, " => ", $ru->country2code ( "Россия", "numeric" ), "\n";
 
 
 =head1 DESCRIPTION

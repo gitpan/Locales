@@ -25,13 +25,13 @@ Locales::Country::zh - ISO 3166-1 Country Codes in Chinese.
 
   my $zh = new Locales::Country::zh;
 
-  print "  ", $zh->getLocale, " => ", $zh->code2country ( "gb" ), "\n";
-  print "  ", $zh->getLocale, " => ", $zh->code2country ( "gbr" ), "\n";
-  print "  ", $zh->getLocale, " => ", $zh->code2country ( "826" ), "\n";
+  print "  ", $zh->getLocale, " => ", $zh->code2country ( "cn" ), "\n";
+  print "  ", $zh->getLocale, " => ", $zh->code2country ( "chn" ), "\n";
+  print "  ", $zh->getLocale, " => ", $zh->code2country ( "156" ), "\n";
 
-  print "  ", $zh->getLocale, " => ", $zh->country2code ( "英国", "alpha2" ), "\n";
-  print "  ", $zh->getLocale, " => ", $zh->country2code ( "英国", "alpha3" ), "\n";
-  print "  ", $zh->getLocale, " => ", $zh->country2code ( "英国", "numeric" ), "\n";
+  print "  ", $zh->getLocale, " => ", $zh->country2code ( "中華人民共和國", "alpha2" ), "\n";
+  print "  ", $zh->getLocale, " => ", $zh->country2code ( "中華人民共和國", "alpha3" ), "\n";
+  print "  ", $zh->getLocale, " => ", $zh->country2code ( "中華人民共和國", "numeric" ), "\n";
 
 
 =head1 DESCRIPTION

@@ -12,7 +12,64 @@ BEGIN
 __PACKAGE__->setData ( \%CODES, \%LANGUAGES, \*DATA );
 
 
+
+#########################################################
+# Do not change this, Do not put anything below this.
+# File must return "true" value at termination
 1;
+##########################################################
+
+
+=head1 NAME
+
+Locales::Language::fr - ISO 639 Language Codes in French.
+
+=head1 SYNOPSIS
+
+  require Locales::Language::fr;
+
+  my $fr = new Locales::Language::fr;
+
+  print "  ", $fr->getLocale, " => ", $fr->code2language ( "fr" ), "\n";
+  print "  ", $fr->getLocale, " => ", $fr->language2code ( "Français" ), "\n";
+
+
+=head1 DESCRIPTION
+
+This module provides an OO interface to French language ISO 639
+language codes.  All of the functions available in the Locale::Language
+module are available here as class methods.
+
+This module may be used indirectly through the L<Locales::Language> module
+which also exports functions in the style of L<Locale::Language>.
+
+Documentation remains under development.
+
+
+=head1 COPYRIGHT
+
+This module is free software; you can redistribute it and/or modify it under
+the same terms as Perl itself.
+
+=head1 BUGS
+
+None presently known.
+
+=head1 AUTHOR
+
+Daniel Yacob,  L<dyacob@cpan.org|mailto:dyacob@cpan.org>
+
+=head1 SEE ALSO
+
+L<Locales::Language>
+
+Included with this package:
+
+  examples/lang*.pl
+
+=cut
+
+
 __DATA__
 aa:Afar
 ab:Abkhaze

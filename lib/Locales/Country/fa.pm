@@ -25,13 +25,13 @@ Locales::Country::fa - ISO 3166-1 Country Codes in Persian.
 
   my $fa = new Locales::Country::fa;
 
-  print "  ", $fa->getLocale, " => ", $fa->code2country ( "gb" ), "\n";
-  print "  ", $fa->getLocale, " => ", $fa->code2country ( "gbr" ), "\n";
-  print "  ", $fa->getLocale, " => ", $fa->code2country ( "826" ), "\n";
+  print "  ", $fa->getLocale, " => ", $fa->code2country ( "ir" ), "\n";
+  print "  ", $fa->getLocale, " => ", $fa->code2country ( "irn" ), "\n";
+  print "  ", $fa->getLocale, " => ", $fa->code2country ( "364" ), "\n";
 
-  print "  ", $fa->getLocale, " => ", $fa->country2code ( "انگلستان", "alpha2" ), "\n";
-  print "  ", $fa->getLocale, " => ", $fa->country2code ( "انگلستان", "alpha3" ), "\n";
-  print "  ", $fa->getLocale, " => ", $fa->country2code ( "انگلستان", "numeric" ), "\n";
+  print "  ", $fa->getLocale, " => ", $fa->country2code ( "ایران", "alpha2" ), "\n";
+  print "  ", $fa->getLocale, " => ", $fa->country2code ( "ایران", "alpha3" ), "\n";
+  print "  ", $fa->getLocale, " => ", $fa->country2code ( "ایران", "numeric" ), "\n";
 
 
 =head1 DESCRIPTION

@@ -25,13 +25,13 @@ Locales::Country::fi - ISO 3166-1 Country Codes in Finnish.
 
   my $fi = new Locales::Country::fi;
 
-  print "  ", $fi->getLocale, " => ", $fi->code2country ( "gb" ), "\n";
-  print "  ", $fi->getLocale, " => ", $fi->code2country ( "gbr" ), "\n";
-  print "  ", $fi->getLocale, " => ", $fi->code2country ( "826" ), "\n";
+  print "  ", $fi->getLocale, " => ", $fi->code2country ( "fi" ), "\n";
+  print "  ", $fi->getLocale, " => ", $fi->code2country ( "fin" ), "\n";
+  print "  ", $fi->getLocale, " => ", $fi->code2country ( "246" ), "\n";
 
-  print "  ", $fi->getLocale, " => ", $fi->country2code ( "Iso-Britannia", "alpha2" ), "\n";
-  print "  ", $fi->getLocale, " => ", $fi->country2code ( "Iso-Britannia", "alpha3" ), "\n";
-  print "  ", $fi->getLocale, " => ", $fi->country2code ( "Iso-Britannia", "numeric" ), "\n";
+  print "  ", $fi->getLocale, " => ", $fi->country2code ( "Suomi", "alpha2" ), "\n";
+  print "  ", $fi->getLocale, " => ", $fi->country2code ( "Suomi", "alpha3" ), "\n";
+  print "  ", $fi->getLocale, " => ", $fi->country2code ( "Suomi", "numeric" ), "\n";
 
 
 =head1 DESCRIPTION

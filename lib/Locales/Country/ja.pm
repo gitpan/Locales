@@ -25,13 +25,13 @@ Locales::Country::ja - ISO 3166-1 Country Codes in Japanese.
 
   my $ja = new Locales::Country::ja;
 
-  print "  ", $ja->getLocale, " => ", $ja->code2country ( "gb" ), "\n";
-  print "  ", $ja->getLocale, " => ", $ja->code2country ( "gbr" ), "\n";
-  print "  ", $ja->getLocale, " => ", $ja->code2country ( "826" ), "\n";
+  print "  ", $ja->getLocale, " => ", $ja->code2country ( "jp" ), "\n";
+  print "  ", $ja->getLocale, " => ", $ja->code2country ( "jpn" ), "\n";
+  print "  ", $ja->getLocale, " => ", $ja->code2country ( "392" ), "\n";
 
-  print "  ", $ja->getLocale, " => ", $ja->country2code ( "イギリス", "alpha2" ), "\n";
-  print "  ", $ja->getLocale, " => ", $ja->country2code ( "イギリス", "alpha3" ), "\n";
-  print "  ", $ja->getLocale, " => ", $ja->country2code ( "イギリス", "numeric" ), "\n";
+  print "  ", $ja->getLocale, " => ", $ja->country2code ( "日本", "alpha2" ), "\n";
+  print "  ", $ja->getLocale, " => ", $ja->country2code ( "日本", "alpha3" ), "\n";
+  print "  ", $ja->getLocale, " => ", $ja->country2code ( "日本", "numeric" ), "\n";
 
 
 =head1 DESCRIPTION

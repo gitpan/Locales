@@ -25,13 +25,13 @@ Locales::Country::fr - ISO 3166-1 Country Codes in French.
 
   my $fr = new Locales::Country::fr;
 
-  print "  ", $fr->getLocale, " => ", $fr->code2country ( "gb" ), "\n";
-  print "  ", $fr->getLocale, " => ", $fr->code2country ( "gbr" ), "\n";
-  print "  ", $fr->getLocale, " => ", $fr->code2country ( "826" ), "\n";
+  print "  ", $fr->getLocale, " => ", $fr->code2country ( "fr" ), "\n";
+  print "  ", $fr->getLocale, " => ", $fr->code2country ( "fra" ), "\n";
+  print "  ", $fr->getLocale, " => ", $fr->code2country ( "250" ), "\n";
 
-  print "  ", $fr->getLocale, " => ", $fr->country2code ( "Royaume-Uni", "alpha2" ), "\n";
-  print "  ", $fr->getLocale, " => ", $fr->country2code ( "Royaume-Uni", "alpha3" ), "\n";
-  print "  ", $fr->getLocale, " => ", $fr->country2code ( "Royaume-Uni", "numeric" ), "\n";
+  print "  ", $fr->getLocale, " => ", $fr->country2code ( "France", "alpha2" ), "\n";
+  print "  ", $fr->getLocale, " => ", $fr->country2code ( "France", "alpha3" ), "\n";
+  print "  ", $fr->getLocale, " => ", $fr->country2code ( "France", "numeric" ), "\n";
 
 
 =head1 DESCRIPTION
@@ -115,6 +115,7 @@ et:eth:231:Ethiopie
 fi:fin:246:Finlande
 fj:fji:242:Fidji
 fm:fsm:583:Micronésie
+fr:fra:250:France
 gb:gbr:826:Royaume-Uni
 ge:geo:268:Géorgie
 gf:guf:254:Guinée Française

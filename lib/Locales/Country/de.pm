@@ -25,13 +25,13 @@ Locales::Country::de - ISO 3166-1 Country Codes in German.
 
   my $de = new Locales::Country::de;
 
-  print "  ", $de->getLocale, " => ", $de->code2country ( "gb" ), "\n";
-  print "  ", $de->getLocale, " => ", $de->code2country ( "gbr" ), "\n";
-  print "  ", $de->getLocale, " => ", $de->code2country ( "826" ), "\n";
+  print "  ", $de->getLocale, " => ", $de->code2country ( "de" ), "\n";
+  print "  ", $de->getLocale, " => ", $de->code2country ( "deu" ), "\n";
+  print "  ", $de->getLocale, " => ", $de->code2country ( "276" ), "\n";
 
-  print "  ", $de->getLocale, " => ", $de->country2code ( "Vereinigtes Königreich", "alpha2" ), "\n";
-  print "  ", $de->getLocale, " => ", $de->country2code ( "Vereinigtes Königreich", "alpha3" ), "\n";
-  print "  ", $de->getLocale, " => ", $de->country2code ( "Vereinigtes Königreich", "numeric" ), "\n";
+  print "  ", $de->getLocale, " => ", $de->country2code ( "Deutschland", "alpha2" ), "\n";
+  print "  ", $de->getLocale, " => ", $de->country2code ( "Deutschland", "alpha3" ), "\n";
+  print "  ", $de->getLocale, " => ", $de->country2code ( "Deutschland", "numeric" ), "\n";
 
 
 =head1 DESCRIPTION

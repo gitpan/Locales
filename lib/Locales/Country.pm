@@ -66,5 +66,12 @@ my ($self, $arg) = Locales::Base::_getSelf ( @_ );
 }
 
 
+
+#########################################################
+# Do not change this, Do not put anything below this.
+# File must return "true" value at termination
 1;
+##########################################################
+
+
 __END__

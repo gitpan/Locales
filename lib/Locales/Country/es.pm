@@ -25,13 +25,13 @@ Locales::Country::es - ISO 3166-1 Country Codes in Spanish.
 
   my $es = new Locales::Country::es;
 
-  print "  ", $es->getLocale, " => ", $es->code2country ( "gb" ), "\n";
-  print "  ", $es->getLocale, " => ", $es->code2country ( "gbr" ), "\n";
-  print "  ", $es->getLocale, " => ", $es->code2country ( "826" ), "\n";
+  print "  ", $es->getLocale, " => ", $es->code2country ( "es" ), "\n";
+  print "  ", $es->getLocale, " => ", $es->code2country ( "esp" ), "\n";
+  print "  ", $es->getLocale, " => ", $es->code2country ( "724" ), "\n";
 
-  print "  ", $es->getLocale, " => ", $es->country2code ( "Reino Unido", "alpha2" ), "\n";
-  print "  ", $es->getLocale, " => ", $es->country2code ( "Reino Unido", "alpha3" ), "\n";
-  print "  ", $es->getLocale, " => ", $es->country2code ( "Reino Unido", "numeric" ), "\n";
+  print "  ", $es->getLocale, " => ", $es->country2code ( "España", "alpha2" ), "\n";
+  print "  ", $es->getLocale, " => ", $es->country2code ( "España", "alpha3" ), "\n";
+  print "  ", $es->getLocale, " => ", $es->country2code ( "España", "numeric" ), "\n";
 
 
 =head1 DESCRIPTION
