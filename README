@@ -1,0 +1,83 @@
+INTRODUCTION
+
+The premise of the Locales:: package is simply to offer an internationalized
+version of the Locale:: package.  The modules (Language and Country so far)
+themselves are available in localized subpackages.  That is, you
+can get Language and Country names back in something other than English.
+
+At this time the package should be considered experimental.  POD documentation
+is forth coming and should appear in the next release, the scripts in the
+"examples/" directory presently serve as a reference.  The scripts in this
+directory also indicate the extent of testing.
+
+
+USAGE
+
+The Locales::Language module (and others) may be used just like the
+Locale::Language module, but you can pass your desired language at import
+time to set it as a default:
+
+  use Locales::Language ( "fr" );
+
+  print code2language ( "en" ), "\n";
+
+The Locale module can also be used with an OO interface:
+
+  require Locales::Language;  # uses the envirornment locale
+
+  my $fr = new Locales::Language ( "fr" );
+  print $fr->code2language ( "en" ), "\n";
+
+Much of the pacakge's complexity is owed in part to maintaining both
+an OO and functional interfaces.
+
+The language modules can them selves be directly to instantiate objects,
+but do not export any functions.
+
+
+  require Locales::Language::de;
+  require Locales::Language::fr;
+
+  my $de = new Locales::Language::de;
+  my $fr = new Locales::Language::fr;
+
+  print $de->code2language ( "en" ), "\n";
+  print $fr->code2language ( "en" ), "\n";
+
+
+LANGUAGES & RELIABILITY
+
+The data used in Locales:: comes directly from the ICU CVS repository:
+
+  http://oss.software.ibm.com/cvs/icu/locale/icu/xml/
+
+Supported languages at this time are:
+
+  am, de, el, en, es, fi, fr, hi, ja, ko & zh
+
+
+DIFFERENCES FROM Locale::
+
+  * Not limited to English.
+  * Presently only the ::Country and ::Language modules are provided.
+  * OO Interface available.
+  * Should consume less memory than Locale:: as hash data is linked
+    instead of copied.
+  
+
+WHY NOT INTEGRATE INTO Locale:: ?
+
+Tried that, but the maintainer has yet to respond to such inquiries
+(nudge, nudge).
+
+
+TODO
+
+  * Write the POD.
+  * Test (much) more thoroughly.
+  * Add the ISO 639 Alpha 3 language codes (why are they missing)?
+  * Test on older Perl (tried only on 5.8.0).
+  * Add more ICU packages.
+  * Port the Locale::Currency and Locale::Script modules.  Non-English
+    data may be harder to come by, but if nothing else the English
+    data is at least available through an OO interface.
