@@ -1,3 +1,8 @@
+0.04 Thu May 29 01:49:16 EDT 2003
+	- examples/lang[1-7].pl chaanged to language[1-7].pl
+	- documentation for examples/ scripts.
+	- documentation for Locales::Language and Locales::Country.
+
 0.03 Mon May 26 08:46:26 EDT 2003
 	- documentation started for Locales::Language:: modules.
 

@@ -22,3 +22,36 @@ print "  ", $am->getLocale, " => ", $am->code2country ( "826" ), "\n";
 print "  ", $de->getLocale, " => ", $de->code2country ( "826" ), "\n";
 print "  ", $en->getLocale, " => ", $en->code2country ( "826" ), "\n";
 print "  ", $fr->getLocale, " => ", $fr->code2country ( "826" ), "\n";
+
+
+__END__
+
+=head1 NAME
+
+country2.pl - Demonstration of L<Locales::Country> OO Usage.
+
+=head1 SYNOPSIS
+
+./country2.pl
+
+=head1 DESCRIPTION
+
+This is a simple demonstration script that shows how the top
+level L<Locales::Country> module can be used to instantiate
+a new object set for a supported country passed as an argument
+at creation time.  For example:
+
+  require Locales::Country;
+  my $am = new Locales::Country ( "am" );
+
+  print $am->getLocale, " => ", $am->code2country ( "gb" ), "\n";
+
+=head1 AUTHOR
+
+Daniel Yacob,  L<dyacob@cpan.org|mailto:dyacob@cpan.org>
+
+=head1 SEE ALSO
+
+L<Locales::Country>
+
+=cut
