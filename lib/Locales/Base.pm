@@ -5,7 +5,7 @@ BEGIN
 	use strict;
 	use vars qw( $FALLBACK_LOCALE %LOADS $VERSION );
 
-	$VERSION = 0.02;
+	$VERSION = 0.03;
 
 	$FALLBACK_LOCALE = "en";
 }
@@ -46,7 +46,7 @@ sub _loadFallBackLocale
 {
 my ($caller) = @_;
 
-	my $module = "$caller::$FALLBACK_LOCALE";
+	my $module = "${caller}::$FALLBACK_LOCALE";
 
 	eval "require $module;" 
 	|| die "Unable to load $module : $@";
@@ -123,20 +123,20 @@ my ($self, $locale) = @_;
 		}
 		else {
 			warn ( "$locale is unsupported, trying $defaultLocale" );
-			$module = "$caller::$defaultLocale";
+			$module = "${caller}::$defaultLocale";
 			unless ( eval "require $module;" ) {
 				warn ( "$defaultLocale is unsupported, trying $FALLBACK_LOCALE" );
 				$object = _loadFallBackLocale ( $caller );
 			}
 			else {
-				eval "require $caller::Base" unless ( $LOADS{$caller} );
+				eval "require ${caller}::Base" unless ( $LOADS{$caller} );
 				$LOADS{$caller} = 1;
 				$object = &{"${caller}::Base::new"}( $module );
 			}
 		}
 	}
 	else {
-		eval "require $caller::Base" unless ( $LOADS{$caller} );
+		eval "require ${caller}::Base" unless ( $LOADS{$caller} );
 		$LOADS{$caller} = 1;
 		#
 		# inheritance wonk, most reference 'new' from base class
@@ -160,7 +160,7 @@ my ($self, $locale) = @_;
 
 }
 
-
+sub DESTROY {}
 
 #########################################################
 # Do not change this, Do not put anything below this.

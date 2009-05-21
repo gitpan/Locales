@@ -49,3 +49,4 @@ lib/Locales/Country/ru.pm
 lib/Locales/Country/zh.pm
 t/01language.t
 t/02country.t
+META.yml                                 Module meta-data (added by MakeMaker)

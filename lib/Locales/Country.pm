@@ -436,9 +436,9 @@ Another useful, but not official, home page.
 An appendix in the CIA world fact book which lists country codes
 as defined by ISO 3166, FIPS 10-4, and internet domain names.
 
-=item http://oss.software.ibm.com/icu/
+=item http://www.icu-project.org/
 
-Home page for ICU.
+Home page for ICU. The data used in Locales:: comes directly from the ICU CVS repository.
 
 =item Example Scripts
 

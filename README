@@ -51,6 +51,10 @@ The data used in Locales:: comes directly from the ICU CVS repository:
 
   http://oss.software.ibm.com/cvs/icu/locale/icu/xml/
 
+That URL is now stale, their site has moved to http://www.icu-project.org/
+
+When the data is updated from the new location/a new location this blurb will be updated.
+
 Supported languages at this time are:
 
   am, de, el, en, es, fa, fi, fr, hi, ja, ko, ru & zh

@@ -248,9 +248,9 @@ Code for the representation of names of languages.
 
 Home page for ISO 639-2.
 
-=item http://oss.software.ibm.com/icu/
+=item http://www.icu-project.org/
 
-Home page for ICU.
+Home page for ICU. The data used in Locales:: comes directly from the ICU CVS repository.
 
 =item Example Scripts
 

@@ -1,3 +1,10 @@
+0.05  Tue May 19 23:01:55 2009
+    - Added DESTROY stub to silence warnings during make test
+    - fixed rt 40244
+    - fixed rt 34439 
+    - bumped main version to 0.05 and Locales::Base to 0.03
+    - will address other rt's ASAP
+    
 0.04 Thu May 29 01:49:16 EDT 2003
 	- examples/lang[1-7].pl chaanged to language[1-7].pl
 	- documentation for examples/ scripts.
