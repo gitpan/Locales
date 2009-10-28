@@ -1,3 +1,8 @@
+0.06  Wed Oct 28 14:37:54 2009
+    - Added a new, more efficient, and standard CLDR based Locales.pm object system 
+      (does not use any of the original Locales::Base based modules && doesn't die())
+    - Added deprecated notice to all Locales::Base based modules' POD
+    
 0.05  Tue May 19 23:01:55 2009
     - Added DESTROY stub to silence warnings during make test
     - fixed rt 40244
@@ -6,7 +11,7 @@
     - will address other rt's ASAP
     
 0.04 Thu May 29 01:49:16 EDT 2003
-	- examples/lang[1-7].pl chaanged to language[1-7].pl
+	- examples/lang[1-7].pl changed to language[1-7].pl
 	- documentation for examples/ scripts.
 	- documentation for Locales::Language and Locales::Country.
 

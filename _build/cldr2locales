@@ -1,0 +1,22 @@
+#!/usr/bin/perl
+
+use lib '_build';
+use _locales_build_utils;
+
+my ($cldr_db_path, $locales_db) = _locales_build_utils::init_paths_from_argv();
+
+print "Starting 'en' ...\n";
+system('./_build/cldr2en', $cldr_db_path, $locales_db) == 0 || die "Could not build 'en'";
+
+require Locales::DB::Language::en;
+
+for my $tag (sort keys %Locales::DB::Language::en::code_to_name) {
+    next if $tag eq 'en';
+    print "Starting '$tag' ...\n";
+    next if !_locales_build_utils::get_xml_file_for($tag);
+    system('./_build/en2mod', $cldr_db_path, $locales_db, $tag) == 0 || die "Could not build '$tag'";
+}
+
+_locales_build_utils::build_manifest();
+
+_locales_build_utils::do_changelog();

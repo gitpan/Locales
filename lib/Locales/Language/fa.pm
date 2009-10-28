@@ -19,6 +19,11 @@ __PACKAGE__->setData ( \%CODES, \%LANGUAGES, \*DATA );
 1;
 ##########################################################
 
+=head1 THIS MODULE IS DEPRECATED
+
+This POD documents the deprecated legacy system (pre v0.06)
+
+New code should use the more modern, efficient, and CLDR based L<Locales> object system.
 
 =head1 NAME
 

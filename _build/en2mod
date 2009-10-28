@@ -1,0 +1,29 @@
+#!/usr/bin/perl
+
+use lib '_build';
+use _locales_build_utils;
+
+my ($cldr_db_path, $locales_db, $manifest) = _locales_build_utils::init_paths_from_argv();
+
+chdir $locales_db || die "Could not change into '$locales_db': $!";
+
+my $tag = Locales::normalize_tag($ARGV[2]);
+my ($l,$t) = Locales::split_tag($tag);
+
+# TODO: 
+# my @root = $l ne $tag ?  _locales_build_utils::get_target_structs_from_cldr_for_tag($l,{},{},{}) : ({},{},{},{},{});
+# TODO: merge 'en' into @root here , @root[0,3,2]
+
+require Locales::DB::Language::en;
+require Locales::DB::Territory::en;
+
+my @root = ( \%Locales::DB::Language::en::code_to_name, \%Locales::DB::Territory::en::code_to_name, \%Locales::DB::Language::en::misc_info);
+
+my ($lang_code_to_name, $lang_name_to_code, $lang_misc_info, $terr_code_to_name, $terr_name_to_code)  
+    = _locales_build_utils::get_target_structs_from_cldr_for_tag($tag, @root) or die "Could not get data for '$tag'";
+    
+_locales_build_utils::write_language_module($tag, $lang_code_to_name, $lang_name_to_code, $lang_misc_info);
+
+_locales_build_utils::write_territory_module($tag, $terr_code_to_name, $terr_name_to_code);
+
+_locales_build_utils::write_locale_test($tag);

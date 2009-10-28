@@ -1,87 +1,26 @@
-INTRODUCTION
+Locales version 0.6
 
-The premise of the Locales:: package is simply to offer an internationalized
-version of the Locale:: package.  The modules (Language and Country so far)
-themselves are available in localized subpackages.  That is, you
-can get Language and Country names back in something other than English.
+DOCUMENTATION
 
-At this time the package should be considered experimental.  POD documentation
-is forth coming and should appear in the next release, the scripts in the
-"examples/" directory presently serve as a reference.  The scripts in this
-directory also indicate the extent of testing.
+See POD for documentation.
 
+INSTALLATION
 
-USAGE
+To install this module, run the following commands:
 
-The Locales::Language module (and others) may be used just like the
-Locale::Language module, but you can pass your desired language at import
-time to set it as a default:
+	perl Makefile.PL
+	make
+	make test
+	make install
 
-  use Locales::Language ( "fr" );
+DEPENDENCIES
 
-  print code2language ( "en" ), "\n";  # prints "Anglais"
+See DEPENDENCIES section in POD, 'requires' key in Build.PL, 
+or 'PREREQ_PM' key in Makefile.PL
 
-The Locale module can also be used with an OO interface:
+COPYRIGHT AND LICENCE
 
-  require Locales::Language;  # uses the envirornment locale
+Copyright (C) 2009, Daniel Muey
 
-  my $fr = new Locales::Language ( "fr" );
-  print $fr->code2language ( "en" ), "\n";  # prints "Anglais"
-
-Much of the pacakge's complexity is owed in part to maintaining both
-an OO and functional interfaces.
-
-The language modules can themselves be used directly to instantiate
-objects, but do not export any functions.
-
-
-  require Locales::Language::de;
-  require Locales::Language::fr;
-
-  my $de = new Locales::Language::de;
-  my $fr = new Locales::Language::fr;
-
-  print $de->code2language ( "en" ), "\n";  # prints "Englisch"
-  print $fr->code2language ( "en" ), "\n";  # prints "Anglais"
-
-
-LANGUAGES & RELIABILITY
-
-The data used in Locales:: comes directly from the ICU CVS repository:
-
-  http://oss.software.ibm.com/cvs/icu/locale/icu/xml/
-
-That URL is now stale, their site has moved to http://www.icu-project.org/
-
-When the data is updated from the new location/a new location this blurb will be updated.
-
-Supported languages at this time are:
-
-  am, de, el, en, es, fa, fi, fr, hi, ja, ko, ru & zh
-
-
-DIFFERENCES FROM Locale::
-
-  * Not limited to English.
-  * Presently only the ::Country and ::Language modules are provided.
-  * OO Interface available.
-  * Should consume less memory than Locale:: as hash data is linked
-    instead of copied.
-  
-
-WHY NOT INTEGRATE INTO Locale:: ?
-
-Tried that, but the maintainer has yet to respond to such inquiries
-(nudge, nudge).
-
-
-TODO
-
-  * Write the POD.
-  * Test (much) more thoroughly.
-  * Add the ISO 639 Alpha 3 language codes (why are they missing)?
-  * Test on older Perl (tried only on 5.8.0).
-  * Add more ICU packages.
-  * Port the Locale::Currency and Locale::Script modules.  Non-English
-    data may be harder to come by, but if nothing else the English
-    data is at least available through an OO interface.
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.

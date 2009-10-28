@@ -1,5 +1,6 @@
 package Locales::Country::Base;
 
+no warnings;
 
 BEGIN
 {

@@ -72,6 +72,11 @@ my ($self, $arg) = Locales::Base::_getSelf ( @_ );
 
 __END__
 
+=head1 THIS MODULE IS DEPRECATED
+
+This POD documents the deprecated legacy system (pre v0.06)
+
+New code should use the more modern, efficient, and CLDR based L<Locales> object system.
 
 =head1 NAME
 

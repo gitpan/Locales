@@ -1,0 +1,15 @@
+How to update:
+
+0) get latest CLDR from http://cldr.unicode.org/index/downloads
+
+1) update $Locales::CLDR_VERSION && $Locales::VERSION
+
+2) build modules out of CLDR, something like this:
+
+   ./_build/cldr2locales ../Downloads/
+   
+../Downloads/ == path to downloaded and extracted CLDR core (should contain 'common/main' dir)
+
+3) do any other changes
+
+4) build
