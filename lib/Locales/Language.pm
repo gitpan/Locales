@@ -80,7 +80,7 @@ New code should use the more modern, efficient, and CLDR based L<Locales> object
 
 =head1 NAME
 
-Locales::Language - ISO two letter codes for language identification (ISO 639)
+Locales::Language - (DEPRECATED use L<Locales> instead) ISO two letter codes for language identification (ISO 639)
 
 =head1 SYNOPSIS
 

@@ -27,7 +27,7 @@ New code should use the more modern, efficient, and CLDR based L<Locales> object
 
 =head1 NAME
 
-Locales::Language::el - ISO 639 Language Codes in Greek.
+Locales::Language::el - (DEPRECATED use L<Locales> instead) ISO 639 Language Codes in Greek.
 
 =head1 SYNOPSIS
 

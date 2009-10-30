@@ -27,7 +27,7 @@ New code should use the more modern, efficient, and CLDR based L<Locales> object
 
 =head1 NAME
 
-Locales::Language::fr - ISO 639 Language Codes in French.
+Locales::Language::fr - (DEPRECATED use L<Locales> instead) ISO 639 Language Codes in French.
 
 =head1 SYNOPSIS
 

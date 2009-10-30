@@ -27,7 +27,7 @@ New code should use the more modern, efficient, and CLDR based L<Locales> object
 
 =head1 NAME
 
-Locales::Language::ja - ISO 639 Language Codes in Japanese.
+Locales::Language::ja - (DEPRECATED use L<Locales> instead) ISO 639 Language Codes in Japanese.
 
 =head1 SYNOPSIS
 

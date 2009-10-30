@@ -1,3 +1,11 @@
+0.07  Thu Oct 29 09:40:21 2009
+    - add get_native_language_from_code() method
+    - POD tweaks
+    - fix up t/pod-coverage.t to avoid checking aods w/ out POD (i.e. the DB modules)
+    - Added deprecation message to NAME part of all Locales::Base based modules's POD
+    - add digits to normalization functions
+    - improved key normalization
+    
 0.06  Wed Oct 28 14:37:54 2009
     - Added a new, more efficient, and standard CLDR based Locales.pm object system 
       (does not use any of the original Locales::Base based modules && doesn't die())

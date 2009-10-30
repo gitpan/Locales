@@ -27,7 +27,7 @@ New code should use the more modern, efficient, and CLDR based L<Locales> object
 
 =head1 NAME
 
-Locales::Language::am - ISO 639 Language Codes in Amharic.
+Locales::Language::am - (DEPRECATED use L<Locales> instead) ISO 639 Language Codes in Amharic.
 
 =head1 SYNOPSIS
 

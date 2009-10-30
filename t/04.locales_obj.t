@@ -1,4 +1,4 @@
-use Test::More tests => 41;
+use Test::More tests => 53;
 
 use lib 'lib', '../lib';
 
@@ -7,7 +7,9 @@ BEGIN {
 }
 
 use Locales::DB::Language::ja;
+use Locales::DB::Language::fr;
 use Locales::DB::Territory::en_au;
+use Locales::DB::Territory::en;
 
 ## functions ##
 
@@ -20,6 +22,12 @@ use Locales::DB::Territory::en_au;
 my $no_arg = Locales->new();
 my $en = Locales->new('en');
 my $fr = Locales->new('fr');
+
+ok($en->get_native_language_from_code('en') eq $Locales::DB::Language::en::code_to_name{'en'}, 'get_native_language_from_code() 1 w/ en');
+ok($en->get_native_language_from_code('fr') eq $Locales::DB::Language::fr::code_to_name{'fr'}, 'get_native_language_from_code() 2 w/ en');
+ok($fr->get_native_language_from_code('en') eq $Locales::DB::Language::en::code_to_name{'en'}, 'get_native_language_from_code() 1 w/ non-en');
+ok($fr->get_native_language_from_code('fr') eq $Locales::DB::Language::fr::code_to_name{'fr'}, 'get_native_language_from_code() 2 w/ non-en');
+
 my $xx = Locales->new('adfvddsfvsdfv');
 ok($@, '$@ is set after invalid arg');
 ok(!$xx, 'new() returns false on invalid arg');
@@ -71,9 +79,20 @@ ok($en->get_language_from_code('yyyy_zzzzz',1) eq 'yyyy_zzzzz', 'get_language_fr
 ok($en->get_language_from_code('en_zzzzz',1) eq "$Locales::DB::Language::en::code_to_name{'en'} (zzzzz)", 'get_language_from_code() + known lang & unknown territory + always_return');
 ok($en->get_language_from_code('yyyy_us',1) eq "yyyy ($Locales::DB::Territory::en::code_to_name{'us'})", 'get_language_from_code() + unknown lang & known territory + always_return');
 
+ok($en->get_native_language_from_code('yyyy',1) eq $en->get_language_from_code('yyyy',1), 'get_language_from_code() + unknown lang only + always_return');
+ok($en->get_native_language_from_code('yyyy_zzzzz',1) eq $en->get_language_from_code('yyyy_zzzzz',1), 'get_language_from_code() + unknown lang & unknown territory + always_return');
+ok($en->get_native_language_from_code('en_zzzzz',1) eq $en->get_language_from_code('en_zzzzz',1), 'get_language_from_code() + known lang & unknown territory + always_return');
+ok($en->get_native_language_from_code('yyyy_us',1) eq $en->get_language_from_code('yyyy_us',1), 'get_language_from_code() + unknown lang & known territory + always_return');
+
+ok($fr->get_native_language_from_code('yyyy',1) eq $fr->get_language_from_code('yyyy',1), 'get_language_from_code() + unknown lang only + always_return');
+ok($fr->get_native_language_from_code('yyyy_zzzzz',1) eq $fr->get_language_from_code('yyyy_zzzzz',1), 'get_language_from_code() + unknown lang & unknown territory + always_return');
+ok($fr->get_native_language_from_code('fr_zzzzz',1) eq $fr->get_language_from_code('fr_zzzzz',1), 'get_language_from_code() + known lang & unknown territory + always_return');
+ok($fr->get_native_language_from_code('yyyy_us',1) eq $fr->get_language_from_code('yyyy_us',1), 'get_language_from_code() + unknown lang & known territory + always_return');
+
 ok(\&Locales::code2language eq \&Locales::get_language_from_code, 'code2language aliases get_language_from_code');
 ok(\&Locales::language2code eq \&Locales::get_code_from_language, 'language2code aliases get_code_from_language');
 
 # misc_info
 my $ja = Locales->new('ja'); # ja ='{0}({1})' not '{0} ({1})'
+diag($ja->get_language_from_code('en_zzzzz',1));
 ok($ja->get_language_from_code('en_zzzzz',1) eq "$Locales::DB::Language::ja::code_to_name{'en'}(zzzzz)", 'get_language_from_code() unknown part pattern');

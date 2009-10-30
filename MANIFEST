@@ -44,11 +44,11 @@ lib/Locales/Country/zh.pm
 t/01language.t
 t/02country.t
 t/00.load.t
-t/perlcritic.t
 t/pod-coverage.t
 t/pod.t
 t/03.cldr_db.t 
 t/04.locales_obj.t
+
 lib/Locales/DB/Language/en.pm
 lib/Locales/DB/Territory/en.pm
 t/042.en.t
@@ -514,4 +514,5 @@ t/042.zh.t
 lib/Locales/DB/Language/zu.pm
 lib/Locales/DB/Territory/zu.pm
 t/042.zu.t
+lib/Locales/DB/Native.pm
 META.yml                                 Module meta-data (added by MakeMaker)

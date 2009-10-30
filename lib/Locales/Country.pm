@@ -84,7 +84,7 @@ New code should use the more modern, efficient, and CLDR based L<Locales> object
 
 =head1 NAME
 
-Locales::Country - ISO codes for country identification (ISO 3166)
+Locales::Country - (DEPRECATED use L<Locales> instead) ISO codes for country identification (ISO 3166)
 
 =head1 SYNOPSIS
 

@@ -27,7 +27,7 @@ New code should use the more modern, efficient, and CLDR based L<Locales> object
 
 =head1 NAME
 
-Locales::Language::ru - ISO 639 Language Codes in Russian.
+Locales::Language::ru - (DEPRECATED use L<Locales> instead) ISO 639 Language Codes in Russian.
 
 =head1 SYNOPSIS
 

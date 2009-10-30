@@ -22,7 +22,7 @@ New code should use the more modern, efficient, and CLDR based L<Locales> object
 
 =head1 NAME
 
-Locales::Country::am - ISO 3166-1 Country Codes in Amharic.
+Locales::Country::am - (DEPRECATED use L<Locales> instead) ISO 3166-1 Country Codes in Amharic.
 
 =head1 SYNOPSIS
 

@@ -27,7 +27,7 @@ New code should use the more modern, efficient, and CLDR based L<Locales> object
 
 =head1 NAME
 
-Locales::Language::es - ISO 639 Language Codes in Spanish.
+Locales::Language::es - (DEPRECATED use L<Locales> instead) ISO 639 Language Codes in Spanish.
 
 =head1 SYNOPSIS
 

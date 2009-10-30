@@ -27,7 +27,7 @@ New code should use the more modern, efficient, and CLDR based L<Locales> object
 
 =head1 NAME
 
-Locales::Language::en - ISO 639 Language Codes in English.
+Locales::Language::en - (DEPRECATED use L<Locales> instead) ISO 639 Language Codes in English.
 
 =head1 SYNOPSIS
 

@@ -7,12 +7,6 @@ use lib Cwd::realpath('lib');
 use Locales;
 use File::Slurp;
 
-my $mod_version  = $Locales::VERSION - 0.05;
-my $cldr_version = $Locales::cldr_version;
-my $cldr_db_path;
-my $locales_db;
-my $manifest;
-
 use Data::Dumper;
 $Data::Dumper::Terse    = 1;
 $Data::Dumper::Sortkeys = 1;
@@ -25,6 +19,12 @@ $Data::Dumper::Useqq = 1;
         return $s ne $q ? qq{"$q"} : qq{'$s'};
     }
 }
+
+my $mod_version  = $Locales::VERSION - 0.06;
+my $cldr_version = $Locales::cldr_version;
+my $cldr_db_path;
+my $locales_db;
+my $manifest;
 
 sub init_paths_from_argv {
     die "no CLDR path given" if !-d "$ARGV[0]/common/main";
@@ -280,12 +280,39 @@ my \%terr_lu;
 \@lang_lu{ \@my_lang_codes } = ();
 \@terr_lu{ \@my_terr_codes } = ();
 ok(\$Locales::DB::Language::$tag\::cldr_version eq \$Locales::cldr_version, 'CLDR version is correct');
-ok(\$Locales::DB::Language::$tag\::VERSION eq (\$Locales::VERSION - 0.05), 'VERSION is correct');
+ok(\$Locales::DB::Language::$tag\::VERSION eq (\$Locales::VERSION - 0.06), 'VERSION is correct');
 
 ok(!(grep {!exists \$lang_lu{\$_} } \@en_lang_codes), '$tag languages contains en');
 ok(!(grep {!exists \$terr_lu{\$_} } \@en_terr_codes), '$tag territories contains en');
         },
         "t/042.$tag.t", 
+    );
+}
+
+sub write_native_module {
+    my ($native_map, $fallback_lookup) = @_;
+
+    my $code_to_name_str    = _stringify_hash_no_dumper($native_map);    
+    my $fallback_lookup_str = _stringify_hash_no_dumper($fallback_lookup);
+
+    _write_utf8_perl("$locales_db/Native.pm", qq{package Locales::DB::Native;
+
+# Auto generated from CLDR
+
+\$Locales::DB::Native::VERSION = '$mod_version';
+
+\$Locales::DB::Native::cldr_version = '$cldr_version';
+
+\%Locales::DB::Native::code_to_name = ( 
+$code_to_name_str);
+
+\%Locales::DB::Native::value_is_fallback = (
+$fallback_lookup_str);
+
+1;    
+},
+        'lib/Locales/DB/Native.pm', 
+        1,
     );
 }
 
@@ -313,17 +340,33 @@ END_CL
 }
 
 sub _write_utf8_perl {
-    my ($file, $guts, $mani) = @_;
+    my ($file, $guts, $mani, $open_plain) = @_;
     
-    open( my $fh, '>:utf8', $file ) or die "Could not open '$file': $!";
+    my $open  = $open_plain ? '>' : '>:utf8'; #:utf8 breaks Native.pm
+
+    open( my $fh, $open, $file ) or die "Could not open '$file': $!";
     print {$fh} $guts;
     close $fh;
-    
+
     system (qw(perltidy -b), $file) == 0 || die "perltidy failed, '$file' probably has syntax errors";
     
     unlink "$file.bak";
     
     append_file($manifest, $mani ? "$mani\n" : "lib/Locales/DB/$file\n");
+}
+
+sub _stringify_hash_no_dumper {
+    my $string;
+    for my $k (keys %{ $_[0] }) {
+        my $qk = $k;
+        my $qv = $_[0]->{$k};
+        $qk =~ s{\'}{\\\'}g;
+        $qv =~ s{\'}{\\\'}g;
+        my $ky = $k ne $qk ? qq{"$qk"} : qq{'$k'};
+        my $vl = $_[0]->{$k} ne $qv ? qq{"$qv"} : qq{'$_[0]->{$k}'};
+        $string .= "$ky => $vl,\n";
+    }
+    return $string;
 }
 
 sub _stringify_hash {

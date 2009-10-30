@@ -27,7 +27,7 @@ New code should use the more modern, efficient, and CLDR based L<Locales> object
 
 =head1 NAME
 
-Locales::Language::ko - ISO 639 Language Codes in Korean.
+Locales::Language::ko - (DEPRECATED use L<Locales> instead) ISO 639 Language Codes in Korean.
 
 =head1 SYNOPSIS
 

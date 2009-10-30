@@ -1,6 +1,6 @@
 package Locales;
 
-$Locales::VERSION      = '0.06';
+$Locales::VERSION      = '0.07';
 $Locales::cldr_version = '1.7.1';
 
 #### class methods ####
@@ -51,6 +51,56 @@ sub get_locale { shift->{'locale'} }
 sub get_territory { shift->{'territory'} }
 
 sub get_language { shift->{'language'} }
+
+sub get_native_language_from_code {
+    my ($self, $code, $always_return) = @_;
+    
+    my $class = ref($self) ? ref($self) : $self;
+    if (!exists $locale->{'native_data'}) {
+        eval "require $class\::DB::Native;" || return;
+        no strict 'refs';
+        $self->{'native_data'} = {
+            'VERSION'      => \${"$class\::DB::Native::VERSION"},
+            'cldr_version' => \${"$class\::DB::Native::cldr_version"},
+            'code_to_name' => \%{"$class\::DB::Native::code_to_name"},
+        };
+    }
+
+    $always_return ||= 0;
+    $code ||= $self->{'locale'};
+    $code = normalize_tag($code);
+    return if !defined $code;
+    
+    if (exists $self->{'native_data'}{'code_to_name'}{$code}) {
+        return $self->{'native_data'}{'code_to_name'}{$code};
+    }
+    elsif($always_return) {
+        my ($l,$t) = split_tag($code);
+        my $ln = $self->{'native_data'}{'code_to_name'}{$l};
+        my $tn = defined $t ? $self->{'territory_data'}{'code_to_name'}{$t} : '';
+
+        return $code if !$ln && !$tn;
+        
+        if (defined $t) {
+            my $tmp = Locales->new($l); # if we even get to this point: this is a singleton so it is cheap
+            if ($tmp) {
+                if ($tmp->get_territory_from_code($t)) {
+                    $tn = $tmp->get_territory_from_code($t);
+                }
+            }
+        }
+        
+        $ln ||= $l;
+        $tn ||= $t;
+        
+        my $string = $self->{'language_data'}{'misc_info'}{'cldr_formats'}{'locale'} || '{0} ({1})';
+        $string =~ s/\{0\}/$ln/g;
+        $string =~ s/\{1\}/$tn/g;
+        
+        return $string;
+    }
+    return;
+}
 
 #### territory ####
 
@@ -159,7 +209,7 @@ sub normalize_tag {
     return if !defined $tag;
     $tag =~ tr/A-Z/a-z/;
     $tag =~ s{\s+}{}g;
-    $tag =~ s{[^a-z]+}{_}g;
+    $tag =~ s{[^a-z0-9]+}{_}g;
     return $tag;
 }
 
@@ -167,10 +217,11 @@ sub normalize_for_key_lookup {
     my $key = $_[0];
     return if !defined $key;
     $key =~ tr/A-Z/a-z/; # lowercase
-    $key =~ s{^\s+}{};   # trim WS from begining
-    $key =~ s{\s+$}{};   # trim WS from end
-    $key =~ s{\s+}{ };   # collapse multi WS to one space
-    $key =~ s{[^a-z\ ]+}{}g; 
+    # $key =~ s{^\s+}{};   # trim WS from begining
+    # $key =~ s{\s+$}{};   # trim WS from end
+    # $key =~ s{\s+}{ }g;   # collapse multi WS to one space
+    $key =~ s{\s+}{}g; 
+    $key =~ s{[\'\"\-\(\)\[\]\_]+}{}g; 
     return $key;
 }
 
@@ -184,7 +235,7 @@ Locales - Methods for getting localized CLDR language/territory names (and a sub
 
 =head1 VERSION
 
-This document describes Locales version 0.6
+This document describes Locales version 0.07
 
 =head1 SYNOPSIS
 
@@ -212,9 +263,9 @@ Currently the data/methods include translated locale names and territory names.
 
 For simplicity Locales does not work with or know about Variants or Scripts. It only knows about languages and territories.
 
-Also it does not conatin all the data contained in CLDR. For example, L<DateTime>'s localization already has all the calender/date/timeinfo from CLDR. Other information has not proven as useful yet.
+Also it does not conatin all the data contained in CLDR. For example, L<DateTime>'s localization already has all the calender/date/time info from CLDR. Other information has not had any demand yet.
 
-For consistency all data is written in utf-8. No conversion should be necessary if you are (wisely) using utf-8.
+For consistency all data is written in utf-8. No conversion should be necessary if you are (wisely) using utf-8 as your character set everywhere (See L<http://drmuey.com\/?do=page&id=57> for more info on that.).
 
 Note: You probably [don't need to/should not] use L<utf8> in regards to the data contained herein.
 
@@ -328,6 +379,10 @@ Takes one argument, the language name whose locale you want to find.
 
 Returns the locale tag if found, false otherwise.
 
+=item get_native_language_from_code()
+
+Like get_language_from_code() except it returns the name in the given locale's native language.
+
 =item code2language()
 
 Alias for get_language_from_code()
@@ -362,7 +417,7 @@ Returns the resulting array of 1 or 2 normalized (but not validated) items.
    
    my ($language, $territory) = Locales::split_tag('fr'); # ('fr');
    
-   my ($language, $territory) = Locales::split_tag('sr_Cyrl_YU'); # ('sr','cyrl_yu'), yes 'cyrl_yu' is invalid, good catch
+   my ($language, $territory) = Locales::split_tag('sr_Cyrl_YU'); # ('sr','cyrl_yu'), yes 'cyrl_yu' is invalid here since Locales doesn't work with the Script variants, good catch
 
 =item Locales::get_i_tag_for_string()
 
@@ -422,8 +477,6 @@ None reported.
 
 =head1 TODO
 
-TODO:
- 
   - CLDR builder TODOs
   - CLDR version /misc info fetchers
   - improve get_code_from_* lookups
@@ -443,17 +496,17 @@ Please read TODO, DESCRIPTION, and the information below thouroughly to see if y
 
 =over 4
 
-=item A non-English object returns English names.
+=item * A non-English object returns English names.
 
 Data that is not defined in a locale's CLDR data falls back to English.
 
 Please report the missing data to the CLDR.
 
-=item I am using a locale code that I know exists in the CLDR but I can't use it anywhere in Locales
+=item * I am using a locale code that I know exists in the CLDR but I can't use it anywhere in Locales
 
 Only locales and territory codes that 'en' knows about are used. Only locales that have their own data set in CLDR are able to be objectified.
 
-=item A name is misformatted, incorrect, etc.
+=item * A name is misformatted, incorrect, etc.
 
 The data is automatically harvested from CLDR, you'll have to report the problem to them.
 

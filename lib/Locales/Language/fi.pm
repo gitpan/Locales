@@ -27,7 +27,7 @@ New code should use the more modern, efficient, and CLDR based L<Locales> object
 
 =head1 NAME
 
-Locales::Language::fi - ISO 639 Language Codes in Finnish.
+Locales::Language::fi - (DEPRECATED use L<Locales> instead) ISO 639 Language Codes in Finnish.
 
 =head1 SYNOPSIS
 

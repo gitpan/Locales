@@ -27,7 +27,7 @@ New code should use the more modern, efficient, and CLDR based L<Locales> object
 
 =head1 NAME
 
-Locales::Language::fa - ISO 639 Language Codes in Persian.
+Locales::Language::fa - (DEPRECATED use L<Locales> instead) ISO 639 Language Codes in Persian.
 
 =head1 SYNOPSIS
 

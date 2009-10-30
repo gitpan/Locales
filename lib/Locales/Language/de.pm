@@ -27,7 +27,7 @@ New code should use the more modern, efficient, and CLDR based L<Locales> object
 
 =head1 NAME
 
-Locales::Language::de - ISO 639 Language Codes in German.
+Locales::Language::de - (DEPRECATED use L<Locales> instead) ISO 639 Language Codes in German.
 
 =head1 SYNOPSIS
 

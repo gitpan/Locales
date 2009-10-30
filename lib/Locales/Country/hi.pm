@@ -22,7 +22,7 @@ New code should use the more modern, efficient, and CLDR based L<Locales> object
 
 =head1 NAME
 
-Locales::Country::hi - ISO 3166-1 Country Codes in Hindi.
+Locales::Country::hi - (DEPRECATED use L<Locales> instead) ISO 3166-1 Country Codes in Hindi.
 
 =head1 SYNOPSIS
 

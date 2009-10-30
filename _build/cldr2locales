@@ -10,12 +10,29 @@ system('./_build/cldr2en', $cldr_db_path, $locales_db) == 0 || die "Could not bu
 
 require Locales::DB::Language::en;
 
+my $native_map = {
+    'en' => $Locales::DB::Language::en::code_to_name{'en'},
+};
+my %isfallback;
+
 for my $tag (sort keys %Locales::DB::Language::en::code_to_name) {
     next if $tag eq 'en';
     print "Starting '$tag' ...\n";
-    next if !_locales_build_utils::get_xml_file_for($tag);
-    system('./_build/en2mod', $cldr_db_path, $locales_db, $tag) == 0 || die "Could not build '$tag'";
+    if (_locales_build_utils::get_xml_file_for($tag)) {
+        system('./_build/en2mod', $cldr_db_path, $locales_db, $tag) == 0 || die "Could not build '$tag'";
+    }
+    
+    if (my $loc = Locales->new($tag)) {
+        
+        $native_map->{$tag} = $loc->get_language_from_code($tag);
+    }
+    else {
+        $native_map->{$tag} = $Locales::DB::Language::en::code_to_name{$tag}; # default to 'en' since $tag has not data in CLDR
+        $isfallback->{$tag} = 1;
+    }
 }
+
+_locales_build_utils::write_native_module($native_map, $isfallback);
 
 _locales_build_utils::build_manifest();
 

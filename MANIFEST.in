@@ -44,8 +44,8 @@ lib/Locales/Country/zh.pm
 t/01language.t
 t/02country.t
 t/00.load.t
-t/perlcritic.t
 t/pod-coverage.t
 t/pod.t
 t/03.cldr_db.t 
 t/04.locales_obj.t
+

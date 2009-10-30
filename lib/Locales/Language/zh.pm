@@ -27,7 +27,7 @@ New code should use the more modern, efficient, and CLDR based L<Locales> object
 
 =head1 NAME
 
-Locales::Language::zh - ISO 639 Language Codes in Chinese.
+Locales::Language::zh - (DEPRECATED use L<Locales> instead) ISO 639 Language Codes in Chinese.
 
 =head1 SYNOPSIS
 
