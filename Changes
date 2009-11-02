@@ -1,3 +1,6 @@
+0.08  Mon Nov  2 09:54:03 2009
+    - skipped tests for deprecated system since they were broken on some systems and are not longer needed
+
 0.07  Thu Oct 29 09:40:21 2009
     - add get_native_language_from_code() method
     - POD tweaks

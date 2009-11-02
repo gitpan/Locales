@@ -1,6 +1,6 @@
 package Locales;
 
-$Locales::VERSION      = '0.07';
+$Locales::VERSION      = '0.08';
 $Locales::cldr_version = '1.7.1';
 
 #### class methods ####
@@ -235,7 +235,7 @@ Locales - Methods for getting localized CLDR language/territory names (and a sub
 
 =head1 VERSION
 
-This document describes Locales version 0.07
+This document describes Locales version 0.08
 
 =head1 SYNOPSIS
 

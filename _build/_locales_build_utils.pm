@@ -20,7 +20,8 @@ $Data::Dumper::Useqq = 1;
     }
 }
 
-my $mod_version  = $Locales::VERSION - 0.06;
+my $v_offset = '0.07';
+my $mod_version  = $Locales::VERSION - $v_offset;
 my $cldr_version = $Locales::cldr_version;
 my $cldr_db_path;
 my $locales_db;
@@ -280,7 +281,7 @@ my \%terr_lu;
 \@lang_lu{ \@my_lang_codes } = ();
 \@terr_lu{ \@my_terr_codes } = ();
 ok(\$Locales::DB::Language::$tag\::cldr_version eq \$Locales::cldr_version, 'CLDR version is correct');
-ok(\$Locales::DB::Language::$tag\::VERSION eq (\$Locales::VERSION - 0.06), 'VERSION is correct');
+ok(\$Locales::DB::Language::$tag\::VERSION eq (\$Locales::VERSION - $v_offset), 'VERSION is correct');
 
 ok(!(grep {!exists \$lang_lu{\$_} } \@en_lang_codes), '$tag languages contains en');
 ok(!(grep {!exists \$terr_lu{\$_} } \@en_terr_codes), '$tag territories contains en');
