@@ -1,7 +1,7 @@
 package Locales;
 
-$Locales::VERSION      = '0.08';
-$Locales::cldr_version = '1.7.1';
+$Locales::VERSION      = '0.09';  # change in POD
+$Locales::cldr_version = '1.7.1'; # change in POD
 
 #### class methods ####
 
@@ -98,6 +98,38 @@ sub get_native_language_from_code {
         $string =~ s/\{1\}/$tn/g;
         
         return $string;
+    }
+    return;
+}
+
+sub get_character_orientation_from_code {
+    my ($self, $code, $always_return) = @_;
+    
+    my $class = ref($self) ? ref($self) : $self;
+    if (!exists $locale->{'character_orientation_data'}) {
+        eval "require $class\::DB::CharacterOrientation;" || return;
+        no strict 'refs';
+        $self->{'character_orientation_data'} = {
+            'VERSION'      => \${"$class\::DB::CharacterOrientation::VERSION"},
+            'cldr_version' => \${"$class\::DB::CharacterOrientation::cldr_version"},
+            'code_to_name' => \%{"$class\::DB::CharacterOrientation::code_to_name"},
+        };
+    }
+
+    $always_return ||= 0;
+    $code ||= $self->{'locale'};
+    $code = normalize_tag($code);
+    return if !defined $code;
+    
+    if (exists $self->{'character_orientation_data'}{'code_to_name'}{$code}) {
+        return $self->{'character_orientation_data'}{'code_to_name'}{$code};
+    }
+    elsif($always_return) {
+        my ($l,$t) = split_tag($code);
+        if ( exists $self->{'character_orientation_data'}{'code_to_name'}{$l} ) {
+            return  $self->{'character_orientation_data'}{'code_to_name'}{$l};
+        }
+        return 'left-to-right';
     }
     return;
 }
@@ -235,7 +267,7 @@ Locales - Methods for getting localized CLDR language/territory names (and a sub
 
 =head1 VERSION
 
-This document describes Locales version 0.08
+This document describes Locales version 0.09
 
 =head1 SYNOPSIS
 
@@ -269,6 +301,10 @@ For consistency all data is written in utf-8. No conversion should be necessary 
 
 Note: You probably [don't need to/should not] use L<utf8> in regards to the data contained herein.
 
+=head1 Based on CLDR 1.7.1
+
+You can learn about the Unicode Common Locale Data Repository at L<http://cldr.unicode.org/>
+
 =head1 INTERFACE 
 
 =head2 new()
@@ -287,7 +323,7 @@ It returns false if a locale given is not vailable. $@ should have been set at t
 
 =head3 Misc methods
 
-=over
+=over 4
 
 =item get_locale()
 
@@ -382,6 +418,14 @@ Returns the locale tag if found, false otherwise.
 =item get_native_language_from_code()
 
 Like get_language_from_code() except it returns the name in the given locale's native language.
+
+=item get_character_orientation_from_code()
+
+Like get_language_from_code() except it returns the character orientation identifier for the given locale.
+
+Typically it will be the string 'left-to-right' or 'right-to-left'.
+
+See L<http://unicode.org/repos/cldr-tmp/trunk/diff/by_type/misc.layout.html> for more information.
 
 =item code2language()
 
@@ -478,17 +522,19 @@ None reported.
 =head1 TODO
 
   - CLDR builder TODOs
-  - CLDR version /misc info fetchers
-  - improve get_code_from_* lookups
-  - POD the proper way to report missing or invalid data to the CLDR project
+  - more CLDR version/misc-info fetchers
+  - generally improve get_code_from_* lookups
 
 =head1 BUGS AND LIMITATIONS
 
 No bugs have been reported.
 
-Please report any bugs or feature requests to
+Please report any bugs or feature requests regarding the Locales modules to
 C<bug-locales@rt.cpan.org>, or through the web interface at
 L<http://rt.cpan.org>.
+
+Please report any bugs or feature requests regarding CLDR data as per 
+L<http://cldr.unicode.org/index/bug-reports>.
 
 =head2 BEFORE YOU SUBMIT A BUG REPORT
 
@@ -500,15 +546,66 @@ Please read TODO, DESCRIPTION, and the information below thouroughly to see if y
 
 Data that is not defined in a locale's CLDR data falls back to English.
 
-Please report the missing data to the CLDR.
+Please report the missing data to the CLDR as per L<http://cldr.unicode.org/index/bug-reports>.
 
 =item * I am using a locale code that I know exists in the CLDR but I can't use it anywhere in Locales
 
 Only locales and territory codes that 'en' knows about are used. Only locales that have their own data set in CLDR are able to be objectified.
 
+Additions or updates can be request as per L<http://cldr.unicode.org/index/bug-reports>.
+
 =item * A name is misformatted, incorrect, etc.
 
-The data is automatically harvested from CLDR, you'll have to report the problem to them.
+
+The data is automatically harvested from CLDR. So if there is really a problem you'll have to report the problem to them. (as per L<http://cldr.unicode.org/index/bug-reports>)
+
+Here are some things to check before submitting a report:
+
+=over 4
+
+=item * Corrupt text
+
+=over 4
+
+=item * Is your charset correct?
+
+For example, viewing UTF-8 characters on a latin1 web page will result in garbled characters.
+
+=item * It still looks corrupt!
+
+Some locale's require special fonts to be installed on your system to view them properly.
+
+For example Bengali (bn) is like this. As per L<http://www.unicode.org/help/display_problems.html> if you install the proper font it renders correctly.
+
+=back
+
+=item * Incorrect data or formatting
+
+=over 4
+
+=item * Is it really inaccurate?
+
+It could simply be an incomplete understanding of the context of the data, for example:
+
+In English we capitalize proper names (e.g. French).
+
+In other languages it may be prefectly acceptable for a language or territory name to not start with upper case letters.
+
+In that case a report about names not being capitalized like we do in English would be unwarranted.
+
+=item * Is it really mis-formatted?
+
+Sometimes soemthing might look strange to us and we'd be tempted to report the problem. Keep in mind though that sometimes locale nuances can cause things to render in a way that non-native speakers may not understand. 
+
+For example Arabic's (ar) right-to-left text direction can seem strange when mixed with latin text. It's simply not wrong. You may be able to improve it by using the direction data to render it better (e.g. CSS or HTML attributes if the output is HTML).
+
+Also, CLDR pattern formats can differ per locale.
+
+In cases like this a report would be unwarranted.
+
+=back
+
+=back
 
 =back
 

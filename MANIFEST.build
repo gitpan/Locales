@@ -464,3 +464,4 @@ lib/Locales/DB/Language/zu.pm
 lib/Locales/DB/Territory/zu.pm
 t/042.zu.t
 lib/Locales/DB/Native.pm
+lib/Locales/DB/CharacterOrientation.pm

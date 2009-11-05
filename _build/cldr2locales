@@ -10,6 +10,9 @@ system('./_build/cldr2en', $cldr_db_path, $locales_db) == 0 || die "Could not bu
 
 require Locales::DB::Language::en;
 
+my $text_direction_map = {
+    'en' => $Locales::DB::Language::en::misc_info{'orientation'}{'characters'},
+};
 my $native_map = {
     'en' => $Locales::DB::Language::en::code_to_name{'en'},
 };
@@ -23,16 +26,20 @@ for my $tag (sort keys %Locales::DB::Language::en::code_to_name) {
     }
     
     if (my $loc = Locales->new($tag)) {
-        
+        no strict 'refs';
+        $text_direction_map->{$tag} = ${"Locales::DB::Language::$tag\::misc_info"}{'orientation'}{'characters'};
         $native_map->{$tag} = $loc->get_language_from_code($tag);
     }
     else {
+        $text_direction_map->{$tag} = $text_direction_map->{'en'}; # default to 'en' since $tag has not data in CLDR
         $native_map->{$tag} = $Locales::DB::Language::en::code_to_name{$tag}; # default to 'en' since $tag has not data in CLDR
         $isfallback->{$tag} = 1;
     }
 }
 
 _locales_build_utils::write_native_module($native_map, $isfallback);
+
+_locales_build_utils::write_character_orientation_module($text_direction_map, $isfallback);
 
 _locales_build_utils::build_manifest();
 

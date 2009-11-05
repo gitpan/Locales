@@ -1,4 +1,4 @@
-use Test::More tests => 53;
+use Test::More tests => 61;
 
 use lib 'lib', '../lib';
 
@@ -10,6 +10,7 @@ use Locales::DB::Language::ja;
 use Locales::DB::Language::fr;
 use Locales::DB::Territory::en_au;
 use Locales::DB::Territory::en;
+use Locales::DB::Language::ar;
 
 ## functions ##
 
@@ -22,11 +23,23 @@ use Locales::DB::Territory::en;
 my $no_arg = Locales->new();
 my $en = Locales->new('en');
 my $fr = Locales->new('fr');
+my $ar = Locales->new('ar');
 
 ok($en->get_native_language_from_code('en') eq $Locales::DB::Language::en::code_to_name{'en'}, 'get_native_language_from_code() 1 w/ en');
 ok($en->get_native_language_from_code('fr') eq $Locales::DB::Language::fr::code_to_name{'fr'}, 'get_native_language_from_code() 2 w/ en');
 ok($fr->get_native_language_from_code('en') eq $Locales::DB::Language::en::code_to_name{'en'}, 'get_native_language_from_code() 1 w/ non-en');
 ok($fr->get_native_language_from_code('fr') eq $Locales::DB::Language::fr::code_to_name{'fr'}, 'get_native_language_from_code() 2 w/ non-en');
+
+ok($en->get_native_language_from_code() eq $Locales::DB::Language::en::code_to_name{'en'}, 'get_native_language_from_code() no-arg w/ en');
+ok($fr->get_native_language_from_code() eq $Locales::DB::Language::fr::code_to_name{'fr'}, 'get_native_language_from_code() no-arg w/ non-en');
+
+ok($en->get_character_orientation_from_code('en') eq $Locales::DB::Language::en::misc_info{'orientation'}{'characters'}, 'get_character_orientation_from_code() 1 w/ en');
+ok($en->get_character_orientation_from_code('ar') eq $Locales::DB::Language::ar::misc_info{'orientation'}{'characters'}, 'get_character_orientation_from_code() 2 w/ en');
+ok($ar->get_character_orientation_from_code('en') eq $Locales::DB::Language::en::misc_info{'orientation'}{'characters'}, 'get_character_orientation_from_code() 1 w/ non-en');
+ok($ar->get_character_orientation_from_code('ar') eq $Locales::DB::Language::ar::misc_info{'orientation'}{'characters'}, 'get_character_orientation_from_code() 2 w/ non-en');
+
+ok($en->get_character_orientation_from_code() eq $Locales::DB::Language::en::misc_info{'orientation'}{'characters'}, 'get_character_orientation_from_code() no-arg w/ en');
+ok($ar->get_character_orientation_from_code() eq $Locales::DB::Language::ar::misc_info{'orientation'}{'characters'}, 'get_character_orientation_from_code() no-arg w/ non-en');
 
 my $xx = Locales->new('adfvddsfvsdfv');
 ok($@, '$@ is set after invalid arg');
@@ -94,5 +107,4 @@ ok(\&Locales::language2code eq \&Locales::get_code_from_language, 'language2code
 
 # misc_info
 my $ja = Locales->new('ja'); # ja ='{0}({1})' not '{0} ({1})'
-diag($ja->get_language_from_code('en_zzzzz',1));
 ok($ja->get_language_from_code('en_zzzzz',1) eq "$Locales::DB::Language::ja::code_to_name{'en'}(zzzzz)", 'get_language_from_code() unknown part pattern');

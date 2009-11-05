@@ -20,7 +20,7 @@ $Data::Dumper::Useqq = 1;
     }
 }
 
-my $v_offset = '0.07';
+my $v_offset = '0.08';
 my $mod_version  = $Locales::VERSION - $v_offset;
 my $cldr_version = $Locales::cldr_version;
 my $cldr_db_path;
@@ -313,6 +313,33 @@ $fallback_lookup_str);
 1;    
 },
         'lib/Locales/DB/Native.pm', 
+        1,
+    );
+}
+
+sub write_character_orientation_module {
+    my ($text_direction_map, $fallback_lookup) = @_;
+
+    my $code_to_name_str    = _stringify_hash_no_dumper($text_direction_map);   
+    my $fallback_lookup_str = _stringify_hash_no_dumper($fallback_lookup);
+    
+    _write_utf8_perl("$locales_db/CharacterOrientation.pm", qq{package Locales::DB::CharacterOrientation;
+
+# Auto generated from CLDR
+
+\$Locales::DB::CharacterOrientation::VERSION = '$mod_version';
+
+\$Locales::DB::CharacterOrientation::cldr_version = '$cldr_version';
+
+\%Locales::DB::CharacterOrientation::code_to_name = ( 
+$code_to_name_str);
+
+\%Locales::DB::CharacterOrientation::value_is_fallback = (
+$fallback_lookup_str);
+
+1;    
+},
+        'lib/Locales/DB/CharacterOrientation.pm', 
         1,
     );
 }
