@@ -2,7 +2,7 @@ package Locales::DB::Language::ny;
 
 # Auto generated from CLDR
 
-$Locales::DB::Language::ny::VERSION = '0.01';
+$Locales::DB::Language::ny::VERSION = '0.02';
 
 $Locales::DB::Language::ny::cldr_version = '1.7.1';
 

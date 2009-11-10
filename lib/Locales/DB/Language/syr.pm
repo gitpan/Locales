@@ -2,7 +2,7 @@ package Locales::DB::Language::syr;
 
 # Auto generated from CLDR
 
-$Locales::DB::Language::syr::VERSION = '0.01';
+$Locales::DB::Language::syr::VERSION = '0.02';
 
 $Locales::DB::Language::syr::cldr_version = '1.7.1';
 

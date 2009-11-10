@@ -2,7 +2,7 @@ package Locales::DB::Language::ky;
 
 # Auto generated from CLDR
 
-$Locales::DB::Language::ky::VERSION = '0.01';
+$Locales::DB::Language::ky::VERSION = '0.02';
 
 $Locales::DB::Language::ky::cldr_version = '1.7.1';
 

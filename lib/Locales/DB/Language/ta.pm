@@ -2,7 +2,7 @@ package Locales::DB::Language::ta;
 
 # Auto generated from CLDR
 
-$Locales::DB::Language::ta::VERSION = '0.01';
+$Locales::DB::Language::ta::VERSION = '0.02';
 
 $Locales::DB::Language::ta::cldr_version = '1.7.1';
 

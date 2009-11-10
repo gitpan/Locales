@@ -226,8 +226,7 @@ sub write_territory_module {
     
     my $code_to_name_str = _stringify_hash($code_to_name);
     my $name_to_code_str = _stringify_hash($name_to_code);
-    
-    my $mod_version = $Locales::VERSION - 0.05;
+
     _write_utf8_perl("Territory/$tag.pm", qq{package Locales::DB::Territory::$tag;
 
 # Auto generated from CLDR

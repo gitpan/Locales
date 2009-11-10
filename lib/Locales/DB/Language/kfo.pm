@@ -2,7 +2,7 @@ package Locales::DB::Language::kfo;
 
 # Auto generated from CLDR
 
-$Locales::DB::Language::kfo::VERSION = '0.01';
+$Locales::DB::Language::kfo::VERSION = '0.02';
 
 $Locales::DB::Language::kfo::cldr_version = '1.7.1';
 

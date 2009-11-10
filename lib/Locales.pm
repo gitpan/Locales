@@ -1,6 +1,6 @@
 package Locales;
 
-$Locales::VERSION      = '0.09';  # change in POD
+$Locales::VERSION      = '0.10';  # change in POD
 $Locales::cldr_version = '1.7.1'; # change in POD
 
 #### class methods ####
@@ -267,17 +267,17 @@ Locales - Methods for getting localized CLDR language/territory names (and a sub
 
 =head1 VERSION
 
-This document describes Locales version 0.09
+This document describes Locales version 0.10
 
 =head1 SYNOPSIS
 
     use Locales;
 
-    my $locale = Locales->new('en_uk');
+    my $locale = Locales->new('en_gb');
     
-    print $locale->get_locale(); # 'en_uk'
+    print $locale->get_locale(); # 'en_gb'
     print $locale->get_language(); # 'en'
-    print $locale->get_territory(); # 'uk'
+    print $locale->get_territory(); # 'gb'
     
     print $locale->get_language_from_code('fr'); # 'French'
     print $locale->get_code_from_language('French'); # 'fr'
@@ -449,7 +449,7 @@ Takes a single argument, the locale tag to normalize.
 
 Returns the normalized tag.
 
-   print Locales::normalize_tag("  en-UK\n "); # 'en_uk'    
+   print Locales::normalize_tag("  en-GB\n "); # 'en_gb'    
 
 =item Locales::split_tag()
 
@@ -457,7 +457,7 @@ Takes a single argument, the locale tag to split into language and territory par
 
 Returns the resulting array of 1 or 2 normalized (but not validated) items.
 
-   my ($language, $territory) = Locales::split_tag("  en-UK\n "); # ('en','uk')
+   my ($language, $territory) = Locales::split_tag("  en-GB\n "); # ('en','gb')
    
    my ($language, $territory) = Locales::split_tag('fr'); # ('fr');
    
@@ -589,7 +589,7 @@ It could simply be an incomplete understanding of the context of the data, for e
 
 In English we capitalize proper names (e.g. French).
 
-In other languages it may be prefectly acceptable for a language or territory name to not start with upper case letters.
+In other languages it may be perfectly acceptable for a language or territory name to not start with upper case letters.
 
 In that case a report about names not being capitalized like we do in English would be unwarranted.
 

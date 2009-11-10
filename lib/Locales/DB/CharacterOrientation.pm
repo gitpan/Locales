@@ -2,7 +2,7 @@ package Locales::DB::CharacterOrientation;
 
 # Auto generated from CLDR
 
-$Locales::DB::CharacterOrientation::VERSION = '0.01';
+$Locales::DB::CharacterOrientation::VERSION = '0.02';
 
 $Locales::DB::CharacterOrientation::cldr_version = '1.7.1';
 

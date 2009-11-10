@@ -2,7 +2,7 @@ package Locales::DB::Language::kaj;
 
 # Auto generated from CLDR
 
-$Locales::DB::Language::kaj::VERSION = '0.01';
+$Locales::DB::Language::kaj::VERSION = '0.02';
 
 $Locales::DB::Language::kaj::cldr_version = '1.7.1';
 

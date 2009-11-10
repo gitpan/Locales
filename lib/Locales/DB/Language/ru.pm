@@ -2,7 +2,7 @@ package Locales::DB::Language::ru;
 
 # Auto generated from CLDR
 
-$Locales::DB::Language::ru::VERSION = '0.01';
+$Locales::DB::Language::ru::VERSION = '0.02';
 
 $Locales::DB::Language::ru::cldr_version = '1.7.1';
 

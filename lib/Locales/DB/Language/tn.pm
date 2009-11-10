@@ -2,7 +2,7 @@ package Locales::DB::Language::tn;
 
 # Auto generated from CLDR
 
-$Locales::DB::Language::tn::VERSION = '0.01';
+$Locales::DB::Language::tn::VERSION = '0.02';
 
 $Locales::DB::Language::tn::cldr_version = '1.7.1';
 

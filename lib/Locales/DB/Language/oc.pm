@@ -2,7 +2,7 @@ package Locales::DB::Language::oc;
 
 # Auto generated from CLDR
 
-$Locales::DB::Language::oc::VERSION = '0.01';
+$Locales::DB::Language::oc::VERSION = '0.02';
 
 $Locales::DB::Language::oc::cldr_version = '1.7.1';
 

@@ -2,7 +2,7 @@ package Locales::DB::Language::fi;
 
 # Auto generated from CLDR
 
-$Locales::DB::Language::fi::VERSION = '0.01';
+$Locales::DB::Language::fi::VERSION = '0.02';
 
 $Locales::DB::Language::fi::cldr_version = '1.7.1';
 

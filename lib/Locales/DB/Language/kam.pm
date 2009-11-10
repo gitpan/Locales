@@ -2,7 +2,7 @@ package Locales::DB::Language::kam;
 
 # Auto generated from CLDR
 
-$Locales::DB::Language::kam::VERSION = '0.01';
+$Locales::DB::Language::kam::VERSION = '0.02';
 
 $Locales::DB::Language::kam::cldr_version = '1.7.1';
 

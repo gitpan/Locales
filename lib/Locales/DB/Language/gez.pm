@@ -2,7 +2,7 @@ package Locales::DB::Language::gez;
 
 # Auto generated from CLDR
 
-$Locales::DB::Language::gez::VERSION = '0.01';
+$Locales::DB::Language::gez::VERSION = '0.02';
 
 $Locales::DB::Language::gez::cldr_version = '1.7.1';
 
