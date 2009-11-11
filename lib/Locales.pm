@@ -1,6 +1,6 @@
 package Locales;
 
-$Locales::VERSION      = '0.10';  # change in POD
+$Locales::VERSION      = '0.11';  # change in POD
 $Locales::cldr_version = '1.7.1'; # change in POD
 
 #### class methods ####
@@ -267,7 +267,7 @@ Locales - Methods for getting localized CLDR language/territory names (and a sub
 
 =head1 VERSION
 
-This document describes Locales version 0.10
+This document describes Locales version 0.11
 
 =head1 SYNOPSIS
 
@@ -524,6 +524,12 @@ None reported.
   - CLDR builder TODOs
   - more CLDR version/misc-info fetchers
   - generally improve get_code_from_* lookups
+
+=head1 DEPRECATED MODULES/INTERFACE
+
+The original, non CLDR based,  '::Base' based modules/interface in this distribution were deprecated in version 0.06.
+
+These modules will be removed on or shortly after January 1st, 2010.
 
 =head1 BUGS AND LIMITATIONS
 
