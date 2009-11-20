@@ -1,3 +1,6 @@
+0.13  Thu Nov 19 21:33:45 2009
+    -  I18N::LangTags::locale2language_tag() only allows parts bewteen 1 and 8 characters, adjust normalize_tag() accordingly
+
 0.12  Mon Nov 16 22:39:08 2009
     - rt 51583 :: change eval/require to core-perl in t/03.cldr_db.t so tests won;t have to be skipped on some systems
 

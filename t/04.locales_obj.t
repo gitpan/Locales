@@ -1,4 +1,4 @@
-use Test::More tests => 61;
+use Test::More tests => 62;
 
 use lib 'lib', '../lib';
 
@@ -18,6 +18,8 @@ use Locales::DB::Language::ar;
 # get_i_tag_for_string
 # normalize_tag
 # normalize_for_key_lookup
+
+ok( Locales::normalize_tag("123456789_abc_1234567812345678123456789_12345678_12345678") eq '12345678_9_abc_12345678_12345678_12345678_9_12345678_12345678', '> 8 char sequence, less than 8, 8 followed by _ , multiple 8 run + extra, and 8 at the end');
 
 ## new && get_locale && singleton ##
 my $no_arg = Locales->new();
@@ -49,7 +51,7 @@ ok($en->get_locale eq 'en', 'en arg is en');
 ok($no_arg eq $en, '>1 en\'s singleton');
 ok($fr->get_locale eq 'fr', 'known arg is correct locale');
 Locales->new("Locales;print 'injection attack;'");
-ok($@ =~ m{Locales\/DB\/Language\/locales_print_injectionattack_\.pm}, 'injection attach via eval thwarted by normalization');
+ok($@ =~ m{Locales\/DB\/Language\/locales_print_injectio_nattack_\.pm}, 'injection attack via eval thwarted by normalization');
 
 ##  get_territory() && get_language ##
 ok($en->get_language() eq 'en', 'get_language tag w/ no territory');

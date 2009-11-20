@@ -1,6 +1,6 @@
 package Locales;
 
-$Locales::VERSION      = '0.12';  # change in POD
+$Locales::VERSION      = '0.13';  # change in POD
 $Locales::cldr_version = '1.7.1'; # change in POD
 
 #### class methods ####
@@ -242,6 +242,8 @@ sub normalize_tag {
     $tag =~ tr/A-Z/a-z/;
     $tag =~ s{\s+}{}g;
     $tag =~ s{[^a-z0-9]+}{_}g;
+    # would like to do this with a single call, backtracking or indexing ? pathces welcome!
+    while($tag =~ s/([^_]{8})([^_])/$1\_$2/) {} # I18N::LangTags::locale2language_tag() only allows parts bewteen 1 and 8 character
     return $tag;
 }
 
@@ -267,7 +269,7 @@ Locales - Methods for getting localized CLDR language/territory names (and a sub
 
 =head1 VERSION
 
-This document describes Locales version 0.12
+This document describes Locales version 0.13
 
 =head1 SYNOPSIS
 
