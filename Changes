@@ -1,3 +1,7 @@
+0.14  Mon Dec 14 22:39:27 2009
+    - get_i_tag_for_string() do not prepend 'i_' if we have it already (w/ tests)
+    - comment typo
+
 0.13  Thu Nov 19 21:33:45 2009
     -  I18N::LangTags::locale2language_tag() only allows parts bewteen 1 and 8 characters, adjust normalize_tag() accordingly
 

@@ -1,4 +1,4 @@
-use Test::More tests => 62;
+use Test::More tests => 64;
 
 use lib 'lib', '../lib';
 
@@ -20,6 +20,9 @@ use Locales::DB::Language::ar;
 # normalize_for_key_lookup
 
 ok( Locales::normalize_tag("123456789_abc_1234567812345678123456789_12345678_12345678") eq '12345678_9_abc_12345678_12345678_12345678_9_12345678_12345678', '> 8 char sequence, less than 8, 8 followed by _ , multiple 8 run + extra, and 8 at the end');
+
+ok( Locales::get_i_tag_for_string('i_win') eq 'i_win', "i_ tag not prepended when we have it already");
+ok( Locales::get_i_tag_for_string('win') eq 'i_win', "i_ tag prepended when we don't have it already");
 
 ## new && get_locale && singleton ##
 my $no_arg = Locales->new();
