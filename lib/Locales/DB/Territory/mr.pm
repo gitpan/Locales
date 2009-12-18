@@ -2,9 +2,9 @@ package Locales::DB::Territory::mr;
 
 # Auto generated from CLDR
 
-$Locales::DB::Territory::mr::VERSION = '0.02';
+$Locales::DB::Territory::mr::VERSION = '0.06';
 
-$Locales::DB::Territory::mr::cldr_version = '1.7.1';
+$Locales::DB::Territory::mr::cldr_version = '1.7.2';
 
 %Locales::DB::Territory::mr::code_to_name = (
     'ad' => 'अँडोरा',

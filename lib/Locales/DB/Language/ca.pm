@@ -2,17 +2,20 @@ package Locales::DB::Language::ca;
 
 # Auto generated from CLDR
 
-$Locales::DB::Language::ca::VERSION = '0.02';
+$Locales::DB::Language::ca::VERSION = '0.06';
 
-$Locales::DB::Language::ca::cldr_version = '1.7.1';
+$Locales::DB::Language::ca::cldr_version = '1.7.2';
 
 %Locales::DB::Language::ca::misc_info = (
     'cldr_formats' => {
-        'decimal'   => "\#\,\#\#0\.\#\#\#",
-        'language'  => "Idioma\:\ \{0\}",
-        'locale'    => "\{0\}\ \(\{1\}\)",
-        'percent'   => "\#\,\#\#0\%",
-        'territory' => "Regió\:\ \{0\}"
+        '_decimal_format_decimal' => "\,",
+        '_decimal_format_group'   => "\.",
+        '_percent_format_percent' => "\%",
+        'decimal'                 => "\#\,\#\#0\.\#\#\#",
+        'language'                => "Idioma\:\ \{0\}",
+        'locale'                  => "\{0\}\ \(\{1\}\)",
+        'percent'                 => "\#\,\#\#0\%",
+        'territory'               => "Regió\:\ \{0\}"
     },
     'fallback'    => [ 'es_ES' ],
     'orientation' => {

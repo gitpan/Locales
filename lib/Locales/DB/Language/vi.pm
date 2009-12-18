@@ -2,17 +2,20 @@ package Locales::DB::Language::vi;
 
 # Auto generated from CLDR
 
-$Locales::DB::Language::vi::VERSION = '0.02';
+$Locales::DB::Language::vi::VERSION = '0.06';
 
-$Locales::DB::Language::vi::cldr_version = '1.7.1';
+$Locales::DB::Language::vi::cldr_version = '1.7.2';
 
 %Locales::DB::Language::vi::misc_info = (
     'cldr_formats' => {
-        'decimal'   => "\#\,\#\#0\.\#\#\#",
-        'language'  => "Ngôn\ ngữ\:\ \{0\}",
-        'locale'    => "\{0\}\ \(\{1\}\)",
-        'percent'   => "\#\,\#\#0\%",
-        'territory' => "Vùng\:\ \{0\}"
+        '_decimal_format_decimal' => "\,",
+        '_decimal_format_group'   => "\.",
+        '_percent_format_percent' => "\%",
+        'decimal'                 => "\#\,\#\#0\.\#\#\#",
+        'language'                => "Ngôn\ ngữ\:\ \{0\}",
+        'locale'                  => "\{0\}\ \(\{1\}\)",
+        'percent'                 => "\#\,\#\#0\%",
+        'territory'               => "Vùng\:\ \{0\}"
     },
     'fallback'    => [],
     'orientation' => {

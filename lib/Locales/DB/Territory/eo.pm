@@ -2,9 +2,9 @@ package Locales::DB::Territory::eo;
 
 # Auto generated from CLDR
 
-$Locales::DB::Territory::eo::VERSION = '0.02';
+$Locales::DB::Territory::eo::VERSION = '0.06';
 
-$Locales::DB::Territory::eo::cldr_version = '1.7.1';
+$Locales::DB::Territory::eo::cldr_version = '1.7.2';
 
 %Locales::DB::Territory::eo::code_to_name = (
     'ad' => 'Andoro',

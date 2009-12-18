@@ -1,4 +1,4 @@
-use Test::More tests => 64;
+use Test::More tests => 70;
 
 use lib 'lib', '../lib';
 
@@ -29,6 +29,7 @@ my $no_arg = Locales->new();
 my $en = Locales->new('en');
 my $fr = Locales->new('fr');
 my $ar = Locales->new('ar');
+my $it = Locales->new('it');
 
 ok($en->get_native_language_from_code('en') eq $Locales::DB::Language::en::code_to_name{'en'}, 'get_native_language_from_code() 1 w/ en');
 ok($en->get_native_language_from_code('fr') eq $Locales::DB::Language::fr::code_to_name{'fr'}, 'get_native_language_from_code() 2 w/ en');
@@ -113,3 +114,13 @@ ok(\&Locales::language2code eq \&Locales::get_code_from_language, 'language2code
 # misc_info
 my $ja = Locales->new('ja'); # ja ='{0}({1})' not '{0} ({1})'
 ok($ja->get_language_from_code('en_zzzzz',1) eq "$Locales::DB::Language::ja::code_to_name{'en'}(zzzzz)", 'get_language_from_code() unknown part pattern');
+
+ok($en->numf() eq '1', 'numf() RC == numf_comma(0)');
+ok($it->numf() eq '2', 'numf() RC == numf_comma(1)');
+
+ok(ref($ar->numf()) eq 'ARRAY', 'numf() RC == ARRAY format');
+ok($ar->numf(1) eq '2', 'soft value - format diff but data matches');
+
+# relies on 'fr' remaining broken (i.e. missing '_decimal_format_group')
+ok(ref($fr->numf()) eq 'ARRAY', 'numf() RC == ARRAY missing data');
+ok($fr->numf(1) eq '2', 'soft value - only one pattern string')

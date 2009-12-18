@@ -2,9 +2,9 @@ package Locales::DB::Territory::bo;
 
 # Auto generated from CLDR
 
-$Locales::DB::Territory::bo::VERSION = '0.02';
+$Locales::DB::Territory::bo::VERSION = '0.06';
 
-$Locales::DB::Territory::bo::cldr_version = '1.7.1';
+$Locales::DB::Territory::bo::cldr_version = '1.7.2';
 
 %Locales::DB::Territory::bo::code_to_name = (
     'ad' => 'ཨེན་ཌོ་ར།',

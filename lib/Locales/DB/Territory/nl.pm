@@ -2,9 +2,9 @@ package Locales::DB::Territory::nl;
 
 # Auto generated from CLDR
 
-$Locales::DB::Territory::nl::VERSION = '0.02';
+$Locales::DB::Territory::nl::VERSION = '0.06';
 
-$Locales::DB::Territory::nl::cldr_version = '1.7.1';
+$Locales::DB::Territory::nl::cldr_version = '1.7.2';
 
 %Locales::DB::Territory::nl::code_to_name = (
     'ad' => 'Andorra',

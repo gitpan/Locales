@@ -2,15 +2,18 @@ package Locales::DB::Language::he;
 
 # Auto generated from CLDR
 
-$Locales::DB::Language::he::VERSION = '0.02';
+$Locales::DB::Language::he::VERSION = '0.06';
 
-$Locales::DB::Language::he::cldr_version = '1.7.1';
+$Locales::DB::Language::he::cldr_version = '1.7.2';
 
 %Locales::DB::Language::he::misc_info = (
     'cldr_formats' => {
-        'decimal'  => "\#\,\#\#0\.\#\#\#",
-        'language' => "\{0\}",
-        'locale'   => {
+        '_decimal_format_decimal' => "\.",
+        '_decimal_format_group'   => "\,",
+        '_percent_format_percent' => "\%",
+        'decimal'                 => "\#\,\#\#0\.\#\#\#",
+        'language'                => "\{0\}",
+        'locale'                  => {
             'content' => "\{0\}\ \(\{1\}\)",
             'draft'   => 'contributed'
         },

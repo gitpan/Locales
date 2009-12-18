@@ -2,9 +2,9 @@ package Locales::DB::Territory::kfo;
 
 # Auto generated from CLDR
 
-$Locales::DB::Territory::kfo::VERSION = '0.02';
+$Locales::DB::Territory::kfo::VERSION = '0.06';
 
-$Locales::DB::Territory::kfo::cldr_version = '1.7.1';
+$Locales::DB::Territory::kfo::cldr_version = '1.7.2';
 
 %Locales::DB::Territory::kfo::code_to_name = (
     'ad' => 'Andorra',

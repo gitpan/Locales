@@ -2,17 +2,20 @@ package Locales::DB::Language::gsw;
 
 # Auto generated from CLDR
 
-$Locales::DB::Language::gsw::VERSION = '0.02';
+$Locales::DB::Language::gsw::VERSION = '0.06';
 
-$Locales::DB::Language::gsw::cldr_version = '1.7.1';
+$Locales::DB::Language::gsw::cldr_version = '1.7.2';
 
 %Locales::DB::Language::gsw::misc_info = (
     'cldr_formats' => {
-        'decimal'   => "\#\,\#\#0\.\#\#\#",
-        'language'  => "Schpraach\:\ \{0\}",
-        'locale'    => "\{0\}\ \(\{1\}\)",
-        'percent'   => "\#\,\#\#0 \%",
-        'territory' => "Regioon\:\ \{0\}"
+        '_decimal_format_decimal' => "\.",
+        '_decimal_format_group'   => '’',
+        '_percent_format_percent' => "\%",
+        'decimal'                 => "\#\,\#\#0\.\#\#\#",
+        'language'                => "Schpraach\:\ \{0\}",
+        'locale'                  => "\{0\}\ \(\{1\}\)",
+        'percent'                 => "\#\,\#\#0 \%",
+        'territory'               => "Regioon\:\ \{0\}"
     },
     'fallback'    => [ 'de_CH' ],
     'orientation' => {

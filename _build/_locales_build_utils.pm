@@ -134,11 +134,71 @@ sub get_target_structs_from_cldr_for_tag  {
         }
     }
     
+    my $_decimal_format_group   = ( 
+         ref $raw_struct->{'numbers'}{'symbols'}{'group'} eq 'HASH'  ? $raw_struct->{'numbers'}{'symbols'}{'group'}{'content'} 
+       : ref $raw_struct->{'numbers'}{'symbols'}{'group'} eq 'ARRAY' ? $raw_struct->{'numbers'}{'symbols'}{'group'}->[0]
+       :                                                               $raw_struct->{'numbers'}{'symbols'}{'group'}
+       );
+    my $_decimal_format_decimal = (
+         ref $raw_struct->{'numbers'}{'symbols'}{'decimal'} eq 'HASH'  ? $raw_struct->{'numbers'}{'symbols'}{'decimal'}{'content'} 
+       : ref $raw_struct->{'numbers'}{'symbols'}{'decimal'} eq 'ARRAY' ? $raw_struct->{'numbers'}{'symbols'}{'decimal'}->[0]
+       :                                                                 $raw_struct->{'numbers'}{'symbols'}{'decimal'} 
+       );
+       
+    # only fallback if *both* will match
+    if (!$_decimal_format_group && !$_decimal_format_decimal) {
+        $_decimal_format_group   = $fallback_lang_misc_info->{'cldr_formats'}{'_decimal_format_group'};
+        $$_decimal_format_group =  $fallback_lang_misc_info->{'cldr_formats'}{'_decimal_format_decimal'};
+    }
+    
+    # if we are missing one use both it's parent's data if possible
+    if (!$_decimal_format_group || !$_decimal_format_decimal) {
+        my ($l,$t) = Locales::split_tag($tag);
+        if ($t) {
+            if (my $parent = Locales->new($l)) {
+                no strict 'refs';
+                $_decimal_format_group   = ${"Locales::DB::Language::${l}::misc_info"}{'cldr_formats'}->{'_decimal_format_group'};
+                $_decimal_format_decimal = ${"Locales::DB::Language::${l}::misc_info"}{'cldr_formats'}->{'_decimal_format_decimal'};
+            }
+        }
+    }
+    
+    if (!$_decimal_format_group || !$_decimal_format_decimal) {
+        # not much we can (accuratly) do, I am open to suggestions :)
+        warn "'$tag' is missing one or both decimal format options: _decimal_format_group ($_decimal_format_group) or _decimal_format_decimal ($_decimal_format_decimal) ...";
+    }
+    
+    my $_percent_format_percent = (
+         ref $raw_struct->{'numbers'}{'symbols'}{'percentSign'} eq 'HASH'  ? $raw_struct->{'numbers'}{'symbols'}{'percentSign'}{'content'} 
+       : ref $raw_struct->{'numbers'}{'symbols'}{'percentSign'} eq 'ARRAY' ? $raw_struct->{'numbers'}{'symbols'}{'percentSign'}->[0]
+       :                                                                     $raw_struct->{'numbers'}{'symbols'}{'percentSign'}
+    ) || $fallback_lang_misc_info->{'cldr_formats'}{'_percent_format_percent'};
+    if (!$_percent_format_percent) {
+        my ($l,$t) = Locales::split_tag($tag);
+        if ($t) {
+            if (my $parent = Locales->new($l)) {
+                no strict 'refs';
+                $_percent_format_percent   = ${"Locales::DB::Language::${l}::misc_info"}{'cldr_formats'}->{'_percent_format_percent'};
+            }
+        }
+    }
+    
     $lang_misc_info = {
         'fallback' => $fallback,
         'cldr_formats' => {
-            'decimal' => $raw_struct->{'numbers'}{'decimalFormats'}{'decimalFormatLength'}{'decimalFormat'}{'pattern'} || $fallback_lang_misc_info->{'cldr_formats'}{'decimal'},
-            'percent' => $raw_struct->{'numbers'}{'percentFormats'}{'percentFormatLength'}{'percentFormat'}{'pattern'} || $fallback_lang_misc_info->{'cldr_formats'}{'percent'},
+            'decimal' => (
+                 ref $raw_struct->{'numbers'}{'decimalFormats'}{'decimalFormatLength'}{'decimalFormat'}{'pattern'} eq 'HASH'  ? $raw_struct->{'numbers'}{'decimalFormats'}{'decimalFormatLength'}{'decimalFormat'}{'pattern'}{'content'} 
+               : ref $raw_struct->{'numbers'}{'decimalFormats'}{'decimalFormatLength'}{'decimalFormat'}{'pattern'} eq 'ARRAY' ? $raw_struct->{'numbers'}{'decimalFormats'}{'decimalFormatLength'}{'decimalFormat'}{'pattern'}->[0]
+               :                                                                                                                $raw_struct->{'numbers'}{'decimalFormats'}{'decimalFormatLength'}{'decimalFormat'}{'pattern'} 
+               ) || $fallback_lang_misc_info->{'cldr_formats'}{'decimal'},
+            '_decimal_format_group'   => $_decimal_format_group,
+            '_decimal_format_decimal' => $_decimal_format_decimal,
+            'percent' => (
+                 ref $raw_struct->{'numbers'}{'percentFormats'}{'percentFormatLength'}{'percentFormat'}{'pattern'} eq 'HASH'  ? $raw_struct->{'numbers'}{'percentFormats'}{'percentFormatLength'}{'percentFormat'}{'pattern'}{'content'} 
+               : ref $raw_struct->{'numbers'}{'percentFormats'}{'percentFormatLength'}{'percentFormat'}{'pattern'} eq 'ARRAY' ? $raw_struct->{'numbers'}{'percentFormats'}{'percentFormatLength'}{'percentFormat'}{'pattern'}->[0]
+               :                                                                                                                $raw_struct->{'numbers'}{'percentFormats'}{'percentFormatLength'}{'percentFormat'}{'pattern'}
+               ) || $fallback_lang_misc_info->{'cldr_formats'}{'percent'},
+            '_percent_format_percent' => $_percent_format_percent,
             'territory' => $raw_struct->{'localeDisplayNames'}{'codePatterns'}{'codePattern'}{'territory'}{'content'} || $fallback_lang_misc_info->{'cldr_formats'}{'territory'},
             'language' => $raw_struct->{'localeDisplayNames'}{'codePatterns'}{'codePattern'}{'language'}{'content'} || $fallback_lang_misc_info->{'cldr_formats'}{'language'},
             'locale' => $raw_struct->{'localeDisplayNames'}{'localeDisplayPattern'}{'localePattern'} || $fallback_lang_misc_info->{'cldr_formats'}{'locale'}, # wx_yz has no name but wx does and xy may

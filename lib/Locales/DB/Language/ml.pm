@@ -2,17 +2,20 @@ package Locales::DB::Language::ml;
 
 # Auto generated from CLDR
 
-$Locales::DB::Language::ml::VERSION = '0.02';
+$Locales::DB::Language::ml::VERSION = '0.06';
 
-$Locales::DB::Language::ml::cldr_version = '1.7.1';
+$Locales::DB::Language::ml::cldr_version = '1.7.2';
 
 %Locales::DB::Language::ml::misc_info = (
     'cldr_formats' => {
-        'decimal'   => "\#\,\#\#\,\#\#0\.\#\#\#",
-        'language'  => "ഭാഷ\:\ \{0\}",
-        'locale'    => "\{0\}\ \(\{1\}\)",
-        'percent'   => "\#\,\#\#\,\#\#0\%",
-        'territory' => "ദേശം\:\ \{0\}"
+        '_decimal_format_decimal' => "\.",
+        '_decimal_format_group'   => "\,",
+        '_percent_format_percent' => "\%",
+        'decimal'                 => "\#\,\#\#\,\#\#0\.\#\#\#",
+        'language'                => "ഭാഷ\:\ \{0\}",
+        'locale'                  => "\{0\}\ \(\{1\}\)",
+        'percent'                 => "\#\,\#\#\,\#\#0\%",
+        'territory'               => "ദേശം\:\ \{0\}"
     },
     'fallback'    => [],
     'orientation' => {

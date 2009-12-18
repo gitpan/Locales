@@ -2,17 +2,20 @@ package Locales::DB::Language::sl;
 
 # Auto generated from CLDR
 
-$Locales::DB::Language::sl::VERSION = '0.02';
+$Locales::DB::Language::sl::VERSION = '0.06';
 
-$Locales::DB::Language::sl::cldr_version = '1.7.1';
+$Locales::DB::Language::sl::cldr_version = '1.7.2';
 
 %Locales::DB::Language::sl::misc_info = (
     'cldr_formats' => {
-        'decimal'   => "\#\,\#\#0\.\#\#\#",
-        'language'  => "Jezik\:\ \{0\}",
-        'locale'    => "\{0\}\ \(\{1\}\)",
-        'percent'   => "\#\,\#\#0\%",
-        'territory' => "Regija\:\ \{0\}"
+        '_decimal_format_decimal' => "\,",
+        '_decimal_format_group'   => "\.",
+        '_percent_format_percent' => "\%",
+        'decimal'                 => "\#\,\#\#0\.\#\#\#",
+        'language'                => "Jezik\:\ \{0\}",
+        'locale'                  => "\{0\}\ \(\{1\}\)",
+        'percent'                 => "\#\,\#\#0\%",
+        'territory'               => "Regija\:\ \{0\}"
     },
     'fallback'    => [],
     'orientation' => {

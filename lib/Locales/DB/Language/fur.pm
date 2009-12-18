@@ -2,25 +2,22 @@ package Locales::DB::Language::fur;
 
 # Auto generated from CLDR
 
-$Locales::DB::Language::fur::VERSION = '0.02';
+$Locales::DB::Language::fur::VERSION = '0.06';
 
-$Locales::DB::Language::fur::cldr_version = '1.7.1';
+$Locales::DB::Language::fur::cldr_version = '1.7.2';
 
 %Locales::DB::Language::fur::misc_info = (
     'cldr_formats' => {
-        'decimal' => {
-            'content' => "\#\,\#\#0\.\#\#\#",
-            'draft'   => 'unconfirmed'
-        },
-        'language' => "Lenghe\:\ \{0\}",
-        'locale'   => {
+        '_decimal_format_decimal' => "\,",
+        '_decimal_format_group'   => "\.",
+        '_percent_format_percent' => "\%",
+        'decimal'                 => "\#\,\#\#0\.\#\#\#",
+        'language'                => "Lenghe\:\ \{0\}",
+        'locale'                  => {
             'content' => "\{0\}\ \(\{1\}\)",
             'draft'   => 'unconfirmed'
         },
-        'percent' => {
-            'content' => "\#\,\#\#0\%",
-            'draft'   => 'unconfirmed'
-        },
+        'percent'   => "\#\,\#\#0\%",
         'territory' => "Regjon\:\ \{0\}"
     },
     'fallback'    => [],

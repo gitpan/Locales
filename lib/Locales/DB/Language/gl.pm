@@ -2,25 +2,22 @@ package Locales::DB::Language::gl;
 
 # Auto generated from CLDR
 
-$Locales::DB::Language::gl::VERSION = '0.02';
+$Locales::DB::Language::gl::VERSION = '0.06';
 
-$Locales::DB::Language::gl::cldr_version = '1.7.1';
+$Locales::DB::Language::gl::cldr_version = '1.7.2';
 
 %Locales::DB::Language::gl::misc_info = (
     'cldr_formats' => {
-        'decimal' => {
-            'content' => "\#\,\#\#0\.\#\#\#",
-            'draft'   => 'contributed'
-        },
-        'language' => "Idioma\:\ \{0\}",
-        'locale'   => {
+        '_decimal_format_decimal' => "\,",
+        '_decimal_format_group'   => "\.",
+        '_percent_format_percent' => "\%",
+        'decimal'                 => "\#\,\#\#0\.\#\#\#",
+        'language'                => "Idioma\:\ \{0\}",
+        'locale'                  => {
             'content' => "\{0\}\ \(\{1\}\)",
             'draft'   => 'contributed'
         },
-        'percent' => {
-            'content' => "\#\,\#\#0\%",
-            'draft'   => 'contributed'
-        },
+        'percent'   => "\#\,\#\#0\%",
         'territory' => "Rexión\:\ \{0\}"
     },
     'fallback'    => [],

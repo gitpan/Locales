@@ -2,23 +2,20 @@ package Locales::DB::Language::my;
 
 # Auto generated from CLDR
 
-$Locales::DB::Language::my::VERSION = '0.02';
+$Locales::DB::Language::my::VERSION = '0.06';
 
-$Locales::DB::Language::my::cldr_version = '1.7.1';
+$Locales::DB::Language::my::cldr_version = '1.7.2';
 
 %Locales::DB::Language::my::misc_info = (
     'cldr_formats' => {
-        'decimal' => {
-            'content' => "\#\,\#\#0\.\#\#\#",
-            'draft'   => 'provisional'
-        },
-        'language' => "ဘာသာစကား\ \-\ \{0\}",
-        'locale'   => "\{0\}\ \(\{1\}\)",
-        'percent'  => {
-            'content' => "\#\,\#\#0\%",
-            'draft'   => 'provisional'
-        },
-        'territory' => "နယ်ပယ်ဒေသ\ \-\ \{0\}"
+        '_decimal_format_decimal' => "\.",
+        '_decimal_format_group'   => "\,",
+        '_percent_format_percent' => "\%",
+        'decimal'                 => "\#\,\#\#0\.\#\#\#",
+        'language'                => "ဘာသာစကား\ \-\ \{0\}",
+        'locale'                  => "\{0\}\ \(\{1\}\)",
+        'percent'                 => "\#\,\#\#0\%",
+        'territory'               => "နယ်ပယ်ဒေသ\ \-\ \{0\}"
     },
     'fallback'    => [],
     'orientation' => {

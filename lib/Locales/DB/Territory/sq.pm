@@ -2,9 +2,9 @@ package Locales::DB::Territory::sq;
 
 # Auto generated from CLDR
 
-$Locales::DB::Territory::sq::VERSION = '0.02';
+$Locales::DB::Territory::sq::VERSION = '0.06';
 
-$Locales::DB::Territory::sq::cldr_version = '1.7.1';
+$Locales::DB::Territory::sq::cldr_version = '1.7.2';
 
 %Locales::DB::Territory::sq::code_to_name = (
     'ad' => 'Andorrë',

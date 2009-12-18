@@ -2,9 +2,9 @@ package Locales::DB::Territory::byn;
 
 # Auto generated from CLDR
 
-$Locales::DB::Territory::byn::VERSION = '0.02';
+$Locales::DB::Territory::byn::VERSION = '0.06';
 
-$Locales::DB::Territory::byn::cldr_version = '1.7.1';
+$Locales::DB::Territory::byn::cldr_version = '1.7.2';
 
 %Locales::DB::Territory::byn::code_to_name = (
     'ad' => 'አንዶራ',

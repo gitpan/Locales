@@ -2,9 +2,9 @@ package Locales::DB::Native;
 
 # Auto generated from CLDR
 
-$Locales::DB::Native::VERSION = '0.02';
+$Locales::DB::Native::VERSION = '0.06';
 
-$Locales::DB::Native::cldr_version = '1.7.1';
+$Locales::DB::Native::cldr_version = '1.7.2';
 
 %Locales::DB::Native::code_to_name = (
     'sid'   => 'Sidaamu Afo',

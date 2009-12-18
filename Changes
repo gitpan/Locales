@@ -1,3 +1,9 @@
+0.15  Thu Dec 17 16:48:35 2009
+    - Updated data to CLDR 1.7.2
+    - Added misc_info for decimal and percent format identifiers
+    - removed deprecated non CLDR based,  '::Base' based modules/interface
+    - Added numf() method
+
 0.14  Mon Dec 14 22:39:27 2009
     - get_i_tag_for_string() do not prepend 'i_' if we have it already (w/ tests)
     - comment typo

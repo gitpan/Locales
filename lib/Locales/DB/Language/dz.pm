@@ -2,22 +2,22 @@ package Locales::DB::Language::dz;
 
 # Auto generated from CLDR
 
-$Locales::DB::Language::dz::VERSION = '0.02';
+$Locales::DB::Language::dz::VERSION = '0.06';
 
-$Locales::DB::Language::dz::cldr_version = '1.7.1';
+$Locales::DB::Language::dz::cldr_version = '1.7.2';
 
 %Locales::DB::Language::dz::misc_info = (
     'cldr_formats' => {
-        'decimal' => {
-            'content' => "\#\,\#\#\,\#\#0\.\#\#\#",
+        '_decimal_format_decimal' => undef,
+        '_decimal_format_group'   => "\,",
+        '_percent_format_percent' => {
+            'content' => "\%",
             'draft'   => 'unconfirmed'
         },
-        'language' => "Language\:\ \{0\}",
-        'locale'   => "\{0\}\ \(\{1\}\)",
-        'percent'  => {
-            'content' => "\#\,\#\#\,\#\#0 \%",
-            'draft'   => 'unconfirmed'
-        },
+        'decimal'   => "\#\,\#\#\,\#\#0\.\#\#\#",
+        'language'  => "Language\:\ \{0\}",
+        'locale'    => "\{0\}\ \(\{1\}\)",
+        'percent'   => "\#\,\#\#\,\#\#0 \%",
         'territory' => "Region\:\ \{0\}"
     },
     'fallback'    => [],

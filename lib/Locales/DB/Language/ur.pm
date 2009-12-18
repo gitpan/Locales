@@ -2,17 +2,20 @@ package Locales::DB::Language::ur;
 
 # Auto generated from CLDR
 
-$Locales::DB::Language::ur::VERSION = '0.02';
+$Locales::DB::Language::ur::VERSION = '0.06';
 
-$Locales::DB::Language::ur::cldr_version = '1.7.1';
+$Locales::DB::Language::ur::cldr_version = '1.7.2';
 
 %Locales::DB::Language::ur::misc_info = (
     'cldr_formats' => {
-        'decimal'   => "\#\,\#\#0\.\#\#\#",
-        'language'  => "زبان\:\{0\}",
-        'locale'    => "\{0\}\ \(\{1\}\)",
-        'percent'   => "\#\,\#\#0\%",
-        'territory' => "خطہ\:\{0\}"
+        '_decimal_format_decimal' => "\.",
+        '_decimal_format_group'   => "\,",
+        '_percent_format_percent' => "\%",
+        'decimal'                 => "\#\,\#\#0\.\#\#\#",
+        'language'                => "زبان\:\{0\}",
+        'locale'                  => "\{0\}\ \(\{1\}\)",
+        'percent'                 => "\#\,\#\#0\%",
+        'territory'               => "خطہ\:\{0\}"
     },
     'fallback'    => [],
     'orientation' => {

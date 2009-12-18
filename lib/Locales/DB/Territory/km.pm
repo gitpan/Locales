@@ -2,9 +2,9 @@ package Locales::DB::Territory::km;
 
 # Auto generated from CLDR
 
-$Locales::DB::Territory::km::VERSION = '0.02';
+$Locales::DB::Territory::km::VERSION = '0.06';
 
-$Locales::DB::Territory::km::cldr_version = '1.7.1';
+$Locales::DB::Territory::km::cldr_version = '1.7.2';
 
 %Locales::DB::Territory::km::code_to_name = (
     'ad' => 'អានដូរ៉ា',

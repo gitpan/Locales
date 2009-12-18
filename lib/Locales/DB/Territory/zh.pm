@@ -2,9 +2,9 @@ package Locales::DB::Territory::zh;
 
 # Auto generated from CLDR
 
-$Locales::DB::Territory::zh::VERSION = '0.02';
+$Locales::DB::Territory::zh::VERSION = '0.06';
 
-$Locales::DB::Territory::zh::cldr_version = '1.7.1';
+$Locales::DB::Territory::zh::cldr_version = '1.7.2';
 
 %Locales::DB::Territory::zh::code_to_name = (
     'ad' => '安道尔',

@@ -2,9 +2,9 @@ package Locales::DB::Territory::bg;
 
 # Auto generated from CLDR
 
-$Locales::DB::Territory::bg::VERSION = '0.02';
+$Locales::DB::Territory::bg::VERSION = '0.06';
 
-$Locales::DB::Territory::bg::cldr_version = '1.7.1';
+$Locales::DB::Territory::bg::cldr_version = '1.7.2';
 
 %Locales::DB::Territory::bg::code_to_name = (
     'ad' => 'Андора',

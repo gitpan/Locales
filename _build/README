@@ -12,8 +12,8 @@ How to update:
 
 3) do any other changes
 
-4) build
+4) perl Makefile.PL && make && make test && make dist && sudo make install
 
-Note: If the DB mods are not chnaging you'll have to update the DB tests' version:
+Note: If the DB mods are not changing you'll have to update the DB tests' version:
 
    perl -pi -e 's{0\.12}{0.13}g;' t/042.*.t

@@ -1,7 +1,7 @@
 package Locales;
 
-$Locales::VERSION      = '0.14';  # change in POD
-$Locales::cldr_version = '1.7.1'; # change in POD
+$Locales::VERSION      = '0.15';  # change in POD
+$Locales::cldr_version = '1.7.2'; # change in POD
 
 #### class methods ####
 
@@ -100,6 +100,50 @@ sub get_native_language_from_code {
         return $string;
     }
     return;
+}
+
+sub numf {
+    my ($self,$always_return) = @_;
+    my $class = ref($self) ? ref($self) : $self;
+    $always_return ||= 0;
+    $self->{'language_data'}{'misc_info'}{'cldr_formats'}{'_decimal_format_group'} = '' if !defined $self->{'language_data'}{'misc_info'}{'cldr_formats'}{'_decimal_format_group'};
+    $self->{'language_data'}{'misc_info'}{'cldr_formats'}{'_decimal_format_decimal'} = '' if !defined $self->{'language_data'}{'misc_info'}{'cldr_formats'}{'_decimal_format_decimal'};
+
+    if (!$self->{'language_data'}{'misc_info'}{'cldr_formats'}{'_decimal_format_group'} || !$self->{'language_data'}{'misc_info'}{'cldr_formats'}{'_decimal_format_decimal'}) {
+        if ($always_return) {
+            if ($self->{'language_data'}{'misc_info'}{'cldr_formats'}{'_decimal_format_group'} || !$self->{'language_data'}{'misc_info'}{'cldr_formats'}{'_decimal_format_decimal'}) {
+                return 2 if $self->{'language_data'}{'misc_info'}{'cldr_formats'}{'_decimal_format_group'} eq '.';
+                return 1;
+            }
+            elsif (!$self->{'language_data'}{'misc_info'}{'cldr_formats'}{'_decimal_format_group'} || $self->{'language_data'}{'misc_info'}{'cldr_formats'}{'_decimal_format_decimal'}) {
+                return 2 if $self->{'language_data'}{'misc_info'}{'cldr_formats'}{'_decimal_format_decimal'} eq ',';
+                return 1;                
+            }
+            else {
+                return 1;
+            }
+        }
+    }
+    
+    if ($self->{'language_data'}{'misc_info'}{'cldr_formats'}{'decimal'} eq "\#\,\#\#0\.\#\#\#") {
+        if ($self->{'language_data'}{'misc_info'}{'cldr_formats'}{'_decimal_format_group'} eq ',' && $self->{'language_data'}{'misc_info'}{'cldr_formats'}{'_decimal_format_decimal'} eq '.') {
+            return 1;
+        }
+        elsif ($self->{'language_data'}{'misc_info'}{'cldr_formats'}{'_decimal_format_group'} eq '.' && $self->{'language_data'}{'misc_info'}{'cldr_formats'}{'_decimal_format_decimal'} eq ',') {
+            return 2;
+        }
+    }
+    elsif ($always_return && $self->{'language_data'}{'misc_info'}{'cldr_formats'}{'_decimal_format_group'} && $self->{'language_data'}{'misc_info'}{'cldr_formats'}{'_decimal_format_decimal'}) {
+        return 2 if $self->{'language_data'}{'misc_info'}{'cldr_formats'}{'_decimal_format_decimal'} eq ',';
+        return 2 if $self->{'language_data'}{'misc_info'}{'cldr_formats'}{'_decimal_format_group'} eq '.';
+        return 1;
+    }
+    
+    return [
+        $self->{'language_data'}{'misc_info'}{'cldr_formats'}{'decimal'},
+        $self->{'language_data'}{'misc_info'}{'cldr_formats'}{'_decimal_format_group'},
+        $self->{'language_data'}{'misc_info'}{'cldr_formats'}{'_decimal_format_decimal'},
+    ];
 }
 
 sub get_character_orientation_from_code {
@@ -277,7 +321,7 @@ Locales - Methods for getting localized CLDR language/territory names (and a sub
 
 =head1 VERSION
 
-This document describes Locales version 0.14
+This document describes Locales version 0.15
 
 =head1 SYNOPSIS
 
@@ -352,6 +396,18 @@ Returns the language portion of the object's locale.
 Takes no arguments.
 
 Returns the territory portion of the object's locale if any (e.g. 'en_au'), undef if there is none (e.g. 'it').
+
+=item numf()
+
+Takes one optional boolean argument.
+
+Returns 1 if the object's locale's number format is comma for thousand seperator, period for decimal.
+
+Return 2  if the object's locale's number format is period for thousand seperator, comma for decimal.
+
+Otherwise it returns a 3 element array containing this CLDR data: number format, seperator character, decimal character.
+
+The boolean argument, when true will do it's best to determine and return a 1 or a 2.
 
 =back
 
@@ -534,12 +590,13 @@ None reported.
   - CLDR builder TODOs
   - more CLDR version/misc-info fetchers
   - generally improve get_code_from_* lookups
+  - tests that misc info doesn't get odd structs from XML instead of a string
 
 =head1 DEPRECATED MODULES/INTERFACE
 
 The original, non CLDR based,  '::Base' based modules/interface in this distribution were deprecated in version 0.06.
 
-These modules will be removed on or shortly after January 1st, 2010.
+These modules were removed in version 0.15.
 
 =head1 BUGS AND LIMITATIONS
 

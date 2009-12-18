@@ -2,23 +2,20 @@ package Locales::DB::Language::fo;
 
 # Auto generated from CLDR
 
-$Locales::DB::Language::fo::VERSION = '0.02';
+$Locales::DB::Language::fo::VERSION = '0.06';
 
-$Locales::DB::Language::fo::cldr_version = '1.7.1';
+$Locales::DB::Language::fo::cldr_version = '1.7.2';
 
 %Locales::DB::Language::fo::misc_info = (
     'cldr_formats' => {
-        'decimal' => {
-            'content' => "\#\,\#\#0\.\#\#\#",
-            'draft'   => 'unconfirmed'
-        },
-        'language' => "Language\:\ \{0\}",
-        'locale'   => "\{0\}\ \(\{1\}\)",
-        'percent'  => {
-            'content' => "\#\,\#\#0 \%",
-            'draft'   => 'unconfirmed'
-        },
-        'territory' => "Region\:\ \{0\}"
+        '_decimal_format_decimal' => "\,",
+        '_decimal_format_group'   => "\.",
+        '_percent_format_percent' => "\%",
+        'decimal'                 => "\#\,\#\#0\.\#\#\#",
+        'language'                => "Language\:\ \{0\}",
+        'locale'                  => "\{0\}\ \(\{1\}\)",
+        'percent'                 => "\#\,\#\#0 \%",
+        'territory'               => "Region\:\ \{0\}"
     },
     'fallback'    => [ "is\ da\ sv\ en" ],
     'orientation' => {

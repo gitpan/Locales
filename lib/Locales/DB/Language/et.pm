@@ -2,24 +2,20 @@ package Locales::DB::Language::et;
 
 # Auto generated from CLDR
 
-$Locales::DB::Language::et::VERSION = '0.02';
+$Locales::DB::Language::et::VERSION = '0.06';
 
-$Locales::DB::Language::et::cldr_version = '1.7.1';
+$Locales::DB::Language::et::cldr_version = '1.7.2';
 
 %Locales::DB::Language::et::misc_info = (
     'cldr_formats' => {
-        'decimal'  => "\#\,\#\#0\.\#\#\#",
-        'language' => "Language\:\ \{0\}",
-        'locale'   => "\{0\}\ \(\{1\}\)",
-        'percent'  => [
-            "\#\,\#\#0\%",
-            {
-                'alt'     => "proposed\-x1001",
-                'content' => "\#\,\#\#0 \%",
-                'draft'   => 'unconfirmed'
-            }
-        ],
-        'territory' => "Region\:\ \{0\}"
+        '_decimal_format_decimal' => "\,",
+        '_decimal_format_group'   => undef,
+        '_percent_format_percent' => "\%",
+        'decimal'                 => "\#\,\#\#0\.\#\#\#",
+        'language'                => "Language\:\ \{0\}",
+        'locale'                  => "\{0\}\ \(\{1\}\)",
+        'percent'                 => "\#\,\#\#0\%",
+        'territory'               => "Region\:\ \{0\}"
     },
     'fallback'    => [ "en\ fi" ],
     'orientation' => {

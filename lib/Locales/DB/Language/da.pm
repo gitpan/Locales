@@ -2,17 +2,20 @@ package Locales::DB::Language::da;
 
 # Auto generated from CLDR
 
-$Locales::DB::Language::da::VERSION = '0.02';
+$Locales::DB::Language::da::VERSION = '0.06';
 
-$Locales::DB::Language::da::cldr_version = '1.7.1';
+$Locales::DB::Language::da::cldr_version = '1.7.2';
 
 %Locales::DB::Language::da::misc_info = (
     'cldr_formats' => {
-        'decimal'   => "\#\,\#\#0\.\#\#\#",
-        'language'  => "Sprog\:\ \{0\}",
-        'locale'    => "\{0\}\ \(\{1\}\)",
-        'percent'   => "\#\,\#\#0 \%",
-        'territory' => "Område\:\ \{0\}"
+        '_decimal_format_decimal' => "\,",
+        '_decimal_format_group'   => "\.",
+        '_percent_format_percent' => "\%",
+        'decimal'                 => "\#\,\#\#0\.\#\#\#",
+        'language'                => "Sprog\:\ \{0\}",
+        'locale'                  => "\{0\}\ \(\{1\}\)",
+        'percent'                 => "\#\,\#\#0 \%",
+        'territory'               => "Område\:\ \{0\}"
     },
     'fallback'    => [ "nb\ nn\ sv\ en", "en\ nb\ nn\ sv", "en\ nb\ sv\ nn" ],
     'orientation' => {

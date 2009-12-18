@@ -2,23 +2,20 @@ package Locales::DB::Language::trv;
 
 # Auto generated from CLDR
 
-$Locales::DB::Language::trv::VERSION = '0.02';
+$Locales::DB::Language::trv::VERSION = '0.06';
 
-$Locales::DB::Language::trv::cldr_version = '1.7.1';
+$Locales::DB::Language::trv::cldr_version = '1.7.2';
 
 %Locales::DB::Language::trv::misc_info = (
     'cldr_formats' => {
-        'decimal' => {
-            'content' => "\#\,\#\#0\.\#\#\#",
-            'draft'   => 'provisional'
-        },
-        'language' => "Kari\:\ \{0\}",
-        'locale'   => "\{0\}\ \(\{1\}\)",
-        'percent'  => {
-            'content' => "\#\,\#\#0\%",
-            'draft'   => 'provisional'
-        },
-        'territory' => "Alang\:\ \{0\}"
+        '_decimal_format_decimal' => "\.",
+        '_decimal_format_group'   => "\,",
+        '_percent_format_percent' => "\%",
+        'decimal'                 => "\#\,\#\#0\.\#\#\#",
+        'language'                => "Kari\:\ \{0\}",
+        'locale'                  => "\{0\}\ \(\{1\}\)",
+        'percent'                 => "\#\,\#\#0\%",
+        'territory'               => "Alang\:\ \{0\}"
     },
     'fallback'    => [],
     'orientation' => {

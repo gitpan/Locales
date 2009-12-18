@@ -2,9 +2,9 @@ package Locales::DB::Territory::ga;
 
 # Auto generated from CLDR
 
-$Locales::DB::Territory::ga::VERSION = '0.02';
+$Locales::DB::Territory::ga::VERSION = '0.06';
 
-$Locales::DB::Territory::ga::cldr_version = '1.7.1';
+$Locales::DB::Territory::ga::cldr_version = '1.7.2';
 
 %Locales::DB::Territory::ga::code_to_name = (
     'ad' => 'Andóra',

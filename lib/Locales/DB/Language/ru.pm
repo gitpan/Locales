@@ -2,15 +2,18 @@ package Locales::DB::Language::ru;
 
 # Auto generated from CLDR
 
-$Locales::DB::Language::ru::VERSION = '0.02';
+$Locales::DB::Language::ru::VERSION = '0.06';
 
-$Locales::DB::Language::ru::cldr_version = '1.7.1';
+$Locales::DB::Language::ru::cldr_version = '1.7.2';
 
 %Locales::DB::Language::ru::misc_info = (
     'cldr_formats' => {
-        'decimal'  => "\#\,\#\#0\.\#\#\#",
-        'language' => "Язык\:\ \{0\}",
-        'locale'   => {
+        '_decimal_format_decimal' => "\,",
+        '_decimal_format_group'   => undef,
+        '_percent_format_percent' => "\%",
+        'decimal'                 => "\#\,\#\#0\.\#\#\#",
+        'language'                => "Язык\:\ \{0\}",
+        'locale'                  => {
             'content' => "\{0\}\ \(\{1\}\)",
             'draft'   => 'contributed'
         },

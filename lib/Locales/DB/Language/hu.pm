@@ -2,20 +2,20 @@ package Locales::DB::Language::hu;
 
 # Auto generated from CLDR
 
-$Locales::DB::Language::hu::VERSION = '0.02';
+$Locales::DB::Language::hu::VERSION = '0.06';
 
-$Locales::DB::Language::hu::cldr_version = '1.7.1';
+$Locales::DB::Language::hu::cldr_version = '1.7.2';
 
 %Locales::DB::Language::hu::misc_info = (
     'cldr_formats' => {
-        'decimal' => {
-            'content'    => "\#\,\#\#0\.\#\#\#",
-            'references' => 'R079'
-        },
-        'language'  => "Nyelv\:\ \{0\}",
-        'locale'    => "\{0\}\ \(\{1\}\)",
-        'percent'   => "\#\,\#\#0\%",
-        'territory' => "Régió\:\ \{0\}"
+        '_decimal_format_decimal' => "\,",
+        '_decimal_format_group'   => undef,
+        '_percent_format_percent' => "\%",
+        'decimal'                 => "\#\,\#\#0\.\#\#\#",
+        'language'                => "Nyelv\:\ \{0\}",
+        'locale'                  => "\{0\}\ \(\{1\}\)",
+        'percent'                 => "\#\,\#\#0\%",
+        'territory'               => "Régió\:\ \{0\}"
     },
     'fallback'    => [],
     'orientation' => {

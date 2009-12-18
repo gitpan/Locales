@@ -2,17 +2,20 @@ package Locales::DB::Language::ar;
 
 # Auto generated from CLDR
 
-$Locales::DB::Language::ar::VERSION = '0.02';
+$Locales::DB::Language::ar::VERSION = '0.06';
 
-$Locales::DB::Language::ar::cldr_version = '1.7.1';
+$Locales::DB::Language::ar::cldr_version = '1.7.2';
 
 %Locales::DB::Language::ar::misc_info = (
     'cldr_formats' => {
-        'decimal'   => "\#\,\#\#0\.\#\#\#\;\#\,\#\#0\.\#\#\#\-",
-        'language'  => "اللغة\:\ \{0\}",
-        'locale'    => "\{0\}\ \(\{1\}\)",
-        'percent'   => "\#\,\#\#0\%",
-        'territory' => "المنطقة\:\ \{0\}"
+        '_decimal_format_decimal' => "\,",
+        '_decimal_format_group'   => "\.",
+        '_percent_format_percent' => "\%",
+        'decimal'                 => "\#\,\#\#0\.\#\#\#\;\#\,\#\#0\.\#\#\#\-",
+        'language'                => "اللغة\:\ \{0\}",
+        'locale'                  => "\{0\}\ \(\{1\}\)",
+        'percent'                 => "\#\,\#\#0\%",
+        'territory'               => "المنطقة\:\ \{0\}"
     },
     'fallback'    => [],
     'orientation' => {
