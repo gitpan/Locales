@@ -1,6 +1,6 @@
 package Locales;
 
-$Locales::VERSION      = '0.15';  # change in POD
+$Locales::VERSION      = '0.16';  # change in POD
 $Locales::cldr_version = '1.7.2'; # change in POD
 
 #### class methods ####
@@ -293,10 +293,23 @@ sub normalize_tag {
     return if !defined $tag;
     $tag =~ tr/A-Z/a-z/;
     $tag =~ s{\s+}{}g;
+    $tag =~ s{[^a-z0-9]+$}{}; # I18N::LangTags::locale2language_tag() does not allow trailing '_'
     $tag =~ s{[^a-z0-9]+}{_}g;
     # would like to do this with a single call, backtracking or indexing ? patches welcome!
     while($tag =~ s/([^_]{8})([^_])/$1\_$2/) {} # I18N::LangTags::locale2language_tag() only allows parts bewteen 1 and 8 character
     return $tag;
+}
+
+sub normalize_tag_for_datetime_locale {
+    my ($pre,$pst) = split_tag($_[0]);
+    return if !defined $pre;
+    
+    if ($pst) {
+        return $pre . '_' . uc($pst);
+    }
+    else {
+        return $pre;
+    }
 }
 
 sub normalize_for_key_lookup {
@@ -321,7 +334,7 @@ Locales - Methods for getting localized CLDR language/territory names (and a sub
 
 =head1 VERSION
 
-This document describes Locales version 0.15
+This document describes Locales version 0.16
 
 =head1 SYNOPSIS
 
@@ -355,7 +368,7 @@ For consistency all data is written in utf-8. No conversion should be necessary 
 
 Note: You probably [don't need to/should not] use L<utf8> in regards to the data contained herein.
 
-=head1 Based on CLDR 1.7.1
+=head1 Based on CLDR 1.7.2
 
 You can learn about the Unicode Common Locale Data Repository at L<http://cldr.unicode.org/>
 
@@ -403,9 +416,9 @@ Takes one optional boolean argument.
 
 Returns 1 if the object's locale's number format is comma for thousand seperator, period for decimal.
 
-Return 2  if the object's locale's number format is period for thousand seperator, comma for decimal.
+Returns 2  if the object's locale's number format is period for thousand seperator, comma for decimal.
 
-Otherwise it returns a 3 element array containing this CLDR data: number format, seperator character, decimal character.
+Otherwise it returns a reference to a 3 element array containing this CLDR data: number format, seperator character, decimal character.
 
 The boolean argument, when true will do it's best to determine and return a 1 or a 2.
 
@@ -516,6 +529,12 @@ Takes a single argument, the locale tag to normalize.
 Returns the normalized tag.
 
    print Locales::normalize_tag("  en-GB\n "); # 'en_gb'    
+
+=item Locales::normalize_tag_for_datetime_locale()
+
+Like normalize_tag() except the return value should be suitable for L<DataTime::Locale>
+
+   print Locales::normalize_tag_for_datetime_locale("  en-GB\n "); # 'en_GB'
 
 =item Locales::split_tag()
 

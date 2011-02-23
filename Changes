@@ -1,3 +1,10 @@
+0.16  Wed Feb 23 16:12:36 2011
+    - added normalize_tag_for_datetime_locale()
+    - rt52972 POD consistency: s/Return 2/Returns 2/
+    - rt52971 POD: update CLDR version to 1.7.2 (i.e. Based on CLDR 1.7.1)
+    - rt52900 POD clarification: s/returns a 3 element array/returns a reference to a 3 element array/
+    - rt53663 I18N::LangTags::locale2language_tag() does not allow trailing '_'
+
 0.15  Thu Dec 17 16:48:35 2009
     - Updated data to CLDR 1.7.2
     - Added misc_info for decimal and percent format identifiers
