@@ -11,6 +11,7 @@ MANIFEST.in
 README
 lib/Locales.pm
 t/00.load.t
+t/01.cldr_parse_inherit_sanity.t
 t/pod-coverage.t
 t/pod.t
 t/03.cldr_db.t 

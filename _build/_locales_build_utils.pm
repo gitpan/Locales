@@ -2,17 +2,45 @@ package _locales_build_utils;
 
 use Cwd;
 use XML::Simple;
+use XML::Twig;
 use File::Path::Tiny;
 use lib Cwd::realpath('lib');
 use Locales;
 use File::Slurp;
+use Encode ();    # to be stringified properly from hash value bug: s{\|\|\s*(\$fallback_lang_misc_info\-\>\S*)\,}{|| Encode::decode_utf8($1),}
 
+use Hash::Merge;
+Hash::Merge::specify_behavior(
+    {
+        'SCALAR' => {
+            'SCALAR' => sub { !defined $_[0] ? $_[1] : $_[0] },
+            'ARRAY'  => sub { !defined $_[0] ? $_[1] : $_[0] },
+            'HASH'   => sub { !defined $_[0] ? $_[1] : $_[0] },
+        },
+        'ARRAY' => {
+            'SCALAR' => sub { defined $_[0] ? $_[0] : [ @{ $_[0] }, $_[1] ] },
+            'ARRAY'  => sub { defined $_[0] ? $_[0] : [ @{ $_[0] }, @{ $_[1] } ] },
+            'HASH'   => sub { defined $_[0] ? $_[0] : [ @{ $_[0] }, values %{ $_[1] } ] },
+        },
+        'HASH' => {
+            'SCALAR' => sub { $_[0] },
+            'ARRAY'  => sub { $_[0] },
+            'HASH'   => sub { Hash::Merge::_merge_hashes( $_[0], $_[1] ) },
+        },
+    },
+    "left undef/missing"
+);
+
+sub merge_hash {
+    goto &Hash::Merge::merge;
+}
 use Data::Dumper;
 $Data::Dumper::Terse    = 1;
 $Data::Dumper::Sortkeys = 1;
-$Data::Dumper::Useqq = 1;
-{ 
+$Data::Dumper::Useqq    = 1;
+{
     no warnings 'redefine';
+
     sub Data::Dumper::qquote {
         my $s = shift;
         my $q = quotemeta($s);
@@ -20,242 +48,439 @@ $Data::Dumper::Useqq = 1;
     }
 }
 
-my $v_offset = '0.09';
+my $v_offset     = '0.10';
 my $mod_version  = $Locales::VERSION - $v_offset;
 my $cldr_version = $Locales::cldr_version;
 my $cldr_db_path;
 my $locales_db;
 my $manifest;
+our $plural_forms;
 
 sub init_paths_from_argv {
     die "no CLDR path given" if !-d "$ARGV[0]/common/main";
-    $cldr_db_path = Cwd::realpath($ARGV[0]) || die "need path to CLDR";
-    $locales_db   = Cwd::realpath($SARGV[1] || 'lib/Locales/DB');
-    $manifest     = Cwd::realpath($SARGV[2] || 'MANIFEST.build');
-    return ($cldr_db_path, $locales_db, $manifest);
+    $cldr_db_path = Cwd::realpath( $ARGV[0] ) || die "need path to CLDR";
+    $locales_db = Cwd::realpath( $SARGV[1] || 'lib/Locales/DB' );
+    $manifest   = Cwd::realpath( $SARGV[2] || 'MANIFEST.build' );
+
+    my $plural_forms_xml = XMLin( "$ARGV[0]/common/supplemental/plurals.xml", ForceArray => 1 );    # ,'KeyAttr' => {'pluralRules' => '+locales' });
+    for my $plural ( @{ $plural_forms_xml->{'plurals'}[0]{'pluralRules'} } ) {
+        for my $loc ( split( /\s+/, $plural->{'locales'} ) ) {
+            $plural_forms->{$loc} = { map { $_->{'count'} => $_->{'content'} } @{ $plural->{'pluralRule'} } };
+            if ( !keys %{ $plural_forms->{$loc} } ) {
+                $plural_forms->{$loc} = undef();
+            }
+        }
+    }
+
+    # print Dumper($plural_forms);die; # _xml->{'plurals'}[0]{'pluralRules'});die;
+
+    return ( $cldr_db_path, $locales_db, $manifest );
 }
 
 sub get_xml_file_for {
-    my ($tag,$quiet) = @_;
+    my ( $tag, $quiet ) = @_;
     my $xml_file = "$cldr_db_path/common/main/$tag.xml";
-    if (!-e $xml_file) {
+    if ( !-e $xml_file ) {
         warn "\t1) No $xml_file ...\n" if !$quiet;
         my $tag_copy = $tag;
         $tag_copy =~ s{_(\w+)$}{_\U$1\E};
         $xml_file = "$cldr_db_path/common/main/$tag_copy.xml";
-        if (!-e $xml_file) {
+        if ( !-e $xml_file ) {
             warn "\t2) No $xml_file ...\n" if !$quiet;
             $tag_copy =~ tr/a-z/A-Z/;
             $xml_file = "$cldr_db_path/common/main/$tag_copy.xml";
-            if (!-e $xml_file) {
+            if ( !-e $xml_file ) {
                 warn "\t3) No $xml_file ...\n" if !$quiet;
                 return;
             }
         }
     }
     return $xml_file;
-    
+
 }
 
-sub get_target_structs_from_cldr_for_tag  {
-    my ($tag, $fallback_lang_code_to_name, $fallback_terr_code_to_name, $fallback_lang_misc_info) = @_;
-    
+sub get_target_structs_from_cldr_for_tag {
+    my ( $tag, $fallback_lang_code_to_name, $fallback_terr_code_to_name, $fallback_lang_misc_info ) = @_;
+
+    # if ( $tag eq 'pt_br' ) { print Dumper( [ 'get_target_structs_from_cldr_for_tag', $fallback_lang_misc_info ] ) }
     my $xml_file = get_xml_file_for($tag);
     return if !-e $xml_file;
-    my $raw_struct = XMLin($xml_file, 'KeyAttr' => 'type');
 
-    my ($lang_code_to_name, $lang_name_to_code, $lang_misc_info, $terr_code_to_name, $terr_name_to_code) = ({},{},{},{},{});
+    print "Loading $tag XML from $xml_file...\n";
+
+    # my $raw_struct = XMLin($xml_file, 'KeyAttr' => 'type');
+    my $raw_struct = XML::Twig->new()->parsefile($xml_file)->simplify(
+        'keyattr' => {
+            'codePattern'     => '+type',
+            'listPatternPart' => '+type',
+            'characters'      => '+type',
+            'ellipsis'        => '+type',
+            'territory'       => '+type',
+            'language'        => '+type',
+        }
+    );
+
+    my ( $lang_code_to_name, $lang_name_to_code, $lang_misc_info, $terr_code_to_name, $terr_name_to_code ) = ( {}, {}, {}, {}, {} );
 
     #### Territories ####
-    for my $trr ( keys %{ $raw_struct->{'localeDisplayNames'}{'territories'}{'territory'} }) {
+    for my $trr ( keys %{ $raw_struct->{'localeDisplayNames'}{'territories'}{'territory'} } ) {
         next if $trr =~ m/^\d+$/;
-        
+
         my $short = $trr;
         $short =~ tr/A-Z/a-z/;
 
         $terr_code_to_name->{$short} = $raw_struct->{'localeDisplayNames'}{'territories'}{'territory'}{$trr}{'content'};
-        $terr_name_to_code->{Locales::normalize_for_key_lookup($raw_struct->{'localeDisplayNames'}{'territories'}{'territory'}{$trr}{'content'})} = $short;
+        $terr_name_to_code->{ Locales::normalize_for_key_lookup( $raw_struct->{'localeDisplayNames'}{'territories'}{'territory'}{$trr}{'content'} ) } = $short;
     }
-    
+
     if ($fallback_terr_code_to_name) {
-        for my $fb_trr (keys %{$fallback_terr_code_to_name}) {
-            if (!exists $terr_code_to_name->{$fb_trr}) {
+        for my $fb_trr ( keys %{$fallback_terr_code_to_name} ) {
+            if ( !exists $terr_code_to_name->{$fb_trr} ) {
                 $terr_code_to_name->{$fb_trr} = $fallback_terr_code_to_name->{$fb_trr};
-                $terr_name_to_code->{Locales::normalize_for_key_lookup($fallback_terr_code_to_name->{$fb_trr})} = $fb_trr;
+                $terr_name_to_code->{ Locales::normalize_for_key_lookup( $fallback_terr_code_to_name->{$fb_trr} ) } = $fb_trr;
             }
         }
     }
     #### /Territories ####
-    
+
     #### Languages ####
-    my $fallback = undef; # or [] ?
-    if (exists $raw_struct->{'fallback'}) {
+    my $fallback = undef;    # or [] ?
+    if ( exists $raw_struct->{'fallback'} ) {
         $fallback = [];
-        if (my $type = ref($raw_struct->{'fallback'})) {
-            if ($type eq 'ARRAY') {
-                for my $fb (@{$raw_struct->{'fallback'}}) {
+        if ( my $type = ref( $raw_struct->{'fallback'} ) ) {
+            if ( $type eq 'ARRAY' ) {
+                for my $fb ( @{ $raw_struct->{'fallback'} } ) {
                     my $thing = ref($fb) ? $fb->{'content'} : $fb;
                     next if !defined $thing;
                     push @{$fallback}, $thing;
                 }
             }
-            elsif ($type eq 'HASH') {
-                if ($raw_struct->{'fallback'}{'content'}) {
+            elsif ( $type eq 'HASH' ) {
+                if ( $raw_struct->{'fallback'}{'content'} ) {
                     push @{$fallback}, $raw_struct->{'fallback'}{'content'};
                 }
             }
         }
         else {
-            if ($raw_struct->{'fallback'}) {
+            if ( $raw_struct->{'fallback'} ) {
                 push @{$fallback}, $raw_struct->{'fallback'};
             }
         }
     }
-    elsif (exists $fallback_lang_misc_info->{'fallback'}) {
+    elsif ( exists $fallback_lang_misc_info->{'fallback'} ) {
         $fallback = [];
-        if (my $type = ref($fallback_lang_misc_info->{'fallback'})) {
-            if ($type eq 'ARRAY') {
-                for my $fb (@{$fallback_lang_misc_info->{'fallback'}}) {
+        if ( my $type = ref( $fallback_lang_misc_info->{'fallback'} ) ) {
+            if ( $type eq 'ARRAY' ) {
+                for my $fb ( @{ $fallback_lang_misc_info->{'fallback'} } ) {
                     my $thing = ref($fb) ? $fb->{'content'} : $fb;
                     next if !defined $thing;
                     push @{$fallback}, $thing;
                 }
             }
-            elsif ($type eq 'HASH') {
-                if ($fallback_lang_misc_info->{'fallback'}{'content'}) {
+            elsif ( $type eq 'HASH' ) {
+                if ( $fallback_lang_misc_info->{'fallback'}{'content'} ) {
                     push @{$fallback}, $fallback_lang_misc_info->{'fallback'}{'content'};
                 }
             }
         }
         else {
-            if ($fallback_lang_misc_info->{'fallback'}) {
+            if ( $fallback_lang_misc_info->{'fallback'} ) {
                 push @{$fallback}, $fallback_lang_misc_info->{'fallback'};
             }
         }
     }
-    
-    my $_decimal_format_group   = ( 
-         ref $raw_struct->{'numbers'}{'symbols'}{'group'} eq 'HASH'  ? $raw_struct->{'numbers'}{'symbols'}{'group'}{'content'} 
-       : ref $raw_struct->{'numbers'}{'symbols'}{'group'} eq 'ARRAY' ? $raw_struct->{'numbers'}{'symbols'}{'group'}->[0]
-       :                                                               $raw_struct->{'numbers'}{'symbols'}{'group'}
-       );
-    my $_decimal_format_decimal = (
-         ref $raw_struct->{'numbers'}{'symbols'}{'decimal'} eq 'HASH'  ? $raw_struct->{'numbers'}{'symbols'}{'decimal'}{'content'} 
-       : ref $raw_struct->{'numbers'}{'symbols'}{'decimal'} eq 'ARRAY' ? $raw_struct->{'numbers'}{'symbols'}{'decimal'}->[0]
-       :                                                                 $raw_struct->{'numbers'}{'symbols'}{'decimal'} 
-       );
-       
-    # only fallback if *both* will match
-    if (!$_decimal_format_group && !$_decimal_format_decimal) {
-        $_decimal_format_group   = $fallback_lang_misc_info->{'cldr_formats'}{'_decimal_format_group'};
-        $$_decimal_format_group =  $fallback_lang_misc_info->{'cldr_formats'}{'_decimal_format_decimal'};
+
+    my $symbols_index;
+    if ( ref( $raw_struct->{'numbers'}{'symbols'} ) eq 'ARRAY' ) {
+        my $default_numbersystem = $raw_struct->{'numbers'}{'defaultNumberingSystem'} || $raw_struct->{'numbers'}{'defaultNumberingSystem'} || 'latn';
+        if ( ref($default_numbersystem) eq 'HASH' ) {
+            $default_numbersystem = $default_numbersystem->{'content'};
+        }
+
+        my $idx = -1;
+        for my $item ( @{ $raw_struct->{'numbers'}{'symbols'} } ) {
+            $idx++;
+
+            if ( ref($item) eq 'HASH' && $item->{'numberSystem'} eq $default_numbersystem ) {
+                $symbols_index = $idx;
+                last;
+            }
+        }
     }
-    
+
+    my $_decimal_format_group =
+      defined $symbols_index
+      ? (
+          ref $raw_struct->{'numbers'}{'symbols'}[$symbols_index]{'group'} eq 'HASH'  ? $raw_struct->{'numbers'}{'symbols'}[$symbols_index]{'group'}{'content'}
+        : ref $raw_struct->{'numbers'}{'symbols'}[$symbols_index]{'group'} eq 'ARRAY' ? $raw_struct->{'numbers'}{'symbols'}[$symbols_index]{'group'}->[0]
+        : $raw_struct->{'numbers'}{'symbols'}[$symbols_index]{'group'}
+      )
+      : (
+          ref $raw_struct->{'numbers'}{'symbols'}{'group'} eq 'HASH'  ? $raw_struct->{'numbers'}{'symbols'}{'group'}{'content'}
+        : ref $raw_struct->{'numbers'}{'symbols'}{'group'} eq 'ARRAY' ? $raw_struct->{'numbers'}{'symbols'}{'group'}->[0]
+        : $raw_struct->{'numbers'}{'symbols'}{'group'}
+      );
+    if ( ref($_decimal_format_group) eq 'HASH' ) {
+        $_decimal_format_group = $_decimal_format_group->{'content'};
+    }
+
+    my $_decimal_format_decimal = defined $symbols_index
+      ? (
+          ref $raw_struct->{'numbers'}{'symbols'}[$symbols_index]{'decimal'} eq 'HASH'  ? $raw_struct->{'numbers'}{'symbols'}[$symbols_index]{'decimal'}{'content'}
+        : ref $raw_struct->{'numbers'}{'symbols'}[$symbols_index]{'decimal'} eq 'ARRAY' ? $raw_struct->{'numbers'}{'symbols'}[$symbols_index]{'decimal'}->[0]
+        : $raw_struct->{'numbers'}{'symbols'}[$symbols_index]{'decimal'}
+
+      )
+      : (
+          ref $raw_struct->{'numbers'}{'symbols'}{'decimal'} eq 'HASH'  ? $raw_struct->{'numbers'}{'symbols'}{'decimal'}{'content'}
+        : ref $raw_struct->{'numbers'}{'symbols'}{'decimal'} eq 'ARRAY' ? $raw_struct->{'numbers'}{'symbols'}{'decimal'}->[0]
+        : $raw_struct->{'numbers'}{'symbols'}{'decimal'}
+      );
+    if ( ref($_decimal_format_decimal) eq 'HASH' ) {
+        $_decimal_format_decimal = $_decimal_format_decimal->{'content'};
+    }
+
+    # only fallback if *both* will match
+    if ( !$_decimal_format_group && !$_decimal_format_decimal ) {
+        $_decimal_format_group   = $fallback_lang_misc_info->{'cldr_formats'}{'_decimal_format_group'};
+        $_decimal_format_decimal = $fallback_lang_misc_info->{'cldr_formats'}{'_decimal_format_decimal'};
+    }
+
     # if we are missing one use both it's parent's data if possible
-    if (!$_decimal_format_group || !$_decimal_format_decimal) {
-        my ($l,$t) = Locales::split_tag($tag);
+    if ( !$_decimal_format_group || !$_decimal_format_decimal ) {
+        my ( $l, $t ) = Locales::split_tag($tag);
         if ($t) {
-            if (my $parent = Locales->new($l)) {
+            if ( my $parent = Locales->new($l) ) {
                 no strict 'refs';
                 $_decimal_format_group   = ${"Locales::DB::Language::${l}::misc_info"}{'cldr_formats'}->{'_decimal_format_group'};
                 $_decimal_format_decimal = ${"Locales::DB::Language::${l}::misc_info"}{'cldr_formats'}->{'_decimal_format_decimal'};
             }
         }
     }
-    
-    if (!$_decimal_format_group || !$_decimal_format_decimal) {
+
+    if ( !$_decimal_format_group || !$_decimal_format_decimal ) {
+
         # not much we can (accuratly) do, I am open to suggestions :)
         warn "'$tag' is missing one or both decimal format options: _decimal_format_group ($_decimal_format_group) or _decimal_format_decimal ($_decimal_format_decimal) ...";
+        if ( $_decimal_format_group eq ',' ) {
+            $_decimal_format_decimal = '.';
+        }
+        elsif ( $_decimal_format_group eq '.' ) {
+            $_decimal_format_decimal = ',';
+        }
+        elsif ( $_decimal_format_decimal eq ',' ) {
+            $_decimal_format_group = '.';
+        }
+        elsif ( $_decimal_format_decimal eq '.' ) {
+            $_decimal_format_group = ',';
+        }
+
+        # TODO: fallback to values in its numberSystem (e.g. <symbols numberSystem="latn">) (only trips up a few as of CLDR 2.0)
+        elsif ( $tag eq 'ak' || $tag eq 'mfe' || $tag eq 'ses' || $tag eq 'khq' || $tag eq 'wal' ) {
+            $_decimal_format_decimal = '.';
+        }
+
+        else {
+            warn "\tCould not make worst-case-best-effort defualt from the curretn value.";
+        }
     }
-    
+
     my $_percent_format_percent = (
-         ref $raw_struct->{'numbers'}{'symbols'}{'percentSign'} eq 'HASH'  ? $raw_struct->{'numbers'}{'symbols'}{'percentSign'}{'content'} 
-       : ref $raw_struct->{'numbers'}{'symbols'}{'percentSign'} eq 'ARRAY' ? $raw_struct->{'numbers'}{'symbols'}{'percentSign'}->[0]
-       :                                                                     $raw_struct->{'numbers'}{'symbols'}{'percentSign'}
-    ) || $fallback_lang_misc_info->{'cldr_formats'}{'_percent_format_percent'};
-    if (!$_percent_format_percent) {
-        my ($l,$t) = Locales::split_tag($tag);
+        defined $symbols_index
+        ? (
+              ref $raw_struct->{'numbers'}{'symbols'}[$symbols_index]{'percentSign'} eq 'HASH'  ? $raw_struct->{'numbers'}{'symbols'}[$symbols_index]{'percentSign'}{'content'}
+            : ref $raw_struct->{'numbers'}{'symbols'}[$symbols_index]{'percentSign'} eq 'ARRAY' ? $raw_struct->{'numbers'}{'symbols'}[$symbols_index]{'percentSign'}->[0]
+            : $raw_struct->{'numbers'}{'symbols'}[$symbols_index]{'percentSign'}
+          )
+        : (
+              ref $raw_struct->{'numbers'}{'symbols'}{'percentSign'} eq 'HASH'  ? $raw_struct->{'numbers'}{'symbols'}{'percentSign'}{'content'}
+            : ref $raw_struct->{'numbers'}{'symbols'}{'percentSign'} eq 'ARRAY' ? $raw_struct->{'numbers'}{'symbols'}{'percentSign'}->[0]
+            : $raw_struct->{'numbers'}{'symbols'}{'percentSign'}
+        )
+      )
+      || $fallback_lang_misc_info->{'cldr_formats'}{'_percent_format_percent'};
+    if ( !$_percent_format_percent ) {
+        my ( $l, $t ) = Locales::split_tag($tag);
         if ($t) {
-            if (my $parent = Locales->new($l)) {
+            if ( my $parent = Locales->new($l) ) {
                 no strict 'refs';
-                $_percent_format_percent   = ${"Locales::DB::Language::${l}::misc_info"}{'cldr_formats'}->{'_percent_format_percent'};
+                $_percent_format_percent = ${"Locales::DB::Language::${l}::misc_info"}{'cldr_formats'}->{'_percent_format_percent'};
             }
         }
     }
-    
+
+    # $fallback_lang_misc_info->{'cldr_formats'}{'delimiters'} ||= {
+    #     map {
+    #        my $norm = $_;
+    #        $norm = lcfirst($norm);
+    #        $norm =~ s/([A-Z])/_\L$1\E/g;
+    #        ($norm => $raw_struct->{'delimiters'}{$_})
+    #    } keys %{ $raw_struct->{'delimiters'} }
+    # };
+
+    # if ( $tag eq 'pt_br' ) { use Data::Dumper; print Dumper( $tag, $fallback_lang_misc_info ) }
+
+    # ick
+    if ( ref( $raw_struct->{'numbers'}{'decimalFormats'}{'decimalFormatLength'} ) eq 'HASH' ) {
+        if ( $raw_struct->{'numbers'}{'decimalFormats'}{'decimalFormatLength'}{'type'} eq 'short' ) {
+            delete $raw_struct->{'numbers'}{'decimalFormats'}{'decimalFormatLength'};
+        }
+    }
+    elsif ( ref( $raw_struct->{'numbers'}{'decimalFormats'}{'decimalFormatLength'} ) eq 'ARRAY' ) {
+        if ( $raw_struct->{'numbers'}{'decimalFormats'}{'decimalFormatLength'}[0]{'type'} eq 'short' ) {
+            shift @{ $raw_struct->{'numbers'}{'decimalFormats'}{'decimalFormatLength'} };
+        }
+    }
+
     $lang_misc_info = {
-        'fallback' => $fallback,
+        'fallback'     => $fallback,
         'cldr_formats' => {
             'decimal' => (
-                 ref $raw_struct->{'numbers'}{'decimalFormats'}{'decimalFormatLength'}{'decimalFormat'}{'pattern'} eq 'HASH'  ? $raw_struct->{'numbers'}{'decimalFormats'}{'decimalFormatLength'}{'decimalFormat'}{'pattern'}{'content'} 
-               : ref $raw_struct->{'numbers'}{'decimalFormats'}{'decimalFormatLength'}{'decimalFormat'}{'pattern'} eq 'ARRAY' ? $raw_struct->{'numbers'}{'decimalFormats'}{'decimalFormatLength'}{'decimalFormat'}{'pattern'}->[0]
-               :                                                                                                                $raw_struct->{'numbers'}{'decimalFormats'}{'decimalFormatLength'}{'decimalFormat'}{'pattern'} 
-               ) || $fallback_lang_misc_info->{'cldr_formats'}{'decimal'},
+                ref( $raw_struct->{'numbers'}{'decimalFormats'}{'decimalFormatLength'} ) eq 'ARRAY'
+                ? (
+                      ref $raw_struct->{'numbers'}{'decimalFormats'}{'decimalFormatLength'}[0]{'decimalFormat'}{'pattern'} eq 'HASH'  ? $raw_struct->{'numbers'}{'decimalFormats'}{'decimalFormatLength'}[0]{'decimalFormat'}{'pattern'}{'content'}
+                    : ref $raw_struct->{'numbers'}{'decimalFormats'}{'decimalFormatLength'}[0]{'decimalFormat'}{'pattern'} eq 'ARRAY' ? $raw_struct->{'numbers'}{'decimalFormats'}{'decimalFormatLength'}[0]{'decimalFormat'}{'pattern'}->[0]
+                    : $raw_struct->{'numbers'}{'decimalFormats'}{'decimalFormatLength'}[0]{'decimalFormat'}{'pattern'}
+
+                  )
+                : (
+                      ref $raw_struct->{'numbers'}{'decimalFormats'}{'decimalFormatLength'}{'decimalFormat'}{'pattern'} eq 'HASH'  ? $raw_struct->{'numbers'}{'decimalFormats'}{'decimalFormatLength'}{'decimalFormat'}{'pattern'}{'content'}
+                    : ref $raw_struct->{'numbers'}{'decimalFormats'}{'decimalFormatLength'}{'decimalFormat'}{'pattern'} eq 'ARRAY' ? $raw_struct->{'numbers'}{'decimalFormats'}{'decimalFormatLength'}{'decimalFormat'}{'pattern'}->[0]
+                    : $raw_struct->{'numbers'}{'decimalFormats'}{'decimalFormatLength'}{'decimalFormat'}{'pattern'}
+                )
+              )
+              || Encode::decode_utf8( $fallback_lang_misc_info->{'cldr_formats'}{'decimal'} ),
             '_decimal_format_group'   => $_decimal_format_group,
             '_decimal_format_decimal' => $_decimal_format_decimal,
-            'percent' => (
-                 ref $raw_struct->{'numbers'}{'percentFormats'}{'percentFormatLength'}{'percentFormat'}{'pattern'} eq 'HASH'  ? $raw_struct->{'numbers'}{'percentFormats'}{'percentFormatLength'}{'percentFormat'}{'pattern'}{'content'} 
-               : ref $raw_struct->{'numbers'}{'percentFormats'}{'percentFormatLength'}{'percentFormat'}{'pattern'} eq 'ARRAY' ? $raw_struct->{'numbers'}{'percentFormats'}{'percentFormatLength'}{'percentFormat'}{'pattern'}->[0]
-               :                                                                                                                $raw_struct->{'numbers'}{'percentFormats'}{'percentFormatLength'}{'percentFormat'}{'pattern'}
-               ) || $fallback_lang_misc_info->{'cldr_formats'}{'percent'},
+            'percent'                 => (
+                  ref $raw_struct->{'numbers'}{'percentFormats'}{'percentFormatLength'}{'percentFormat'}{'pattern'} eq 'HASH'  ? $raw_struct->{'numbers'}{'percentFormats'}{'percentFormatLength'}{'percentFormat'}{'pattern'}{'content'}
+                : ref $raw_struct->{'numbers'}{'percentFormats'}{'percentFormatLength'}{'percentFormat'}{'pattern'} eq 'ARRAY' ? $raw_struct->{'numbers'}{'percentFormats'}{'percentFormatLength'}{'percentFormat'}{'pattern'}->[0]
+                : $raw_struct->{'numbers'}{'percentFormats'}{'percentFormatLength'}{'percentFormat'}{'pattern'}
+              )
+              || Encode::decode_utf8( $fallback_lang_misc_info->{'cldr_formats'}{'percent'} ),
             '_percent_format_percent' => $_percent_format_percent,
-            'territory' => $raw_struct->{'localeDisplayNames'}{'codePatterns'}{'codePattern'}{'territory'}{'content'} || $fallback_lang_misc_info->{'cldr_formats'}{'territory'},
-            'language' => $raw_struct->{'localeDisplayNames'}{'codePatterns'}{'codePattern'}{'language'}{'content'} || $fallback_lang_misc_info->{'cldr_formats'}{'language'},
-            'locale' => $raw_struct->{'localeDisplayNames'}{'localeDisplayPattern'}{'localePattern'} || $fallback_lang_misc_info->{'cldr_formats'}{'locale'}, # wx_yz has no name but wx does and xy may
-            # {'localeDisplayNames'}{'localeDisplayPattern'}{'localePattern'}{'localeSeparator'} => ', ' (not needed since we only use territory subtag)
+            'territory'               => $raw_struct->{'localeDisplayNames'}{'codePatterns'}{'codePattern'}{'territory'}{'content'}
+              || Encode::decode_utf8( $fallback_lang_misc_info->{'cldr_formats'}{'territory'} ),
+            'language' => $raw_struct->{'localeDisplayNames'}{'codePatterns'}{'codePattern'}{'language'}{'content'}
+              || Encode::decode_utf8( $fallback_lang_misc_info->{'cldr_formats'}{'language'} ),
+            'locale' => ( Encode::decode_utf8( ref( $raw_struct->{'localeDisplayNames'}{'localeDisplayPattern'}{'localePattern'} ) eq 'HASH' ? $raw_struct->{'localeDisplayNames'}{'localeDisplayPattern'}{'localePattern'}{'content'} : $raw_struct->{'localeDisplayNames'}{'localeDisplayPattern'}{'localePattern'} ) )
+              || Encode::decode_utf8( $fallback_lang_misc_info->{'cldr_formats'}{'locale'} ),    # wx_yz has no name but wx does and xy may
+                                                                                                 # {'localeDisplayNames'}{'localeDisplayPattern'}{'localePattern'}{'localeSeparator'} => ', ' (not needed since we only use territory subtag)
+            'list' => {
+                '2'      => $raw_struct->{'listPatterns'}{'listPattern'}{'listPatternPart'}{'2'}{'content'}      || Encode::decode_utf8( $fallback_lang_misc_info->{'cldr_formats'}{'list'}{'2'} ),
+                'end'    => $raw_struct->{'listPatterns'}{'listPattern'}{'listPatternPart'}{'end'}{'content'}    || Encode::decode_utf8( $fallback_lang_misc_info->{'cldr_formats'}{'list'}{'end'} ),
+                'middle' => $raw_struct->{'listPatterns'}{'listPattern'}{'listPatternPart'}{'middle'}{'content'} || Encode::decode_utf8( $fallback_lang_misc_info->{'cldr_formats'}{'list'}{'middle'} ),
+                'start'  => $raw_struct->{'listPatterns'}{'listPattern'}{'listPatternPart'}{'start'}{'content'}  || Encode::decode_utf8( $fallback_lang_misc_info->{'cldr_formats'}{'list'}{'start'} ),
+            },
+            'ellipsis' => {
+
+                # Encode::decode_utf8() on current fallback will keep from tripping perl's hash value bytes string bug?
+                'final'   => $raw_struct->{'characters'}{'ellipsis'}{'final'}{'content'}   || Encode::decode_utf8( $fallback_lang_misc_info->{'cldr_formats'}{'ellipsis'}{'final'} ),
+                'initial' => $raw_struct->{'characters'}{'ellipsis'}{'initial'}{'content'} || Encode::decode_utf8( $fallback_lang_misc_info->{'cldr_formats'}{'ellipsis'}{'initial'} ),
+                'medial'  => $raw_struct->{'characters'}{'ellipsis'}{'medial'}{'content'}  || Encode::decode_utf8( $fallback_lang_misc_info->{'cldr_formats'}{'ellipsis'}{'medial'} ),
+            },
+        },
+        'characters' => {
+            'more_information' => $raw_struct->{'characters'}{'moreInformation'} || Encode::decode_utf8( $fallback_lang_misc_info->{'characters'}{'more_information'} ),
+        },
+        'delimiters' => {
+            map {
+                my $norm = $_;
+                $norm = lcfirst($norm);
+                $norm =~ s/([A-Z])/_\L$1\E/g;
+
+                # print Dumper(
+                #     [
+                #     $_,
+                #     $norm,
+                # exists $raw_struct->{'delimiters'}{$_},
+                #  $raw_struct->{'delimiters'}{$_},
+                #  $fallback_lang_misc_info->{'cldr_formats'}{'delimiters'}{$norm}
+                # ]);
+                (
+                    $norm => (
+                        exists $raw_struct->{'delimiters'}{$_}
+                        ? ( $raw_struct->{'delimiters'}{$_} || $fallback_lang_misc_info->{'delimiters'}{$norm} )
+                        : $fallback_lang_misc_info->{'delimiters'}{$norm}
+                    )
+                  )
+              } ( 'quotationStart', 'quotationEnd', 'alternateQuotationStart', 'alternateQuotationEnd' )
+        },
+        'plural_forms' => {
+
+            # Order is important for Locale::Maketext::Utils::quant():
+            #   one (singular), two (dual), few (paucal), many, other, zero
+            'category_list' => [
+                (
+                    ( grep { exists $plural_forms->{$tag}{$_} } ( Locales::get_cldr_plural_category_list() ) ),
+                    exists $plural_forms->{$tag}{'other'} ? () : ('other')    # has to have 'other' at the end if no where else
+                )
+            ],
+            'category_rules' => $plural_forms->{$tag},
         },
         'orientation' => {
             'characters' => $raw_struct->{'layout'}{'orientation'}{'characters'} || $fallback_lang_misc_info->{'orientation'}{'characters'} || 'left-to-right',
-            'lines' => $raw_struct->{'layout'}{'orientation'}{'lines'} || $fallback_lang_misc_info->{'orientation'}{'lines'}  || 'top-to-bottom',
+            'lines'      => $raw_struct->{'layout'}{'orientation'}{'lines'}      || $fallback_lang_misc_info->{'orientation'}{'lines'}      || 'top-to-bottom',
         },
         'posix' => {
-            'yesstr' => $raw_struct->{'posix'}{'messages'}{'yesstr'} || $fallback_lang_misc_info->{'posix'}{'yesstr'},  
-            'nostr' => $raw_struct->{'posix'}{'messages'}{'nostr'} || $fallback_lang_misc_info->{'posix'}{'nostr'}, 
+            'yesstr' => $raw_struct->{'posix'}{'messages'}{'yesstr'} || Encode::decode_utf8( $fallback_lang_misc_info->{'posix'}{'yesstr'} ),
+            'nostr'  => $raw_struct->{'posix'}{'messages'}{'nostr'}  || Encode::decode_utf8( $fallback_lang_misc_info->{'posix'}{'nostr'} ),
+
             # TODO: yesexp/noexp
         },
     };
-    
-    for my $lng (sort keys %{ $raw_struct->{'localeDisplayNames'}{'languages'}{'language'} }) {
+
+    for my $k ( keys %{ $lang_misc_info->{'delimiters'} } ) {
+        if ( ref( $lang_misc_info->{'delimiters'}{$k} ) eq 'HASH' ) {
+            $lang_misc_info->{'delimiters'}{$k} = $lang_misc_info->{'delimiters'}{$k}{'content'};
+        }
+    }
+
+    for my $lng ( sort keys %{ $raw_struct->{'localeDisplayNames'}{'languages'}{'language'} } ) {
         next if $lng eq 'root';
-        
+
         # if ($tag eq 'en') {
         #     next if !get_xml_file_for($lng,1);
         # }
-        
+
         my $short = $lng;
         $short =~ tr/A-Z/a-z/;
-        
-        my ($l,$t,@x) = split(/_/,$short);
+
+        my ( $l, $t, @x ) = split( /_/, $short );
         next if @x;
         next if $t && !exists $terr_code_to_name->{$t};
-        
+
         $lang_code_to_name->{$short} = $raw_struct->{'localeDisplayNames'}{'languages'}{'language'}{$lng}{'content'};
-        $lang_name_to_code->{Locales::normalize_for_key_lookup($raw_struct->{'localeDisplayNames'}{'languages'}{'language'}{$lng}{'content'})} = $short;
+        $lang_name_to_code->{ Locales::normalize_for_key_lookup( $raw_struct->{'localeDisplayNames'}{'languages'}{'language'}{$lng}{'content'} ) } = $short;
     }
-    
+
     if ($fallback_lang_code_to_name) {
-        for my $fb_lng (keys %{$fallback_lang_code_to_name}) {
-            if (!exists $lang_code_to_name->{$fb_lng}) {
+        for my $fb_lng ( keys %{$fallback_lang_code_to_name} ) {
+            if ( !exists $lang_code_to_name->{$fb_lng} ) {
                 $lang_code_to_name->{$fb_lng} = $fallback_lang_code_to_name->{$fb_lng};
-                $lang_name_to_code->{Locales::normalize_for_key_lookup($fallback_lang_code_to_name->{$fb_lng})} = $fb_lng;
+                $lang_name_to_code->{ Locales::normalize_for_key_lookup( $fallback_lang_code_to_name->{$fb_lng} ) } = $fb_lng;
             }
         }
     }
     #### /Languages ####
-    
+
     # TOOD: ? merge in ant $raw_struct->{'fallback'} (sans language part of $tag or 'en' since those happen alreay) locale's ?
-        
-    return ($lang_code_to_name, $lang_name_to_code, $lang_misc_info, $terr_code_to_name, $terr_name_to_code);
+
+    return ( $lang_code_to_name, $lang_name_to_code, $lang_misc_info, $terr_code_to_name, $terr_name_to_code );
 }
 
 sub write_language_module {
-    my ($tag, $code_to_name, $name_to_code, $misc_info) = @_;
+    my ( $tag, $code_to_name, $name_to_code, $misc_info ) = @_;
+
+    # init 'category_rules_compiled' key
+    Locales::plural_rule_hashref_to_code( $misc_info->{'plural_forms'} );
 
     my $code_to_name_str = _stringify_hash($code_to_name);
     my $name_to_code_str = _stringify_hash($name_to_code);
     my $misc_info_str    = _stringify_hash($misc_info);
-    
-    _write_utf8_perl("Language/$tag.pm", qq{package Locales::DB::Language::$tag;
+
+    _write_utf8_perl(
+        "Language/$tag.pm", qq{package Locales::DB::Language::$tag;
 
 # Auto generated from CLDR
 
@@ -276,18 +501,18 @@ $name_to_code_str,
 );
 
 1;    
-}, 
-    );  
+},
+    );
 }
 
-
 sub write_territory_module {
-    my ($tag, $code_to_name, $name_to_code) = @_;
-    
+    my ( $tag, $code_to_name, $name_to_code ) = @_;
+
     my $code_to_name_str = _stringify_hash($code_to_name);
     my $name_to_code_str = _stringify_hash($name_to_code);
 
-    _write_utf8_perl("Territory/$tag.pm", qq{package Locales::DB::Territory::$tag;
+    _write_utf8_perl(
+        "Territory/$tag.pm", qq{package Locales::DB::Territory::$tag;
 
 # Auto generated from CLDR
 
@@ -307,15 +532,39 @@ $name_to_code_str,
 
 },
     );
-  
+
+}
+
+my @_get_fast_norm_test_data = ( '', 0 );
+
+sub _get_fast_norm_test_data {
+    if ( $_get_fast_norm_test_data[1] == 0 ) {
+        my $loc = Locales->new();
+        my $cnt = 12;
+        for my $l ( sort $loc->get_language_codes() ) {
+            $_get_fast_norm_test_data[0] .= qq{is(\$self_obj->get_locale_display_pattern_from_code('$l'), \$self_obj->get_locale_display_pattern_from_code_fast('$l'), 'get_locale_display_pattern_from_code[_fast] same result for $l');\n};
+            $_get_fast_norm_test_data[1]++;
+
+            $_get_fast_norm_test_data[0] .= qq{is(\$self_obj->get_character_orientation_from_code('$l'), \$self_obj->get_character_orientation_from_code('$l'), 'get_character_orientation_from_code[_fast] same result for $l');\n};
+            $_get_fast_norm_test_data[1]++;
+
+            $_get_fast_norm_test_data[0] .= "\n";
+        }
+    }
+
+    return @_get_fast_norm_test_data;
 }
 
 sub write_locale_test {
     my ($tag) = @_;
-     _write_utf8_perl("../../../t/042.$tag.t",  qq{
+
+    my ( $fast_norm_str, $fast_norm_cnt ) = _get_fast_norm_test_data();
+
+    _write_utf8_perl(
+        "../../../t/042.$tag.t", qq{
 # Auto generated during CLDR build
 
-use Test::More tests => 6;
+use Test::More tests => 13 + $fast_norm_cnt;
 
 use lib 'lib', '../lib';
 
@@ -344,18 +593,61 @@ ok(\$Locales::DB::Language::$tag\::VERSION eq (\$Locales::VERSION - $v_offset), 
 
 ok(!(grep {!exists \$lang_lu{\$_} } \@en_lang_codes), '$tag languages contains en');
 ok(!(grep {!exists \$terr_lu{\$_} } \@en_terr_codes), '$tag territories contains en');
+
+my \%uniq = ();
+grep { not \$uniq{\$_}++ } \@{ \$Locales::DB::Language::$tag\::misc_info{'plural_forms'}->{'category_list'} };
+is_deeply(
+    [ sort \@{ \$Locales::DB::Language::$tag\::misc_info{'plural_forms'}->{'category_list'} }],
+    [ sort keys \%uniq ],
+    "'category_list' contains no duplicates"
+);
+
+ok(grep(m/^other\$/, \@{ \$Locales::DB::Language::$tag\::misc_info{'plural_forms'}->{'category_list'} }), "'category_list' has 'other'");
+
+is_deeply(
+    [ grep !m/^other\$/, sort \@{ \$Locales::DB::Language::$tag\::misc_info{'plural_forms'}->{'category_list'} }],
+    [ grep !m/^other\$/, sort keys \%{ \$Locales::DB::Language::$tag\::misc_info{'plural_forms'}->{'category_rules'} } ],
+    "'category_rules' has necessary 'category_list' items"
+);
+
+is_deeply(
+    [ sort keys \%{ \$Locales::DB::Language::$tag\::misc_info{'plural_forms'}->{'category_rules'} } ],
+    [ sort keys \%{ \$Locales::DB::Language::$tag\::misc_info{'plural_forms'}->{'category_rules_compiled'} } ],
+    "each 'category_rules' has a 'category_rules_compiled'"
+);
+my \$ok_rule_count = 0;
+my \$error = '';
+for my \$rule (keys \%{\$Locales::DB::Language::$tag\::misc_info{'plural_forms'}->{'category_rules_compiled'}}) {
+    eval \$Locales::DB::Language::$tag\::misc_info{'plural_forms'}->{'category_rules_compiled'}{\$rule};
+    if (\$@) {
+        \$error .= \$@;
+        next;
+    }
+    else {
+        \$ok_rule_count++;
+    }
+}
+ok(\$ok_rule_count == keys \%{ \$Locales::DB::Language::$tag\::misc_info{'plural_forms'}->{'category_rules_compiled'} }, "each 'category_rules_compiled' eval without error - count");
+is(\$error, '', "each 'category_rules_compiled' eval without error - errors");
+
+my \$self_obj = Locales->new('$tag');
+ok(ref(\$self_obj), '$tag object created OK');
+
+$fast_norm_str
+
         },
-        "t/042.$tag.t", 
+        "t/042.$tag.t",
     );
 }
 
 sub write_native_module {
-    my ($native_map, $fallback_lookup) = @_;
+    my ( $native_map, $fallback_lookup ) = @_;
 
-    my $code_to_name_str    = _stringify_hash_no_dumper($native_map);    
+    my $code_to_name_str    = _stringify_hash_no_dumper($native_map);
     my $fallback_lookup_str = _stringify_hash_no_dumper($fallback_lookup);
 
-    _write_utf8_perl("$locales_db/Native.pm", qq{package Locales::DB::Native;
+    _write_utf8_perl(
+        "$locales_db/Native.pm", qq{package Locales::DB::Native;
 
 # Auto generated from CLDR
 
@@ -371,18 +663,19 @@ $fallback_lookup_str);
 
 1;    
 },
-        'lib/Locales/DB/Native.pm', 
+        'lib/Locales/DB/Native.pm',
         1,
     );
 }
 
 sub write_character_orientation_module {
-    my ($text_direction_map, $fallback_lookup) = @_;
+    my ( $text_direction_map, $fallback_lookup ) = @_;
 
-    my $code_to_name_str    = _stringify_hash_no_dumper($text_direction_map);   
+    my $code_to_name_str    = _stringify_hash_no_dumper($text_direction_map);
     my $fallback_lookup_str = _stringify_hash_no_dumper($fallback_lookup);
-    
-    _write_utf8_perl("$locales_db/CharacterOrientation.pm", qq{package Locales::DB::CharacterOrientation;
+
+    _write_utf8_perl(
+        "$locales_db/CharacterOrientation.pm", qq{package Locales::DB::CharacterOrientation;
 
 # Auto generated from CLDR
 
@@ -398,7 +691,238 @@ $fallback_lookup_str);
 
 1;    
 },
-        'lib/Locales/DB/CharacterOrientation.pm', 
+        'lib/Locales/DB/CharacterOrientation.pm',
+        1,
+    );
+
+    File::Path::Tiny::mk("$locales_db/CharacterOrientation") || die "Could not create '$locales_db/CharacterOrientation': $!";
+    my $rtl;
+    for my $name ( keys %{$text_direction_map} ) {
+        if ( $text_direction_map->{$name} eq 'right-to-left' ) {
+            $rtl->{$name} = undef();
+        }
+        elsif ( $text_direction_map->{$name} ne 'left-to-right' ) {
+            warn "$name is neither right-to-left or left-to-right";
+        }
+    }
+    die "Locales::DB::CharacterOrientation::Tiny lookup hash not built" if ref($rtl) ne 'HASH';
+    $rtl = _stringify_hash_no_dumper($rtl);
+
+    _write_utf8_perl(
+        "$locales_db/CharacterOrientation/Tiny.pm", qq{package Locales::DB::CharacterOrientation::Tiny;
+
+# Auto generated from CLDR
+
+\$Locales::DB::CharacterOrientation::Tiny::VERSION = '$mod_version';
+
+\$Locales::DB::CharacterOrientation::Tiny::cldr_version = '$cldr_version';
+
+my \%rtl = (
+$rtl);
+
+sub get_orientation {
+    if ( exists \$rtl{ \$_[0] } ) {
+        return 'right-to-left';
+    }
+    else {
+        return 'left-to-right';
+    }
+}
+
+1;
+},
+        'lib/Locales/DB/CharacterOrientation/Tiny.pm',
+        1,
+    );
+}
+
+sub write_name_pattern_module {
+    my ( $name_pattern, $isfallback ) = @_;
+
+    my $name_pattern_str    = _stringify_hash_no_dumper($name_pattern);
+    my $fallback_lookup_str = _stringify_hash_no_dumper($isfallback);
+
+    _write_utf8_perl(
+        "$locales_db/LocaleDisplayPattern.pm", qq{package Locales::DB::LocaleDisplayPattern;
+
+# Auto generated from CLDR
+
+\$Locales::DB::LocaleDisplayPattern::VERSION = '$mod_version';
+
+\$Locales::DB::LocaleDisplayPattern::cldr_version = '$cldr_version';
+
+\%Locales::DB::LocaleDisplayPattern::code_to_pattern = ( 
+$name_pattern_str);
+
+\%Locales::DB::LocaleDisplayPattern::value_is_fallback = (
+$fallback_lookup_str);
+
+1;    
+},
+        'lib/Locales/DB/LocaleDisplayPattern.pm',
+        1,
+    );
+
+    # $locales_db/LocaleDisplayPattern
+    File::Path::Tiny::mk("$locales_db/LocaleDisplayPattern") || die "Could not create '$locales_db/CharacterOrientation': $!";
+
+    my $name_pattern_hr;
+
+    require Locales::DB::Language::en;
+    my $default_pattern = $Locales::DB::Language::en::misc_info{'cldr_formats'}{'locale'};
+    for my $k ( keys %{$name_pattern} ) {
+        next if !$name_pattern->{$k} || $name_pattern->{$k} =~ m/^\s+$/ || $name_pattern->{$k} eq $default_pattern;
+        $name_pattern_hr->{$k} = $name_pattern->{$k};
+    }
+
+    die "Locales::DB::LocaleDisplayPattern::Tiny lookup hash not built" if ref($name_pattern_hr) ne 'HASH';
+    $name_pattern_hr = _stringify_hash_no_dumper($name_pattern_hr);
+
+    $default_pattern = quotemeta($default_pattern);
+
+    # $locales_db/LocaleDisplayPattern/Tiny.pm
+    _write_utf8_perl(
+        "$locales_db/LocaleDisplayPattern/Tiny.pm", qq{package Locales::DB::LocaleDisplayPattern::Tiny;
+
+# Auto generated from CLDR
+
+\$Locales::DB::LocaleDisplayPattern::Tiny::VERSION = '$mod_version';
+
+\$Locales::DB::LocaleDisplayPattern::Tiny::cldr_version = '$cldr_version';
+
+my \%locale_display_lookup = (
+$name_pattern_hr);
+
+sub get_locale_display_pattern {
+    if ( exists \$locale_display_lookup{ \$_[0] } ) {
+        return \$locale_display_lookup{ \$_[0] };
+    }
+    else {
+        return "$default_pattern";
+    }
+}
+
+1;
+},
+        'lib/Locales/DB/LocaleDisplayPattern/Tiny.pm',
+        1,
+    );
+}
+
+sub write_plural_forms_argument_pod {
+    my ( $plural_forms, $isfallback ) = @_;
+    File::Path::Tiny::mk("$locales_db/Docs") || die "Could not create '$locales_db/Docs': $!";
+
+    my $pod_items = '';
+
+    for my $ent ( @{$plural_forms} ) {
+
+        if ( exists $isfallback->{ $ent->{'tag'} } ) {
+            $pod_items .= "=item $ent->{'tag'}\n\nCLDR $cldr_version did not define data for “$ent->{'tag'}”, thus it will fallback to L</en> behavior.\n\nYou can  L<submit the missing data to the CLDR|http://unicode.org/cldr/trac> if you wish.\n\n";
+        }
+        else {
+            $pod_items .= "=item $ent->{'tag'}\n\n$fb    get_plural_form(\$n, $ent->{'csv'})\n";
+            if ( $ent->{'zero_is_not_other'} ) {
+                $pod_items .= "\nNote: zero falls under a different category than “other” so there is no L</“Special Zero” Argument> for $ent->{'tag'}\n\n";
+            }
+            else {
+                $pod_items .= "    get_plural_form(\$n, $ent->{'csv'}, special_zero)\n\n";
+            }
+        }
+    }
+
+    # $locales_db/Docs/PluralForms.pm
+    _write_utf8_perl(
+        "$locales_db/Docs/PluralForms.pm", qq{package Locales::DB::Docs::PluralForms;
+
+# Auto generated from CLDR
+
+\$Locales::DB::Docs::PluralForms::VERSION = '$mod_version';
+
+\$Locales::DB::Docs::PluralForms::cldr_version = '$cldr_version';
+
+1;
+
+__END__
+
+=encoding utf-8
+
+=head1 NAME
+
+plural form details reference for all included locales
+
+=head1 VERSION
+
+Locales.pm v$mod_version (based on CLDR v$cldr_version)
+
+=head1 DESCRIPTION
+
+CLDR L<defines a set of broad plural categories and rules|http://unicode.org/repos/cldr-tmp/trunk/diff/supplemental/language_plural_rules.html> that determine which category any given number will fall under.
+
+L<Locales> allows you to determine the plural categories applicable to a specific locale and also which category a given number will fall under in that locale.
+
+This POD documents which categories and in what order you'd specify them in additional arguments to L<Locales/get_plural_form()> (i.e. the optional arguments after the number).
+
+=head2 “Special Zero” Argument
+
+In addition to the CLDR category value list you can also specify one additional argument of what to use for zero instead of the value for “other”.
+
+This won't be used if 0 falls under a specific category besides “other”.
+
+=head1 
+
+=head1 Plural Category Argument Order Reference
+
+=over 4
+
+$pod_items
+
+=back
+
+=head1 BUGS AND LIMITATIONS
+
+Please see L<Locales/BUGS AND LIMITATIONS>
+
+=head2 BEFORE YOU SUBMIT A BUG REPORT
+
+Please see L<Locales/BEFORE YOU SUBMIT A BUG REPORT>
+
+=head1 AUTHOR
+
+Daniel Muey  C<< <http://drmuey.com/cpan_contact.pl> >>
+
+=head1 LICENCE AND COPYRIGHT
+
+Copyright (c) 2009, Daniel Muey C<< <http://drmuey.com/cpan_contact.pl> >>. All rights reserved.
+
+This module is free software; you can redistribute it and/or
+modify it under the same terms as Perl itself. See L<perlartistic>.
+
+=head1 DISCLAIMER OF WARRANTY
+
+BECAUSE THIS SOFTWARE IS LICENSED FREE OF CHARGE, THERE IS NO WARRANTY
+FOR THE SOFTWARE, TO THE EXTENT PERMITTED BY APPLICABLE LAW. EXCEPT WHEN
+OTHERWISE STATED IN WRITING THE COPYRIGHT HOLDERS AND/OR OTHER PARTIES
+PROVIDE THE SOFTWARE "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER
+EXPRESSED OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. THE
+ENTIRE RISK AS TO THE QUALITY AND PERFORMANCE OF THE SOFTWARE IS WITH
+YOU. SHOULD THE SOFTWARE PROVE DEFECTIVE, YOU ASSUME THE COST OF ALL
+NECESSARY SERVICING, REPAIR, OR CORRECTION.
+
+IN NO EVENT UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING
+WILL ANY COPYRIGHT HOLDER, OR ANY OTHER PARTY WHO MAY MODIFY AND/OR
+REDISTRIBUTE THE SOFTWARE AS PERMITTED BY THE ABOVE LICENCE, BE
+LIABLE TO YOU FOR DAMAGES, INCLUDING ANY GENERAL, SPECIAL, INCIDENTAL,
+OR CONSEQUENTIAL DAMAGES ARISING OUT OF THE USE OR INABILITY TO USE
+THE SOFTWARE (INCLUDING BUT NOT LIMITED TO LOSS OF DATA OR DATA BEING
+RENDERED INACCURATE OR LOSSES SUSTAINED BY YOU OR THIRD PARTIES OR A
+FAILURE OF THE SOFTWARE TO OPERATE WITH ANY OTHER SOFTWARE), EVEN IF
+SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF
+SUCH DAMAGES.
+
+},
+        'lib/Locales/DB/Docs/PluralForms.pm',
         1,
     );
 }
@@ -408,7 +932,7 @@ sub build_manifest {
     $base =~ s{\.build$}{};
     my @in = read_file("$base.in");
     my @bl = read_file("$base.build");
-    write_file($base, @in, @bl);
+    write_file( $base, @in, @bl );
 }
 
 sub do_changelog {
@@ -416,40 +940,40 @@ sub do_changelog {
     $changelog =~ s{MANIFEST\.build$}{Changes};
     my @cl = read_file($changelog);
     return if grep /^$Locales::VERSION\s+/, @cl;
-    
-    my $time = localtime();
+
+    my $time    = localtime();
     my $new_ent = <<"END_CL";
 $Locales::VERSION  $time
      - Updated data to CLDR $Locales::cldr_version
 
 END_CL
-    write_file($changelog, $new_ent, @cl);
+    write_file( $changelog, $new_ent, @cl );
 }
 
 sub _write_utf8_perl {
-    my ($file, $guts, $mani, $open_plain) = @_;
-    
-    my $open  = $open_plain ? '>' : '>:utf8'; #:utf8 breaks Native.pm
+    my ( $file, $guts, $mani, $open_plain ) = @_;
+
+    my $open = $open_plain ? '>' : '>:utf8';    #:utf8 breaks Native.pm
 
     open( my $fh, $open, $file ) or die "Could not open '$file': $!";
     print {$fh} $guts;
     close $fh;
 
-    system (qw(perltidy -b), $file) == 0 || die "perltidy failed, '$file' probably has syntax errors";
-    
+    system( qw(perltidy -b), $file ) == 0 || die "perltidy failed, '$file' probably has syntax errors";
+
     unlink "$file.bak";
-    
-    append_file($manifest, $mani ? "$mani\n" : "lib/Locales/DB/$file\n");
+
+    append_file( $manifest, $mani ? "$mani\n" : "lib/Locales/DB/$file\n" );
 }
 
 sub _stringify_hash_no_dumper {
     my $string;
-    for my $k (keys %{ $_[0] }) {
+    for my $k ( keys %{ $_[0] } ) {
         my $qk = $k;
         my $qv = $_[0]->{$k};
         $qk =~ s{\'}{\\\'}g;
         $qv =~ s{\'}{\\\'}g;
-        my $ky = $k ne $qk ? qq{"$qk"} : qq{'$k'};
+        my $ky = $k          ne $qk ? qq{"$qk"} : qq{'$k'};
         my $vl = $_[0]->{$k} ne $qv ? qq{"$qv"} : qq{'$_[0]->{$k}'};
         $string .= "$ky => $vl,\n";
     }
@@ -457,7 +981,7 @@ sub _stringify_hash_no_dumper {
 }
 
 sub _stringify_hash {
-    my $string = Dumper($_[0]);
+    my $string = Dumper( $_[0] );
     $string =~ s/^\s*\{\s*//;
     $string =~ s/\s*\}\s*$//;
     return $string;

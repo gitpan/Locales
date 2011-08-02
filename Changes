@@ -1,3 +1,19 @@
+0.17  Wed Jul  6 10:10:07 2011
+    - Updated data to CLDR 2.0 (rt 65164)
+    - wrapped new()'s eval-require() in %INC existence check (per requested optimization)
+    - added ellipses (rt 65166), "more info" character, and quotation characters to misc_info
+    - added list formats to misc_info
+    - added plural form to misc_info
+    - added t/01.cldr_parse_inherit_sanity.t
+    - added plural_rule_hashref_to_code() &&  plural_rule_string_to_code() && get_cldr_plural_category_list() functions
+    - added get_plural_form() && get_plural_form_categories() methods
+    - added get_list_and()
+    - added stub get_list_or() pending http://unicode.org/cldr/trac/ticket/4051
+    - added get_formatted_decimal()
+    - added get_character_orientation_from_code_fast() && Tiny.pm for its use (per requested optimization)
+    - added get_locale_display_pattern_from_code_fast() && && Tiny.pm for its use (per requested optimization)
+    - added get_locale_display_pattern_from_code()
+
 0.16  Wed Feb 23 16:12:36 2011
     - added normalize_tag_for_datetime_locale()
     - rt52972 POD consistency: s/Return 2/Returns 2/
@@ -16,7 +32,7 @@
     - comment typo
 
 0.13  Thu Nov 19 21:33:45 2009
-    -  I18N::LangTags::locale2language_tag() only allows parts bewteen 1 and 8 characters, adjust normalize_tag() accordingly
+    -  I18N::LangTags::locale2language_tag() only allows parts between 1 and 8 characters, adjust normalize_tag() accordingly
 
 0.12  Mon Nov 16 22:39:08 2009
     - rt 51583 :: change eval/require to core-perl in t/03.cldr_db.t so tests won;t have to be skipped on some systems
