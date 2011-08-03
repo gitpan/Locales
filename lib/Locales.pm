@@ -1,6 +1,10 @@
 package Locales;
 
-$Locales::VERSION      = '0.18';    # change in POD
+# These should work when enabled before uploading to CPAN, they are disabled in production per the request of a sponsor.
+# use strict;
+# use warnings;
+
+$Locales::VERSION      = '0.19';    # change in POD
 $Locales::cldr_version = '2.0';     # change in POD
 
 #### class methods ####
@@ -264,6 +268,8 @@ sub get_plural_form {
 
     # This negative value behavior makes sense but is not defined either way in the CLDR.
     # We've asked for clarification via http://unicode.org/cldr/trac/ticket/4049
+    # If CLDR introduces negatives then the rule parser needs to factor in those new rules
+    #     and also perl's modulus-on-negative-values behavior
     my $abs_n = abs($n);    # negatives keep same category as positive
 
     # TODO: build 'category_rules_function' in module building process
@@ -337,10 +343,7 @@ sub get_plural_form {
 
 # pending http://unicode.org/cldr/trac/ticket/4051
 sub get_list_or {
-    my ( $self, @items ) = @_;
-    my $and = $self->get_list_and(@items) || return;
-    $and =~ s/and/or/g;    # I told you it was stub in the changelog, POD, test, and here!
-    return $and;
+    goto &get_list_and;    # I told you it was stub in the changelog, POD, test, and here!
 }
 
 sub get_list_and {
@@ -928,7 +931,7 @@ Locales - Methods for getting localized CLDR language/territory names (and a sub
 
 =head1 VERSION
 
-This document describes Locales version 0.18
+This document describes Locales version 0.19
 
 =head1 SYNOPSIS
 
@@ -1200,7 +1203,7 @@ Stringify an "or" list of items as defined in the CLDR for the object's locale.
 
 This is a stub until L<CLDR defines the OR-list data|http://unicode.org/cldr/trac/ticket/4051>.
 
-Until then it works w/ 'en' (or any locale that uses the word "or" instead of "and") and is the same as get_list_and() on others.
+Until then it is essentially L</get_list_and()>.
 
 =item get_formatted_decimal()
 

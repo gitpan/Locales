@@ -1,3 +1,8 @@
+0.19  Wed Aug  3 16:36:51 2011
+    - rt 69987: added strict/warnings comment in Locales.pm (also updated 0.18 changelog entry)
+    - rt 70000: added reminder to comment
+    - change stub get_list_or() to be get_list_and() and update POD and tests accordingly
+
 0.18  Wed Aug  3 09:51:12 2011
     - Added get_cldr_version()
     - Fixed a variable name. 
@@ -8,8 +13,8 @@
     - ensure 'en' is included in plural form documentation (rt 69972)
     - manually tidy due to rt 69971
     - added comment about category_rules_function key todo
-    - added strict/warnings comment and step in build dir's README
-    
+    - added strict/warnings step in build dir's README
+
 0.17  Wed Jul  6 10:10:07 2011
     - Updated data to CLDR 2.0 (rt 65164)
     - wrapped new()'s eval-require() in %INC existence check (per requested optimization)

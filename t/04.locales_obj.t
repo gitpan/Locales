@@ -26,10 +26,10 @@ is( Locales::normalize_tag_for_datetime_locale("en-gb"), 'en_GB', 'DT with count
 # normalize_tag_for_datetime_locale
 # normalize_for_key_lookup
 
-is(Locales::get_cldr_version(),$Locales::cldr_version,'get_cldr_version() as function');
-is(Locales->get_cldr_version(),$Locales::cldr_version,'get_cldr_version() as class method');
+is( Locales::get_cldr_version(), $Locales::cldr_version, 'get_cldr_version() as function' );
+is( Locales->get_cldr_version(), $Locales::cldr_version, 'get_cldr_version() as class method' );
 my $t = Locales->new();
-is($t->get_cldr_version(),$Locales::cldr_version,'get_cldr_version() as object method');
+is( $t->get_cldr_version(), $Locales::cldr_version, 'get_cldr_version() as object method' );
 
 is( $t->get_list_and(),                undef,                  'get_list_and() no args means nothing returned' );
 is( $t->get_list_and('a'),             'a',                    'get_list_and() 1 arg' );
@@ -39,13 +39,14 @@ is( $t->get_list_and(qw(a b c d)),     'a, b, c, and d',       'get_list_and() 3
 is( $t->get_list_and(qw(a b c d e)),   'a, b, c, d, and e',    'get_list_and() 3+ args 2' );
 is( $t->get_list_and(qw(a b c d e f)), 'a, b, c, d, e, and f', 'get_list_and() 3+ args 3' );
 
-is( $t->get_list_or(),                undef,                 'get_list_or() no args means nothing returned' );
-is( $t->get_list_or('a'),             'a',                   'get_list_or() 1 arg' );
-is( $t->get_list_or(qw(a b)),         'a or b',              'get_list_or() 2 args' );
-is( $t->get_list_or(qw(a b c)),       'a, b, or c',          'get_list_or() 3 args' );
-is( $t->get_list_or(qw(a b c d)),     'a, b, c, or d',       'get_list_or() 3+ args 1' );
-is( $t->get_list_or(qw(a b c d e)),   'a, b, c, d, or e',    'get_list_or() 3+ args 2' );
-is( $t->get_list_or(qw(a b c d e f)), 'a, b, c, d, e, or f', 'get_list_or() 3+ args 3' );
+# get_list_or() is a stub that is basically get_list_and() until the OR info is in the CLDR (http://unicode.org/cldr/trac/ticket/4051)
+is( $t->get_list_or(),                undef,                  'get_list_or() no args means nothing returned' );
+is( $t->get_list_or('a'),             'a',                    'get_list_or() 1 arg' );
+is( $t->get_list_or(qw(a b)),         'a and b',              'get_list_or() 2 args' );
+is( $t->get_list_or(qw(a b c)),       'a, b, and c',          'get_list_or() 3 args' );
+is( $t->get_list_or(qw(a b c d)),     'a, b, c, and d',       'get_list_or() 3+ args 1' );
+is( $t->get_list_or(qw(a b c d e)),   'a, b, c, d, and e',    'get_list_or() 3+ args 2' );
+is( $t->get_list_or(qw(a b c d e f)), 'a, b, c, d, e, and f', 'get_list_or() 3+ args 3' );
 
 my $es = Locales->new("es");
 is( $es->get_list_and(),                undef,               'get_list_and() no args means nothing returned' );
@@ -56,7 +57,7 @@ is( $es->get_list_and(qw(a b c d)),     'a, b, c y d',       'get_list_and() 3+ 
 is( $es->get_list_and(qw(a b c d e)),   'a, b, c, d y e',    'get_list_and() 3+ args 2' );
 is( $es->get_list_and(qw(a b c d e f)), 'a, b, c, d, e y f', 'get_list_and() 3+ args 3' );
 
-# only 'en' works pending pending http://unicode.org/cldr/trac/ticket/4051
+# get_list_or() is a stub that is basically get_list_and() until the OR info is in the CLDR (http://unicode.org/cldr/trac/ticket/4051)
 is( $es->get_list_or(),                undef,               'get_list_or() no args means nothing returned' );
 is( $es->get_list_or('a'),             'a',                 'get_list_or() 1 arg' );
 is( $es->get_list_or(qw(a b)),         'a y b',             'get_list_or() 2 args' );
