@@ -35,7 +35,7 @@ $Locales::DB::Language::kl::cldr_version = '2.0';
         'quotation_end'             => '«',
         'quotation_start'           => '»'
     },
-    'fallback'    => [ "da\ en" ],
+    'fallback'    => ["da\ en"],
     'orientation' => {
         'characters' => "left\-to\-right",
         'lines'      => "top\-to\-bottom"

@@ -23,7 +23,12 @@ my $name_pattern = {
 my %isfallback;
 my @plural_forms;
 for my $tag ( sort keys %Locales::DB::Language::en::code_to_name ) {
-    next if $tag eq 'en';
+    if ( $tag eq 'en' ) {
+        my $en = Locales->new('en');
+        push @plural_forms, { 'tag' => $tag, 'csv' => join( ', ', $en->get_plural_form_categories() ), 'zero_is_not_other' => ( $en->get_plural_form(0) ne 'other' ? 1 : 0 ) };
+        next;
+    }
+
     print "Starting '$tag' ...\n";
     if ( _locales_build_utils::get_xml_file_for( $tag, 1 ) ) {
         system( './_build/en2mod', $cldr_db_path, $locales_db, $tag ) == 0 || die "Could not build '$tag'";

@@ -48,7 +48,7 @@ $Data::Dumper::Useqq    = 1;
     }
 }
 
-my $v_offset     = '0.10';
+my $v_offset     = '0.11';
 my $mod_version  = $Locales::VERSION - $v_offset;
 my $cldr_version = $Locales::cldr_version;
 my $cldr_db_path;
@@ -960,7 +960,6 @@ sub _write_utf8_perl {
     close $fh;
 
     system( qw(perltidy -b), $file ) == 0 || die "perltidy failed, '$file' probably has syntax errors";
-
     unlink "$file.bak";
 
     append_file( $manifest, $mani ? "$mani\n" : "lib/Locales/DB/$file\n" );

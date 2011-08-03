@@ -806,6 +806,11 @@ CLDR 2.0 did not define data for “elx”, thus it will fallback to L</en> beha
 
 You can  L<submit the missing data to the CLDR|http://unicode.org/cldr/trac> if you wish.
 
+=item en
+
+    get_plural_form($n, one, other)
+    get_plural_form($n, one, other, special_zero)
+
 =item en_au
 
     get_plural_form($n, other)

@@ -35,7 +35,7 @@ $Locales::DB::Language::da::cldr_version = '2.0';
         'quotation_end'             => '”',
         'quotation_start'           => '”'
     },
-    'fallback'    => [ "nb\ nn\ sv\ en" ],
+    'fallback'    => ["nb\ nn\ sv\ en"],
     'orientation' => {
         'characters' => "left\-to\-right",
         'lines'      => "top\-to\-bottom"

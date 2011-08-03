@@ -14,4 +14,13 @@ How to update:
 
 3) do any other changes
 
-4) perl Makefile.PL && make && make test && make dist && sudo make install
+4) tidy it all (rt 69971)
+
+  perltidy -b `find lib/Locales/DB -name '*.pm'`
+  rm `find . -name '*.bak'`
+
+5) perl Makefile.PL && make && make test 
+
+6) enable strict/warnings: ... make test, undo
+
+7) ... make dist && sudo make install

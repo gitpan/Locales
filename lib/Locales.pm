@@ -1,11 +1,15 @@
 package Locales;
 
-$Locales::VERSION      = '0.17';    # change in POD
+$Locales::VERSION      = '0.18';    # change in POD
 $Locales::cldr_version = '2.0';     # change in POD
 
 #### class methods ####
 
 my %singleton_stash;
+
+sub get_cldr_version {
+    return $Locales::cldr_version;
+}
 
 sub new {
     my ( $class, $tag ) = @_;
@@ -66,7 +70,7 @@ sub get_native_language_from_code {
     my ( $self, $code, $always_return ) = @_;
 
     my $class = ref($self) ? ref($self) : $self;
-    if ( !exists $locale->{'native_data'} ) {
+    if ( !exists $self->{'native_data'} ) {
         eval "require $class\::DB::Native;" || return;
         no strict 'refs';
         $self->{'native_data'} = {
@@ -257,24 +261,12 @@ sub get_plural_form {
     my ( $self, $n, @category_values ) = @_;
     my $category;
     my $has_extra_for_zero = 0;
-    my $abs_n              = abs($n);    # negatives keep same category as positive
 
-    # if ( $abs_n != int($abs_n) ) {
-    #
-    #     # defined in documentation URL tables ( http://unicode.org/repos/cldr-tmp/trunk/diff/supplemental/language_plural_rules.html )
-    #     # but not found in CLDR's XML ( See https://rt.cpan.org/Ticket/Display.html?id=69340 )
-    #
-    #     if ( $abs_n > 0 && $abs_n < 1 ) {
-    #         $category = $self->{'language_data'}{'misc_info'}{'plural_forms'}{'_frac_cats'}[0];
-    #     }
-    #     elsif ( $abs_n > 1 && $abs_n < 2 ) {
-    #         $category = $self->{'language_data'}{'misc_info'}{'plural_forms'}{'_frac_cats'}[1];
-    #     }
-    #     else {
-    #         $category = $self->{'language_data'}{'misc_info'}{'plural_forms'}{'_frac_cats'}[2];
-    #     }
-    # }
-    # else {
+    # This negative value behavior makes sense but is not defined either way in the CLDR.
+    # We've asked for clarification via http://unicode.org/cldr/trac/ticket/4049
+    my $abs_n = abs($n);    # negatives keep same category as positive
+
+    # TODO: build 'category_rules_function' in module building process
     if ( !$self->{'language_data'}{'misc_info'}{'plural_forms'}{'category_rules_function'} ) {
         $self->{'language_data'}{'misc_info'}{'plural_forms'}{'category_rules_function'} = Locales::plural_rule_hashref_to_code( $self->{'language_data'}{'misc_info'}{'plural_forms'} );
         if ( !defined $self->{'language_data'}{'misc_info'}{'plural_forms'}{'category_rules_function'} ) {
@@ -284,8 +276,6 @@ sub get_plural_form {
     }
 
     $category = $self->{'language_data'}{'misc_info'}{'plural_forms'}{'category_rules_function'}->($abs_n);
-
-    # }
 
     my @categories = $self->get_plural_form_categories();
 
@@ -487,145 +477,153 @@ sub get_formatted_decimal {
     #### ##
     # 3) format $n per $format
     #### ##
+
     my $result = '';
 
-    # period that is not literal (?<!\')\.(?!\')
-    # comma that is not literal (?<!\')\,(?!\')
-
-    # !!!! This is sort of where the CLDR documentation gets anemic, patches welcome !!
-
-    # TODO: ? better efficiency (e.g. less/no array voo doo) w/ same results, patches ... well you know ?
-
-    my ( $integer, $decimals ) = split( /\./, $n, 2 );
-
-    my ( $i_pat, $d_pat ) = split( /(?<!\')\.(?!\')/, $format, 2 );
-    my ( $cur_idx, $trailing_non_n, $cur_d, $cur_pat ) = ( 0, '' );    # buffer
-
-    # integer: right to left
-    my @i_pat = reverse( split( /(?<!\')\,(?!\')/, $i_pat ) );
-
-    my $next_to_last_pattern = @i_pat == 1 ? $i_pat[0] : $i_pat[-2];
-    $next_to_last_pattern =~ s/0$/#/;
-    while ( $i_pat[0] =~ s/((?:\'.\')+)$// || $i_pat[0] =~ s/([^0#]+)$// ) {
-        $trailing_non_n = "$1$trailing_non_n";
+    if ( $format eq '#,##0.###' ) {
+        $result = $n;
+        while ( $result =~ s/^([-+]?\d+)(\d{3})/$1,$2/s ) { 1 }    # right from perlfaq5
     }
+    else {
 
-    # my $loop_cnt = 0;
-    # my $loop_max = CORE::length($i_pat . $integer) + 100;
+        # period that is not literal (?<!\')\.(?!\')
+        # comma that is not literal (?<!\')\,(?!\')
 
-    while ( CORE::length( $cur_d = CORE::substr( $integer, -1, 1, '' ) ) ) {
+        # !!!! This is sort of where the CLDR documentation gets anemic, patches welcome !!
 
-        # if ($loop_cnt > $loop_max) {
-        #     require Carp;
-        #     Carp::carp('Integer pattern parsing results in infinite loop.');
-        #     last;
-        # }
-        # $loop_cnt++;
+        # TODO: ? better efficiency (e.g. less/no array voo doo) w/ same results, patches ... well you know ?
 
-        if ( $cur_idx == $#i_pat && !CORE::length( $i_pat[$cur_idx] ) ) {
-            $i_pat[$cur_idx] = $next_to_last_pattern;
-        }
+        my ( $integer, $decimals ) = split( /\./, $n, 2 );
 
-        if ( !CORE::length( $i_pat[$cur_idx] ) ) {    # this chunk is spent
-            if ( defined $i_pat[ $cur_idx + 1 ] ) {    # there are more chunks ...
-                $cur_idx++;                            # ... next chunk please
-            }
-        }
+        my ( $i_pat, $d_pat ) = split( /(?<!\')\.(?!\')/, $format, 2 );
+        my ( $cur_idx, $trailing_non_n, $cur_d, $cur_pat ) = ( 0, '' );    # buffer
 
-        if ( CORE::length( $i_pat[$cur_idx] ) ) {
+        # integer: right to left
+        my @i_pat = reverse( split( /(?<!\')\,(?!\')/, $i_pat ) );
 
-            # if the next thing is a literal:
-            if ( $i_pat[$cur_idx] =~ m/(\',\')$/ ) {
-                $result = CORE::substr( $i_pat[$cur_idx], -3, 3, '' ) . $result;
-                redo;
-            }
-
-            $cur_pat = CORE::substr( $i_pat[$cur_idx], -1, 1, '' );
-
-            if ( $cur_pat ne '0' && $cur_pat ne '#' ) {
-                $result = "$cur_pat$result";
-                redo;
-            }
-        }
-
-        $result = !CORE::length( $i_pat[$cur_idx] ) && @i_pat != 1 ? ",$cur_d$result" : "$cur_d$result";
-
-        if ( $cur_idx == $#i_pat - 1 && $i_pat[$#i_pat] eq '#' && !CORE::length( $i_pat[$cur_idx] ) ) {
-            $cur_idx++;
-            $i_pat[$cur_idx] = $next_to_last_pattern;
-        }
-    }
-    if ( CORE::length( $i_pat[$cur_idx] ) ) {
-        $i_pat[$cur_idx] =~ s/(?<!\')\#(?!\')//g;    # remove any left over non-literal #
-        $result = $result . $i_pat[$cur_idx];        # prepend it (e.g. 0 and -)
-    }
-    if ( substr( $result, 0, 1 ) eq ',' ) {
-        substr( $result, 0, 1, '' );
-    }
-    $result .= $trailing_non_n;
-
-    if ( defined $decimals && CORE::length($decimals) ) {
-
-        # decimal: left to right
-        my @d_pat = ($d_pat);                        # TODO ? support sepeartor in decimal, !definedvia CLDR, no patterns have that ATM ? split( /(?<!\')\,(?!\')/, $d_pat );
-
-        $result .= '.';
-        $cur_idx        = 0;
-        $trailing_non_n = '';
-
-        while ( $d_pat[-1] =~ s/((?:\'.\')+)$// || $d_pat[-1] =~ s/([^0#]+)$// ) {
+        my $next_to_last_pattern = @i_pat == 1 ? $i_pat[0] : $i_pat[-2];
+        $next_to_last_pattern =~ s/0$/#/;
+        while ( $i_pat[0] =~ s/((?:\'.\')+)$// || $i_pat[0] =~ s/([^0#]+)$// ) {
             $trailing_non_n = "$1$trailing_non_n";
         }
 
-        # $loop_cnt = 0;
-        # $loop_max = CORE::length($d_pat . $decimals) + 100;
+        # my $loop_cnt = 0;
+        # my $loop_max = CORE::length($i_pat . $integer) + 100;
 
-        while ( CORE::length( $cur_d = CORE::substr( $decimals, 0, 1, '' ) ) ) {
+        while ( CORE::length( $cur_d = CORE::substr( $integer, -1, 1, '' ) ) ) {
 
             # if ($loop_cnt > $loop_max) {
             #     require Carp;
-            #     Carp::carp('Decimal pattern parsing results in infinite loop.');
+            #     Carp::carp('Integer pattern parsing results in infinite loop.');
             #     last;
             # }
             # $loop_cnt++;
 
-            if ( !CORE::length( $d_pat[$cur_idx] ) ) {    # this chunk is spent
-                if ( !defined $d_pat[ $cur_idx + 1 ] ) {    # there are no more chunks
-                    $cur_pat = '#';
-                }
-                else {                                      # next chunk please
-                    $result .= ',';
-                    $cur_idx++;
+            if ( $cur_idx == $#i_pat && !CORE::length( $i_pat[$cur_idx] ) ) {
+                $i_pat[$cur_idx] = $next_to_last_pattern;
+            }
+
+            if ( !CORE::length( $i_pat[$cur_idx] ) ) {    # this chunk is spent
+                if ( defined $i_pat[ $cur_idx + 1 ] ) {    # there are more chunks ...
+                    $cur_idx++;                            # ... next chunk please
                 }
             }
 
-            if ( CORE::length( $d_pat[$cur_idx] ) ) {
+            if ( CORE::length( $i_pat[$cur_idx] ) ) {
 
                 # if the next thing is a literal:
-                if ( $d_pat[$cur_idx] =~ m/^(\'.\')/ ) {
-                    $result .= CORE::substr( $d_pat[$cur_idx], 0, 3, '' );
+                if ( $i_pat[$cur_idx] =~ m/(\',\')$/ ) {
+                    $result = CORE::substr( $i_pat[$cur_idx], -3, 3, '' ) . $result;
                     redo;
                 }
-                $cur_pat = CORE::substr( $d_pat[$cur_idx], 0, 1, '' );
+
+                $cur_pat = CORE::substr( $i_pat[$cur_idx], -1, 1, '' );
+
                 if ( $cur_pat ne '0' && $cur_pat ne '#' ) {
-                    $result .= $cur_pat;
+                    $result = "$cur_pat$result";
                     redo;
                 }
             }
 
-            $result .= $cur_d;
+            $result = !CORE::length( $i_pat[$cur_idx] ) && @i_pat != 1 ? ",$cur_d$result" : "$cur_d$result";
+
+            if ( $cur_idx == $#i_pat - 1 && $i_pat[$#i_pat] eq '#' && !CORE::length( $i_pat[$cur_idx] ) ) {
+                $cur_idx++;
+                $i_pat[$cur_idx] = $next_to_last_pattern;
+            }
         }
-        if ( substr( $result, -1, 1 ) eq ',' ) {
-            substr( $result, -1, 1, '' );
+        if ( CORE::length( $i_pat[$cur_idx] ) ) {
+            $i_pat[$cur_idx] =~ s/(?<!\')\#(?!\')//g;    # remove any left over non-literal #
+            $result = $result . $i_pat[$cur_idx];        # prepend it (e.g. 0 and -)
         }
-        if ( defined $d_pat[$cur_idx] ) {
-            $d_pat[$cur_idx] =~ s/(?<!\')\#(?!\')//g;    # remove any left over non-literal #
-            $result .= $d_pat[$cur_idx];                 # append it (e.g. 0 and -)
+        if ( substr( $result, 0, 1 ) eq ',' ) {
+            substr( $result, 0, 1, '' );
         }
         $result .= $trailing_non_n;
-    }
 
-    # END: "This is sort of where the CLDR documentation gets anemic"
+        if ( defined $decimals && CORE::length($decimals) ) {
+
+            # decimal: left to right
+            my @d_pat = ($d_pat);                        # TODO ? support sepeartor in decimal, !definedvia CLDR, no patterns have that ATM ? split( /(?<!\')\,(?!\')/, $d_pat );
+
+            $result .= '.';
+            $cur_idx        = 0;
+            $trailing_non_n = '';
+
+            while ( $d_pat[-1] =~ s/((?:\'.\')+)$// || $d_pat[-1] =~ s/([^0#]+)$// ) {
+                $trailing_non_n = "$1$trailing_non_n";
+            }
+
+            # $loop_cnt = 0;
+            # $loop_max = CORE::length($d_pat . $decimals) + 100;
+
+            while ( CORE::length( $cur_d = CORE::substr( $decimals, 0, 1, '' ) ) ) {
+
+                # if ($loop_cnt > $loop_max) {
+                #     require Carp;
+                #     Carp::carp('Decimal pattern parsing results in infinite loop.');
+                #     last;
+                # }
+                # $loop_cnt++;
+
+                if ( !CORE::length( $d_pat[$cur_idx] ) ) {    # this chunk is spent
+                    if ( !defined $d_pat[ $cur_idx + 1 ] ) {    # there are no more chunks
+                        $cur_pat = '#';
+                    }
+                    else {                                      # next chunk please
+                        $result .= ',';
+                        $cur_idx++;
+                    }
+                }
+
+                if ( CORE::length( $d_pat[$cur_idx] ) ) {
+
+                    # if the next thing is a literal:
+                    if ( $d_pat[$cur_idx] =~ m/^(\'.\')/ ) {
+                        $result .= CORE::substr( $d_pat[$cur_idx], 0, 3, '' );
+                        redo;
+                    }
+                    $cur_pat = CORE::substr( $d_pat[$cur_idx], 0, 1, '' );
+                    if ( $cur_pat ne '0' && $cur_pat ne '#' ) {
+                        $result .= $cur_pat;
+                        redo;
+                    }
+                }
+
+                $result .= $cur_d;
+            }
+            if ( substr( $result, -1, 1 ) eq ',' ) {
+                substr( $result, -1, 1, '' );
+            }
+            if ( defined $d_pat[$cur_idx] ) {
+                $d_pat[$cur_idx] =~ s/(?<!\')\#(?!\')//g;    # remove any left over non-literal #
+                $result .= $d_pat[$cur_idx];                 # append it (e.g. 0 and -)
+            }
+            $result .= $trailing_non_n;
+        }
+
+        # END: "This is sort of where the CLDR documentation gets anemic"
+    }
 
     $result =~ s/(?<!\')\,(?!\')/$self->{language_data}{misc_info}{cldr_formats}{_decimal_format_group}/g;
     $result =~ s/(?<!\')\.(?!\')/$self->{language_data}{misc_info}{cldr_formats}{_decimal_format_decimal}/g;
@@ -681,8 +679,11 @@ sub get_code_from_territory {
     return;
 }
 
-*code2territory = *get_territory_from_code;
-*territory2code = *get_code_from_territory;
+{
+    no warnings 'once';
+    *code2territory = \&get_territory_from_code;
+    *territory2code = \&get_code_from_territory;
+}
 
 #### language ####
 
@@ -732,8 +733,11 @@ sub get_code_from_language {
     return;
 }
 
-*code2language = *get_language_from_code;
-*language2code = *get_code_from_language;
+{
+    no warnings 'once';
+    *code2language = \&get_language_from_code;
+    *language2code = \&get_code_from_language;
+}
 
 #### utility functions ####
 
@@ -924,7 +928,7 @@ Locales - Methods for getting localized CLDR language/territory names (and a sub
 
 =head1 VERSION
 
-This document describes Locales version 0.17
+This document describes Locales version 0.18
 
 =head1 SYNOPSIS
 
@@ -981,6 +985,12 @@ It returns false if a locale given is not vailable. $@ should have been set at t
 =head3 Misc methods
 
 =over 4
+
+=item get_cldr_version()
+
+Takes no arguments.
+
+Returns the version of the CLDR any data it uses comes from. Can also be called as a class method or function.
 
 =item get_locale()
 

@@ -1,4 +1,4 @@
-use Test::More tests => 223;
+use Test::More tests => 226;
 use Test::Carp;
 
 use lib 'lib', '../lib';
@@ -26,7 +26,11 @@ is( Locales::normalize_tag_for_datetime_locale("en-gb"), 'en_GB', 'DT with count
 # normalize_tag_for_datetime_locale
 # normalize_for_key_lookup
 
+is(Locales::get_cldr_version(),$Locales::cldr_version,'get_cldr_version() as function');
+is(Locales->get_cldr_version(),$Locales::cldr_version,'get_cldr_version() as class method');
 my $t = Locales->new();
+is($t->get_cldr_version(),$Locales::cldr_version,'get_cldr_version() as object method');
+
 is( $t->get_list_and(),                undef,                  'get_list_and() no args means nothing returned' );
 is( $t->get_list_and('a'),             'a',                    'get_list_and() 1 arg' );
 is( $t->get_list_and(qw(a b)),         'a and b',              'get_list_and() 2 args' );

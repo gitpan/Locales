@@ -35,7 +35,7 @@ $Locales::DB::Language::ksh::cldr_version = '2.0';
         'quotation_end'             => '“',
         'quotation_start'           => '„'
     },
-    'fallback'    => [ "de_DE\ nl\ nds\ en" ],
+    'fallback'    => ["de_DE\ nl\ nds\ en"],
     'orientation' => {
         'characters' => "left\-to\-right",
         'lines'      => "top\-to\-bottom"

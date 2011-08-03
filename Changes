@@ -1,3 +1,15 @@
+0.18  Wed Aug  3 09:51:12 2011
+    - Added get_cldr_version()
+    - Fixed a variable name. 
+    - made aliases via coderef instead of glob
+    - added note to get_plural_form() regarding negative value behavior
+    - removed commented out development code 
+    - use simple regex instead of comprehensive parsing if the pattern is the default one
+    - ensure 'en' is included in plural form documentation (rt 69972)
+    - manually tidy due to rt 69971
+    - added comment about category_rules_function key todo
+    - added strict/warnings comment and step in build dir's README
+    
 0.17  Wed Jul  6 10:10:07 2011
     - Updated data to CLDR 2.0 (rt 65164)
     - wrapped new()'s eval-require() in %INC existence check (per requested optimization)
