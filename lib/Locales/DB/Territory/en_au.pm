@@ -2,7 +2,7 @@ package Locales::DB::Territory::en_au;
 
 # Auto generated from CLDR
 
-$Locales::DB::Territory::en_au::VERSION = '0.07';
+$Locales::DB::Territory::en_au::VERSION = '0.08';
 
 $Locales::DB::Territory::en_au::cldr_version = '2.0';
 

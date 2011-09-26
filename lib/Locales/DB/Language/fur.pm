@@ -2,7 +2,7 @@ package Locales::DB::Language::fur;
 
 # Auto generated from CLDR
 
-$Locales::DB::Language::fur::VERSION = '0.07';
+$Locales::DB::Language::fur::VERSION = '0.08';
 
 $Locales::DB::Language::fur::cldr_version = '2.0';
 

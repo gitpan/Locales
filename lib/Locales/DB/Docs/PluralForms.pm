@@ -2,7 +2,7 @@ package Locales::DB::Docs::PluralForms;
 
 # Auto generated from CLDR
 
-$Locales::DB::Docs::PluralForms::VERSION = '0.07';
+$Locales::DB::Docs::PluralForms::VERSION = '0.08';
 
 $Locales::DB::Docs::PluralForms::cldr_version = '2.0';
 
@@ -14,11 +14,12 @@ __END__
 
 =head1 NAME
 
-plural form details reference for all included locales
+Locales::DB::Docs::PluralForms - plural form details reference for all
+included locales
 
 =head1 VERSION
 
-Locales.pm v0.07 (based on CLDR v2.0)
+Locales.pm v0.08 (based on CLDR v2.0)
 
 =head1 DESCRIPTION
 
@@ -679,13 +680,13 @@ You can  L<submit the missing data to the CLDR|http://unicode.org/cldr/trac> if 
 
 =item de_at
 
-    get_plural_form($n, other)
-    get_plural_form($n, other, special_zero)
+    get_plural_form($n, one, other)
+    get_plural_form($n, one, other, special_zero)
 
 =item de_ch
 
-    get_plural_form($n, other)
-    get_plural_form($n, other, special_zero)
+    get_plural_form($n, one, other)
+    get_plural_form($n, one, other, special_zero)
 
 =item del
 
@@ -813,23 +814,23 @@ You can  L<submit the missing data to the CLDR|http://unicode.org/cldr/trac> if 
 
 =item en_au
 
-    get_plural_form($n, other)
-    get_plural_form($n, other, special_zero)
+    get_plural_form($n, one, other)
+    get_plural_form($n, one, other, special_zero)
 
 =item en_ca
 
-    get_plural_form($n, other)
-    get_plural_form($n, other, special_zero)
+    get_plural_form($n, one, other)
+    get_plural_form($n, one, other, special_zero)
 
 =item en_gb
 
-    get_plural_form($n, other)
-    get_plural_form($n, other, special_zero)
+    get_plural_form($n, one, other)
+    get_plural_form($n, one, other, special_zero)
 
 =item en_us
 
-    get_plural_form($n, other)
-    get_plural_form($n, other, special_zero)
+    get_plural_form($n, one, other)
+    get_plural_form($n, one, other, special_zero)
 
 =item enm
 
@@ -849,8 +850,8 @@ You can  L<submit the missing data to the CLDR|http://unicode.org/cldr/trac> if 
 
 =item es_es
 
-    get_plural_form($n, other)
-    get_plural_form($n, other, special_zero)
+    get_plural_form($n, one, other)
+    get_plural_form($n, one, other, special_zero)
 
 =item et
 
@@ -932,13 +933,15 @@ Note: zero falls under a different category than “other” so there is no L</�
 
 =item fr_ca
 
-    get_plural_form($n, other)
-    get_plural_form($n, other, special_zero)
+    get_plural_form($n, one, other)
+
+Note: zero falls under a different category than “other” so there is no L</“Special Zero” Argument> for fr_ca
 
 =item fr_ch
 
-    get_plural_form($n, other)
-    get_plural_form($n, other, special_zero)
+    get_plural_form($n, one, other)
+
+Note: zero falls under a different category than “other” so there is no L</“Special Zero” Argument> for fr_ch
 
 =item frm
 
@@ -2037,8 +2040,8 @@ You can  L<submit the missing data to the CLDR|http://unicode.org/cldr/trac> if 
 
 =item nl_be
 
-    get_plural_form($n, other)
-    get_plural_form($n, other, special_zero)
+    get_plural_form($n, one, other)
+    get_plural_form($n, one, other, special_zero)
 
 =item nmg
 
@@ -2282,13 +2285,13 @@ You can  L<submit the missing data to the CLDR|http://unicode.org/cldr/trac> if 
 
 =item pt_br
 
-    get_plural_form($n, other)
-    get_plural_form($n, other, special_zero)
+    get_plural_form($n, one, other)
+    get_plural_form($n, one, other, special_zero)
 
 =item pt_pt
 
-    get_plural_form($n, other)
-    get_plural_form($n, other, special_zero)
+    get_plural_form($n, one, other)
+    get_plural_form($n, one, other, special_zero)
 
 =item qu
 

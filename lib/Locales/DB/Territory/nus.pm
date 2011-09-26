@@ -2,7 +2,7 @@ package Locales::DB::Territory::nus;
 
 # Auto generated from CLDR
 
-$Locales::DB::Territory::nus::VERSION = '0.07';
+$Locales::DB::Territory::nus::VERSION = '0.08';
 
 $Locales::DB::Territory::nus::cldr_version = '2.0';
 

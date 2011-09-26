@@ -2,7 +2,7 @@ package Locales::DB::Language::en_ca;
 
 # Auto generated from CLDR
 
-$Locales::DB::Language::en_ca::VERSION = '0.07';
+$Locales::DB::Language::en_ca::VERSION = '0.08';
 
 $Locales::DB::Language::en_ca::cldr_version = '2.0';
 
@@ -41,8 +41,12 @@ $Locales::DB::Language::en_ca::cldr_version = '2.0';
         'lines'      => "top\-to\-bottom"
     },
     'plural_forms' => {
-        'category_list'  => ['other'],
-        'category_rules' => {}
+        'category_list' => [
+            'one',
+            'other'
+        ],
+        'category_rules'          => { 'one' => "n\ is\ 1" },
+        'category_rules_compiled' => { 'one' => "sub\ \{\ return\ \'one\'\ if\ \(\ \(\(\ \$_\[0\]\ \=\=\ 1\)\)\)\;\ return\;\}\;" }
     },
     'posix' => {
         'nostr'  => "no\:n",

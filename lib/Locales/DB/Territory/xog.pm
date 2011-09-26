@@ -2,7 +2,7 @@ package Locales::DB::Territory::xog;
 
 # Auto generated from CLDR
 
-$Locales::DB::Territory::xog::VERSION = '0.07';
+$Locales::DB::Territory::xog::VERSION = '0.08';
 
 $Locales::DB::Territory::xog::cldr_version = '2.0';
 

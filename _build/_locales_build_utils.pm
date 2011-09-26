@@ -332,6 +332,23 @@ sub get_target_structs_from_cldr_for_tag {
         }
     }
 
+    my $plural_form_entry = $plural_forms->{$tag};    
+    if ( !$plural_form_entry ) {
+        my ($parent_tag) = Locales::split_tag($tag);
+        if ($parent_tag ne $tag && exists $plural_forms->{$parent_tag})  {
+            $plural_form_entry = $plural_forms->{$parent_tag};
+        }
+        else {
+            for my $fb ( @{$fallback} ) {
+                if ( exists $plural_forms->{$fb} && ref( $plural_forms->{$fb} ) ) {
+                    $plural_form_entry = $plural_forms->{$fb};
+                    last;
+                }
+            }
+        }
+    }
+    # DO NOT DO THIS: $plural_form_entry ||= $plural_forms->{'en'};
+
     $lang_misc_info = {
         'fallback'     => $fallback,
         'cldr_formats' => {
@@ -412,11 +429,11 @@ sub get_target_structs_from_cldr_for_tag {
             #   one (singular), two (dual), few (paucal), many, other, zero
             'category_list' => [
                 (
-                    ( grep { exists $plural_forms->{$tag}{$_} } ( Locales::get_cldr_plural_category_list() ) ),
-                    exists $plural_forms->{$tag}{'other'} ? () : ('other')    # has to have 'other' at the end if no where else
+                    ( grep { exists $plural_form_entry->{$_} } ( Locales::get_cldr_plural_category_list() ) ),
+                    exists $plural_form_entry->{'other'} ? () : ('other')    # has to have 'other' at the end if no where else
                 )
             ],
-            'category_rules' => $plural_forms->{$tag},
+            'category_rules' => $plural_form_entry,
         },
         'orientation' => {
             'characters' => $raw_struct->{'layout'}{'orientation'}{'characters'} || $fallback_lang_misc_info->{'orientation'}{'characters'} || 'left-to-right',
@@ -725,6 +742,11 @@ sub get_orientation {
         return 'right-to-left';
     }
     else {
+        require Locales;
+        my (\$l) = Locales::split_tag(\$_[0]);
+        if (\$l ne \$_[0]) {
+            return 'right-to-left' if exists \$rtl{ \$l };
+        }
         return 'left-to-right';
     }
 }
@@ -798,6 +820,11 @@ sub get_locale_display_pattern {
         return \$locale_display_lookup{ \$_[0] };
     }
     else {
+        require Locales;
+        my (\$l) = Locales::split_tag(\$_[0]);
+        if (\$l ne \$_[0]) {
+            return \$locale_display_lookup{\$l} if exists \$locale_display_lookup{ \$l };
+        }
         return "$default_pattern";
     }
 }
@@ -849,7 +876,8 @@ __END__
 
 =head1 NAME
 
-plural form details reference for all included locales
+Locales::DB::Docs::PluralForms - plural form details reference for all
+included locales
 
 =head1 VERSION
 

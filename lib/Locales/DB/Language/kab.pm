@@ -2,7 +2,7 @@ package Locales::DB::Language::kab;
 
 # Auto generated from CLDR
 
-$Locales::DB::Language::kab::VERSION = '0.07';
+$Locales::DB::Language::kab::VERSION = '0.08';
 
 $Locales::DB::Language::kab::cldr_version = '2.0';
 

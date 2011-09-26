@@ -2,7 +2,7 @@ package Locales::DB::CharacterOrientation::Tiny;
 
 # Auto generated from CLDR
 
-$Locales::DB::CharacterOrientation::Tiny::VERSION = '0.07';
+$Locales::DB::CharacterOrientation::Tiny::VERSION = '0.08';
 
 $Locales::DB::CharacterOrientation::Tiny::cldr_version = '2.0';
 
@@ -20,6 +20,11 @@ sub get_orientation {
         return 'right-to-left';
     }
     else {
+        require Locales;
+        my ($l) = Locales::split_tag( $_[0] );
+        if ( $l ne $_[0] ) {
+            return 'right-to-left' if exists $rtl{$l};
+        }
         return 'left-to-right';
     }
 }

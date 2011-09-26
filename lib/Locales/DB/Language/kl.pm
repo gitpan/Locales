@@ -2,7 +2,7 @@ package Locales::DB::Language::kl;
 
 # Auto generated from CLDR
 
-$Locales::DB::Language::kl::VERSION = '0.07';
+$Locales::DB::Language::kl::VERSION = '0.08';
 
 $Locales::DB::Language::kl::cldr_version = '2.0';
 
@@ -35,7 +35,7 @@ $Locales::DB::Language::kl::cldr_version = '2.0';
         'quotation_end'             => '«',
         'quotation_start'           => '»'
     },
-    'fallback'    => ["da\ en"],
+    'fallback'    => [ "da\ en" ],
     'orientation' => {
         'characters' => "left\-to\-right",
         'lines'      => "top\-to\-bottom"

@@ -2,7 +2,7 @@ package Locales::DB::Language::tzm;
 
 # Auto generated from CLDR
 
-$Locales::DB::Language::tzm::VERSION = '0.07';
+$Locales::DB::Language::tzm::VERSION = '0.08';
 
 $Locales::DB::Language::tzm::cldr_version = '2.0';
 

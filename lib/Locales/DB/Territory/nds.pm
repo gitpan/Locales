@@ -2,7 +2,7 @@ package Locales::DB::Territory::nds;
 
 # Auto generated from CLDR
 
-$Locales::DB::Territory::nds::VERSION = '0.07';
+$Locales::DB::Territory::nds::VERSION = '0.08';
 
 $Locales::DB::Territory::nds::cldr_version = '2.0';
 

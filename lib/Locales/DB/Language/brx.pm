@@ -2,7 +2,7 @@ package Locales::DB::Language::brx;
 
 # Auto generated from CLDR
 
-$Locales::DB::Language::brx::VERSION = '0.07';
+$Locales::DB::Language::brx::VERSION = '0.08';
 
 $Locales::DB::Language::brx::cldr_version = '2.0';
 

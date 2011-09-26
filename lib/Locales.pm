@@ -4,7 +4,7 @@ package Locales;
 # use strict;
 # use warnings;
 
-$Locales::VERSION      = '0.19';    # change in POD
+$Locales::VERSION      = '0.20';    # change in POD
 $Locales::cldr_version = '2.0';     # change in POD
 
 #### class methods ####
@@ -111,7 +111,7 @@ sub get_native_language_from_code {
         $ln ||= $l;
         $tn ||= $t;
 
-        my $string = $self->{'language_data'}{'misc_info'}{'cldr_formats'}{'locale'} || '{0} ({1})';
+        my $string = get_locale_display_pattern_from_code_fast($code) || $self->{'language_data'}{'misc_info'}{'cldr_formats'}{'locale'} || '{0} ({1})';
         $string =~ s/\{0\}/$ln/g;
         $string =~ s/\{1\}/$tn/g;
 
@@ -296,7 +296,7 @@ sub get_plural_form {
         if ( $val_len == ( $cat_len + 1 ) ) {
             $has_extra_for_zero++;
         }
-        elsif ( $cat_len != $val_len ) {
+        elsif ( $cat_len != $val_len && $self->{'verbose'} ) {
             require Carp;
             Carp::carp("The number of given values ($val_len) does not match the number of categories ($cat_len).");
         }
@@ -358,10 +358,12 @@ sub get_list_and {
         return $two;
     }
     else {
+        @items = map { s/\{([01])\}/__\{__${1}__\}__/g; $_ } @items;    # I know ick, patches welcome
+
         my $aggregate = $self->{'language_data'}{'misc_info'}{'cldr_formats'}{'list'}{'start'};
         $aggregate =~ s/\{([01])\}/$items[$1]/g;
 
-        my $i;    # buffer
+        my $i;                                                          # buffer
         for $i ( 2 .. $#items ) {
             next if $i == $#items;
             my $middle = $self->{'language_data'}{'misc_info'}{'cldr_formats'}{'list'}{'middle'};
@@ -373,6 +375,8 @@ sub get_list_and {
         my $end = $self->{'language_data'}{'misc_info'}{'cldr_formats'}{'list'}{'end'};
         $end =~ s/\{0\}/$aggregate/g;
         $end =~ s/\{1\}/$items[-1]/g;
+
+        $end =~ s/__\{__([01])__\}__/\{$1\}/g;    # See "I know ick, patches welcome" above
 
         return $end;
     }
@@ -931,7 +935,7 @@ Locales - Methods for getting localized CLDR language/territory names (and a sub
 
 =head1 VERSION
 
-This document describes Locales version 0.19
+This document describes Locales version 0.20
 
 =head1 SYNOPSIS
 
@@ -1166,6 +1170,8 @@ The locale does not have plural logic data.
 =item C<< The number of given values (%d) does not match the number of categories (%d). >>
 
 You passed too many or too few values after the initial numeric argument.
+
+You'll only see this if $locales_object->{'verbose'} is set to true.
 
 =item C<< The category (%s) is not used by this locale. >>
 

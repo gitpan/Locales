@@ -2,7 +2,7 @@ package Locales::DB::Language::bs;
 
 # Auto generated from CLDR
 
-$Locales::DB::Language::bs::VERSION = '0.07';
+$Locales::DB::Language::bs::VERSION = '0.08';
 
 $Locales::DB::Language::bs::cldr_version = '2.0';
 
@@ -35,7 +35,7 @@ $Locales::DB::Language::bs::cldr_version = '2.0';
         'quotation_end'             => '’',
         'quotation_start'           => '‘'
     },
-    'fallback'    => ['sr_Latn'],
+    'fallback'    => [ 'sr_Latn' ],
     'orientation' => {
         'characters' => "left\-to\-right",
         'lines'      => "top\-to\-bottom"

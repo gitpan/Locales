@@ -1,3 +1,11 @@
+0.20  Mon Sep 26 09:30:32 2011
+    - improve plural form fallback during CLDR build
+    - rt 70503 - fix NAME section in generated plural form POD
+    - rt 70610 - do native names in their display format if possible
+    - rt 70620 - *_fast() should fall back to parent tag if no explicit entry
+    - default to quiet for the FYI: The number of given values (%d) does not match the number of categories (%d).
+    - Do not interpolate {0} and {1} when passed in as arguments that are being used in pattern building
+
 0.19  Wed Aug  3 16:36:51 2011
     - rt 69987: added strict/warnings comment in Locales.pm (also updated 0.18 changelog entry)
     - rt 70000: added reminder to comment

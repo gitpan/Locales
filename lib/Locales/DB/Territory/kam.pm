@@ -2,7 +2,7 @@ package Locales::DB::Territory::kam;
 
 # Auto generated from CLDR
 
-$Locales::DB::Territory::kam::VERSION = '0.07';
+$Locales::DB::Territory::kam::VERSION = '0.08';
 
 $Locales::DB::Territory::kam::cldr_version = '2.0';
 

@@ -2,7 +2,7 @@ package Locales::DB::Language::wae;
 
 # Auto generated from CLDR
 
-$Locales::DB::Language::wae::VERSION = '0.07';
+$Locales::DB::Language::wae::VERSION = '0.08';
 
 $Locales::DB::Language::wae::cldr_version = '2.0';
 

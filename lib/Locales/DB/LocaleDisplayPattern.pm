@@ -2,7 +2,7 @@ package Locales::DB::LocaleDisplayPattern;
 
 # Auto generated from CLDR
 
-$Locales::DB::LocaleDisplayPattern::VERSION = '0.07';
+$Locales::DB::LocaleDisplayPattern::VERSION = '0.08';
 
 $Locales::DB::LocaleDisplayPattern::cldr_version = '2.0';
 

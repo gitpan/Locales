@@ -1,4 +1,4 @@
-use Test::More tests => 226;
+use Test::More tests => 229;
 use Test::Carp;
 
 use lib 'lib', '../lib';
@@ -38,6 +38,7 @@ is( $t->get_list_and(qw(a b c)),       'a, b, and c',          'get_list_and() 3
 is( $t->get_list_and(qw(a b c d)),     'a, b, c, and d',       'get_list_and() 3+ args 1' );
 is( $t->get_list_and(qw(a b c d e)),   'a, b, c, d, and e',    'get_list_and() 3+ args 2' );
 is( $t->get_list_and(qw(a b c d e f)), 'a, b, c, d, e, and f', 'get_list_and() 3+ args 3' );
+is( $t->get_list_and(qw({0} {1} {0} {0})), '{0}, {1}, {0}, and {0}', 'CLDR parsing handles patterns passed in as args - AND');
 
 # get_list_or() is a stub that is basically get_list_and() until the OR info is in the CLDR (http://unicode.org/cldr/trac/ticket/4051)
 is( $t->get_list_or(),                undef,                  'get_list_or() no args means nothing returned' );
@@ -47,6 +48,7 @@ is( $t->get_list_or(qw(a b c)),       'a, b, and c',          'get_list_or() 3 a
 is( $t->get_list_or(qw(a b c d)),     'a, b, c, and d',       'get_list_or() 3+ args 1' );
 is( $t->get_list_or(qw(a b c d e)),   'a, b, c, d, and e',    'get_list_or() 3+ args 2' );
 is( $t->get_list_or(qw(a b c d e f)), 'a, b, c, d, e, and f', 'get_list_or() 3+ args 3' );
+is( $t->get_list_or(qw({0} {1} {0} {0})), '{0}, {1}, {0}, and {0}', 'CLDR parsing handles patterns passed in as args - OR');
 
 my $es = Locales->new("es");
 is( $es->get_list_and(),                undef,               'get_list_and() no args means nothing returned' );
@@ -154,6 +156,14 @@ my $other_other_other = Locales->new('en');
 is( $other_other_other->get_plural_form("0.1"), "other", "special category 0 0.x" );
 is( $other_other_other->get_plural_form("1.1"), "other", "special category 0 1.x" );
 is( $other_other_other->get_plural_form("2.1"), "other", "special category 0 2.x +" );
+
+does_carp_that_matches(
+    sub { 
+        local $other_other_other->{'verbose'} = 1;
+        $other_other_other->get_plural_form(42,qw(a b c d e f g h i j k)); 
+    }, 
+    qr/The number of given values \(\d+\) does not match the number of categories \(\d+\)\./
+);
 
 is( $other_other_other->get_plural_form(0), "other", "category name 0" );
 is( $other_other_other->get_plural_form(1), "one",   "category name 1" );

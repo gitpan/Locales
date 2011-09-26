@@ -2,7 +2,7 @@ package Locales::DB::Language::uk;
 
 # Auto generated from CLDR
 
-$Locales::DB::Language::uk::VERSION = '0.07';
+$Locales::DB::Language::uk::VERSION = '0.08';
 
 $Locales::DB::Language::uk::cldr_version = '2.0';
 
@@ -35,7 +35,7 @@ $Locales::DB::Language::uk::cldr_version = '2.0';
         'quotation_end'             => '»',
         'quotation_start'           => '«'
     },
-    'fallback'    => ['ru'],
+    'fallback'    => [ 'ru' ],
     'orientation' => {
         'characters' => "left\-to\-right",
         'lines'      => "top\-to\-bottom"

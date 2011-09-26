@@ -2,7 +2,7 @@ package Locales::DB::Language::hu;
 
 # Auto generated from CLDR
 
-$Locales::DB::Language::hu::VERSION = '0.07';
+$Locales::DB::Language::hu::VERSION = '0.08';
 
 $Locales::DB::Language::hu::cldr_version = '2.0';
 
@@ -41,7 +41,7 @@ $Locales::DB::Language::hu::cldr_version = '2.0';
         'lines'      => "top\-to\-bottom"
     },
     'plural_forms' => {
-        'category_list'  => ['other'],
+        'category_list'  => [ 'other' ],
         'category_rules' => {}
     },
     'posix' => {

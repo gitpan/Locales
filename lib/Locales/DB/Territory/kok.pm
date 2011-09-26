@@ -2,7 +2,7 @@ package Locales::DB::Territory::kok;
 
 # Auto generated from CLDR
 
-$Locales::DB::Territory::kok::VERSION = '0.07';
+$Locales::DB::Territory::kok::VERSION = '0.08';
 
 $Locales::DB::Territory::kok::cldr_version = '2.0';
 

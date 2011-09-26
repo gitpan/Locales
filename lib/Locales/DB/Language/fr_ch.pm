@@ -2,7 +2,7 @@ package Locales::DB::Language::fr_ch;
 
 # Auto generated from CLDR
 
-$Locales::DB::Language::fr_ch::VERSION = '0.07';
+$Locales::DB::Language::fr_ch::VERSION = '0.08';
 
 $Locales::DB::Language::fr_ch::cldr_version = '2.0';
 
@@ -41,8 +41,12 @@ $Locales::DB::Language::fr_ch::cldr_version = '2.0';
         'lines'      => "top\-to\-bottom"
     },
     'plural_forms' => {
-        'category_list'  => ['other'],
-        'category_rules' => {}
+        'category_list' => [
+            'one',
+            'other'
+        ],
+        'category_rules'          => { 'one' => "n\ within\ 0\.\.2\ and\ n\ is\ not\ 2" },
+        'category_rules_compiled' => { 'one' => "sub\ \{\ return\ \'one\'\ if\ \(\ \(\(\ \$_\[0\]\ \>\=\ 0\ \&\&\ \$_\[0\]\ \<\=\ 2\ \)\ \&\&\ \(\ \$_\[0\]\ \!\=\ 2\)\)\)\;\ return\;\}\;" }
     },
     'posix' => {
         'nostr'  => "non\:n",

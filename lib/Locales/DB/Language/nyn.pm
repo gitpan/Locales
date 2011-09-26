@@ -2,7 +2,7 @@ package Locales::DB::Language::nyn;
 
 # Auto generated from CLDR
 
-$Locales::DB::Language::nyn::VERSION = '0.07';
+$Locales::DB::Language::nyn::VERSION = '0.08';
 
 $Locales::DB::Language::nyn::cldr_version = '2.0';
 

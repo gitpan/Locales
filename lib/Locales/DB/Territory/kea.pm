@@ -2,7 +2,7 @@ package Locales::DB::Territory::kea;
 
 # Auto generated from CLDR
 
-$Locales::DB::Territory::kea::VERSION = '0.07';
+$Locales::DB::Territory::kea::VERSION = '0.08';
 
 $Locales::DB::Territory::kea::cldr_version = '2.0';
 
