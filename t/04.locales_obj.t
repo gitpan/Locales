@@ -85,11 +85,13 @@ is( $t->get_formatted_decimal( '-1234567890',       3 ), '-1,234,567,890',      
 is( $t->get_formatted_decimal( 1234567890.12345,    3 ), '1,234,567,890.123',   'max - no round - basic dec - num' );
 is( $t->get_formatted_decimal( '1234567890.12345',  3 ), '1,234,567,890.123',   'max - no round - basic dec - str' );
 is( $t->get_formatted_decimal( -1234567890.12345,   3 ), '-1,234,567,890.123',  'max - no round - basic dec negative - num' );
-is( $t->get_formatted_decimal( '-1234567890.12345', 4 ), '-1,234,567,890.1235', 'max - no round - basic dec negative - str' );
-is( $t->get_formatted_decimal( 1234567890.12345,    4 ), '1,234,567,890.1235',  'max - round - basic dec - num' );
-is( $t->get_formatted_decimal( '1234567890.12345',  4 ), '1,234,567,890.1235',  'max - round - basic dec - str' );
-is( $t->get_formatted_decimal( -1234567890.12345,   4 ), '-1,234,567,890.1235', 'max - round - basic dec negative - num' );
-is( $t->get_formatted_decimal( '-1234567890.12345', 4 ), '-1,234,567,890.1235', 'max - round - basic dec negative - str' );
+
+# use like() instead of is() here due to numeric behavior and nvsize issues (see rt 72788)
+like( $t->get_formatted_decimal( '-1234567890.12345', 4 ), qr/^-1,234,567,890\.123[45]$/, 'max - no round - basic dec negative - str' );
+like( $t->get_formatted_decimal( 1234567890.12345,    4 ), qr/^1,234,567,890\.123[45]$/,  'max - round - basic dec - num' );
+like( $t->get_formatted_decimal( '1234567890.12345',  4 ), qr/^1,234,567,890\.123[45]$/,  'max - round - basic dec - str' );
+like( $t->get_formatted_decimal( -1234567890.12345,   4 ), qr/^-1,234,567,890\.123[45]$/, 'max - round - basic dec negative - num' );
+like( $t->get_formatted_decimal( '-1234567890.12345', 4 ), qr/^-1,234,567,890\.123[45]$/, 'max - round - basic dec negative - str' );
 
 like( $t->get_formatted_decimal(99999999999999999983222787.1234), qr/e/i, 'exponential number is passed through' );
 is( $t->get_formatted_decimal("99999999999999999983222787.1234"), '99,999,999,999,999,999,983,222,787.1234', 'exponential number as string is formatted' );

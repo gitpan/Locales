@@ -1,3 +1,6 @@
+0.21  Tue Nov 29 09:34:07 2011
+    - rt 72788: fix tests that fail when nvsize > 8, no code changes except version bump
+
 0.20  Mon Sep 26 09:30:32 2011
     - improve plural form fallback during CLDR build
     - rt 70503 - fix NAME section in generated plural form POD
