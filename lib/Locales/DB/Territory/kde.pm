@@ -2,7 +2,7 @@ package Locales::DB::Territory::kde;
 
 # Auto generated from CLDR
 
-$Locales::DB::Territory::kde::VERSION = '0.08';
+$Locales::DB::Territory::kde::VERSION = '0.09';
 
 $Locales::DB::Territory::kde::cldr_version = '2.0';
 

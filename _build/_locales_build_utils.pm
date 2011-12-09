@@ -8,6 +8,8 @@ use lib Cwd::realpath('lib');
 use Locales;
 use File::Slurp;
 use Encode ();    # to be stringified properly from hash value bug: s{\|\|\s*(\$fallback_lang_misc_info\-\>\S*)\,}{|| Encode::decode_utf8($1),}
+use String::Unquotemeta;
+use JSON::Syck;
 
 use Hash::Merge;
 Hash::Merge::specify_behavior(
@@ -152,18 +154,18 @@ sub get_target_structs_from_cldr_for_tag {
                 for my $fb ( @{ $raw_struct->{'fallback'} } ) {
                     my $thing = ref($fb) ? $fb->{'content'} : $fb;
                     next if !defined $thing;
-                    push @{$fallback}, $thing;
+                    push @{$fallback}, map { Locales::normalize_tag("$_") } split(/\s+/, $thing);
                 }
             }
             elsif ( $type eq 'HASH' ) {
                 if ( $raw_struct->{'fallback'}{'content'} ) {
-                    push @{$fallback}, $raw_struct->{'fallback'}{'content'};
+                    push @{$fallback}, map { Locales::normalize_tag("$_") } split(/\s+/, $raw_struct->{'fallback'}{'content'});
                 }
             }
         }
         else {
             if ( $raw_struct->{'fallback'} ) {
-                push @{$fallback}, $raw_struct->{'fallback'};
+                push @{$fallback}, map { Locales::normalize_tag("$_") } split(/\s+/, $raw_struct->{'fallback'});
             }
         }
     }
@@ -174,18 +176,18 @@ sub get_target_structs_from_cldr_for_tag {
                 for my $fb ( @{ $fallback_lang_misc_info->{'fallback'} } ) {
                     my $thing = ref($fb) ? $fb->{'content'} : $fb;
                     next if !defined $thing;
-                    push @{$fallback}, $thing;
+                    push @{$fallback}, map { Locales::normalize_tag("$_") } split(/\s+/, $thing);
                 }
             }
             elsif ( $type eq 'HASH' ) {
                 if ( $fallback_lang_misc_info->{'fallback'}{'content'} ) {
-                    push @{$fallback}, $fallback_lang_misc_info->{'fallback'}{'content'};
+                    push @{$fallback}, map { Locales::normalize_tag("$_") } split(/\s+/, $fallback_lang_misc_info->{'fallback'}{'content'});
                 }
             }
         }
         else {
             if ( $fallback_lang_misc_info->{'fallback'} ) {
-                push @{$fallback}, $fallback_lang_misc_info->{'fallback'};
+                push @{$fallback}, map { Locales::normalize_tag("$_") } split(/\s+/, $fallback_lang_misc_info->{'fallback'});
             }
         }
     }
@@ -494,8 +496,26 @@ sub write_language_module {
 
     my $code_to_name_str = _stringify_hash($code_to_name);
     my $name_to_code_str = _stringify_hash($name_to_code);
-    my $misc_info_str    = _stringify_hash($misc_info);
-
+    my $misc_info_str;
+    {
+        # make values in plural_forms->category_rules_compiled be sub { ...} instead of 'sub \{ \.\.\. \}'
+        #
+        # this adds a package thing, maybe investigate?
+        # local $Data::Dumper::Deparse = 1;
+        # for my $k (keys %{$misc_info->{plural_forms}{category_rules_compiled}}) {
+        #     print "RULE $k: $misc_info->{plural_forms}{category_rules_compiled}{$k}\n";
+        #     $misc_info->{plural_forms}{category_rules_compiled}{$k} = eval "$misc_info->{plural_forms}{category_rules_compiled}{$k}";
+        # }
+        
+        
+        $misc_info_str    = _stringify_hash($misc_info);
+        
+        for my $k (keys %{$misc_info->{'plural_forms'}{category_rules_compiled}}) {
+            $misc_info_str =~ s/(\'\Q$k\E\' \=\>) \"(sub\\ \\\{.*)\"/"$1" . String::Unquotemeta::unquotemeta("$2")/e;
+        }
+        
+        # print "DEBUG:\n$misc_info_str\n";exit;
+    }
     _write_utf8_perl(
         "Language/$tag.pm", qq{package Locales::DB::Language::$tag;
 
@@ -635,6 +655,10 @@ is_deeply(
 my \$ok_rule_count = 0;
 my \$error = '';
 for my \$rule (keys \%{\$Locales::DB::Language::$tag\::misc_info{'plural_forms'}->{'category_rules_compiled'}}) {
+    if (ref(\$Locales::DB::Language::$tag\::misc_info{'plural_forms'}->{'category_rules_compiled'}{\$rule}) eq 'CODE') {
+        \$ok_rule_count++;
+        next;
+    }
     eval \$Locales::DB::Language::$tag\::misc_info{'plural_forms'}->{'category_rules_compiled'}{\$rule};
     if (\$@) {
         \$error .= \$@;
@@ -645,7 +669,7 @@ for my \$rule (keys \%{\$Locales::DB::Language::$tag\::misc_info{'plural_forms'}
     }
 }
 ok(\$ok_rule_count == keys \%{ \$Locales::DB::Language::$tag\::misc_info{'plural_forms'}->{'category_rules_compiled'} }, "each 'category_rules_compiled' eval without error - count");
-is(\$error, '', "each 'category_rules_compiled' eval without error - errors");
+is(\$error, '', "each 'category_rules_compiled' is a code ref or evals without error - errors");
 
 my \$self_obj = Locales->new('$tag');
 ok(ref(\$self_obj), '$tag object created OK');
@@ -953,6 +977,35 @@ SUCH DAMAGES.
         'lib/Locales/DB/Docs/PluralForms.pm',
         1,
     );
+}
+
+sub build_javascript_share {
+    my ($tag) = @_;
+    
+    my $loc = Locales->new();
+    for my $tag (sort $loc->get_language_codes()) {
+        my $tag_loc = Locales->new($tag);
+        
+        my $guts_m = $tag_loc->{'language_data'}{'misc_info'};
+        for my $k (keys %{$guts_m->{'plural_forms'}{'category_rules_compiled'}}) {
+            $guts_m->{'plural_forms'}{'category_rules_compiled'}{$k} = Locales::plural_rule_string_to_javascript_code($guts_m->{'plural_forms'}{'category_rules'}{$k}, $k);
+        }
+        my $json = JSON::Syck::Dump($guts_m); # no eval, lets just die
+        $json =~ s/\"(function \(n\) \{)/$1/g;
+        $json =~ s/(return\;\})\"/$1/g;
+           
+        open( my $fh_m, '>', "share/javascript/misc_info/$tag.json") or die "Could not open 'share/javascript/misc_info/$tag.json': $!";
+        print {$fh_m} $json; 
+        close $fh_m;
+     
+        my $json_c = JSON::Syck::Dump( $tag_loc->{'language_data'}{'code_to_name'} );  # no eval, lets just die
+
+        open( my $fh_c, '>', "share/javascript/code_to_name/$tag.json") or die "Could not open 'share/javascript/code_to_name/$tag.json': $!";
+        print {$fh_c} $json_c;
+        close $fh_c;
+   
+        append_file( $manifest, "share/javascript/misc_info/$tag.json\nshare/javascript/code_to_name/$tag.json\n" );    
+    }
 }
 
 sub build_manifest {

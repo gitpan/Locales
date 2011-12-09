@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               Locales
-version:            0.21
+version:            0.22
 abstract:           Methods for getting localized CLDR language/territory names (and a subset of other data)
 author:
     - Daniel Muey <http://drmuey.com/cpan_contact.pl>

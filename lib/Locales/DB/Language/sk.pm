@@ -2,7 +2,7 @@ package Locales::DB::Language::sk;
 
 # Auto generated from CLDR
 
-$Locales::DB::Language::sk::VERSION = '0.08';
+$Locales::DB::Language::sk::VERSION = '0.09';
 
 $Locales::DB::Language::sk::cldr_version = '2.0';
 
@@ -51,8 +51,14 @@ $Locales::DB::Language::sk::cldr_version = '2.0';
             'one' => "n\ is\ 1"
         },
         'category_rules_compiled' => {
-            'few' => "sub\ \{\ return\ \'few\'\ if\ \(\ \(\(\ int\(\$_\[0\]\)\ \=\=\ \$_\[0\]\ \&\&\ \$_\[0\]\ \>\=\ 2\ \&\&\ \$_\[0\]\ \<\=\ 4\ \)\)\)\;\ return\;\}\;",
-            'one' => "sub\ \{\ return\ \'one\'\ if\ \(\ \(\(\ \$_\[0\]\ \=\=\ 1\)\)\)\;\ return\;\}\;"
+            'few' => sub {
+                if ( ( ( int( $_[0] ) == $_[0] && $_[0] >= 2 && $_[0] <= 4 ) ) ) { return 'few'; }
+                return;
+            },
+            'one' => sub {
+                if ( ( ( $_[0] == 1 ) ) ) { return 'one'; }
+                return;
+              }
         }
     },
     'posix' => {

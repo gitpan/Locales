@@ -2,7 +2,7 @@ package Locales::DB::Language::se;
 
 # Auto generated from CLDR
 
-$Locales::DB::Language::se::VERSION = '0.08';
+$Locales::DB::Language::se::VERSION = '0.09';
 
 $Locales::DB::Language::se::cldr_version = '2.0';
 
@@ -35,7 +35,12 @@ $Locales::DB::Language::se::cldr_version = '2.0';
         'quotation_end'             => '”',
         'quotation_start'           => '”'
     },
-    'fallback'    => [ "nb\ nn\ sv\ en" ],
+    'fallback' => [
+        'nb',
+        'nn',
+        'sv',
+        'en'
+    ],
     'orientation' => {
         'characters' => "left\-to\-right",
         'lines'      => "top\-to\-bottom"
@@ -51,8 +56,14 @@ $Locales::DB::Language::se::cldr_version = '2.0';
             'two' => "n\ is\ 2"
         },
         'category_rules_compiled' => {
-            'one' => "sub\ \{\ return\ \'one\'\ if\ \(\ \(\(\ \$_\[0\]\ \=\=\ 1\)\)\)\;\ return\;\}\;",
-            'two' => "sub\ \{\ return\ \'two\'\ if\ \(\ \(\(\ \$_\[0\]\ \=\=\ 2\)\)\)\;\ return\;\}\;"
+            'one' => sub {
+                if ( ( ( $_[0] == 1 ) ) ) { return 'one'; }
+                return;
+            },
+            'two' => sub {
+                if ( ( ( $_[0] == 2 ) ) ) { return 'two'; }
+                return;
+              }
         }
     },
     'posix' => {

@@ -2,7 +2,7 @@ package Locales::DB::Language::mk;
 
 # Auto generated from CLDR
 
-$Locales::DB::Language::mk::VERSION = '0.08';
+$Locales::DB::Language::mk::VERSION = '0.09';
 
 $Locales::DB::Language::mk::cldr_version = '2.0';
 
@@ -46,7 +46,12 @@ $Locales::DB::Language::mk::cldr_version = '2.0';
             'other'
         ],
         'category_rules'          => { 'one' => "n\ mod\ 10\ is\ 1\ and\ n\ is\ not\ 11" },
-        'category_rules_compiled' => { 'one' => "sub\ \{\ return\ \'one\'\ if\ \(\ \(\(\ \(\$_\[0\]\ \%\ 10\)\ \=\=\ 1\)\ \&\&\ \(\ \$_\[0\]\ \!\=\ 11\)\)\)\;\ return\;\}\;" }
+        'category_rules_compiled' => {
+            'one' => sub {
+                if ( ( ( ( $_[0] % 10 ) == 1 ) && ( $_[0] != 11 ) ) ) { return 'one'; }
+                return;
+              }
+        }
     },
     'posix' => {
         'nostr'  => "не\:н",

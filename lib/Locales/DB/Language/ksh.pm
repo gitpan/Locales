@@ -2,7 +2,7 @@ package Locales::DB::Language::ksh;
 
 # Auto generated from CLDR
 
-$Locales::DB::Language::ksh::VERSION = '0.08';
+$Locales::DB::Language::ksh::VERSION = '0.09';
 
 $Locales::DB::Language::ksh::cldr_version = '2.0';
 
@@ -35,7 +35,12 @@ $Locales::DB::Language::ksh::cldr_version = '2.0';
         'quotation_end'             => '“',
         'quotation_start'           => '„'
     },
-    'fallback'    => [ "de_DE\ nl\ nds\ en" ],
+    'fallback' => [
+        'de_de',
+        'nl',
+        'nds',
+        'en'
+    ],
     'orientation' => {
         'characters' => "left\-to\-right",
         'lines'      => "top\-to\-bottom"
@@ -51,8 +56,14 @@ $Locales::DB::Language::ksh::cldr_version = '2.0';
             'zero' => "n\ is\ 0"
         },
         'category_rules_compiled' => {
-            'one'  => "sub\ \{\ return\ \'one\'\ if\ \(\ \(\(\ \$_\[0\]\ \=\=\ 1\)\)\)\;\ return\;\}\;",
-            'zero' => "sub\ \{\ return\ \'zero\'\ if\ \(\ \(\(\ \$_\[0\]\ \=\=\ 0\)\)\)\;\ return\;\}\;"
+            'one' => sub {
+                if ( ( ( $_[0] == 1 ) ) ) { return 'one'; }
+                return;
+            },
+            'zero' => sub {
+                if ( ( ( $_[0] == 0 ) ) ) { return 'zero'; }
+                return;
+              }
         }
     },
     'posix' => {

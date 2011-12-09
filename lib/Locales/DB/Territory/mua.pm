@@ -2,7 +2,7 @@ package Locales::DB::Territory::mua;
 
 # Auto generated from CLDR
 
-$Locales::DB::Territory::mua::VERSION = '0.08';
+$Locales::DB::Territory::mua::VERSION = '0.09';
 
 $Locales::DB::Territory::mua::cldr_version = '2.0';
 

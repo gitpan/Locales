@@ -2,7 +2,7 @@ package Locales::DB::Docs::PluralForms;
 
 # Auto generated from CLDR
 
-$Locales::DB::Docs::PluralForms::VERSION = '0.08';
+$Locales::DB::Docs::PluralForms::VERSION = '0.09';
 
 $Locales::DB::Docs::PluralForms::cldr_version = '2.0';
 
@@ -19,7 +19,7 @@ included locales
 
 =head1 VERSION
 
-Locales.pm v0.08 (based on CLDR v2.0)
+Locales.pm v0.09 (based on CLDR v2.0)
 
 =head1 DESCRIPTION
 

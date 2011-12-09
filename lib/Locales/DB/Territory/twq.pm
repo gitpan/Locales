@@ -2,7 +2,7 @@ package Locales::DB::Territory::twq;
 
 # Auto generated from CLDR
 
-$Locales::DB::Territory::twq::VERSION = '0.08';
+$Locales::DB::Territory::twq::VERSION = '0.09';
 
 $Locales::DB::Territory::twq::cldr_version = '2.0';
 

@@ -2,7 +2,7 @@ package Locales::DB::Territory::luy;
 
 # Auto generated from CLDR
 
-$Locales::DB::Territory::luy::VERSION = '0.08';
+$Locales::DB::Territory::luy::VERSION = '0.09';
 
 $Locales::DB::Territory::luy::cldr_version = '2.0';
 

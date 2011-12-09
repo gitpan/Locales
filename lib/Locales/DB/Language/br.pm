@@ -2,7 +2,7 @@ package Locales::DB::Language::br;
 
 # Auto generated from CLDR
 
-$Locales::DB::Language::br::VERSION = '0.08';
+$Locales::DB::Language::br::VERSION = '0.09';
 
 $Locales::DB::Language::br::cldr_version = '2.0';
 
@@ -57,11 +57,26 @@ $Locales::DB::Language::br::cldr_version = '2.0';
             'zero' => "n\ is\ 0"
         },
         'category_rules_compiled' => {
-            'few'  => "sub\ \{\ return\ \'few\'\ if\ \(\ \(\(\ \$_\[0\]\ \=\=\ 3\)\)\)\;\ return\;\}\;",
-            'many' => "sub\ \{\ return\ \'many\'\ if\ \(\ \(\(\ \$_\[0\]\ \=\=\ 6\)\)\)\;\ return\;\}\;",
-            'one'  => "sub\ \{\ return\ \'one\'\ if\ \(\ \(\(\ \$_\[0\]\ \=\=\ 1\)\)\)\;\ return\;\}\;",
-            'two'  => "sub\ \{\ return\ \'two\'\ if\ \(\ \(\(\ \$_\[0\]\ \=\=\ 2\)\)\)\;\ return\;\}\;",
-            'zero' => "sub\ \{\ return\ \'zero\'\ if\ \(\ \(\(\ \$_\[0\]\ \=\=\ 0\)\)\)\;\ return\;\}\;"
+            'few' => sub {
+                if ( ( ( $_[0] == 3 ) ) ) { return 'few'; }
+                return;
+            },
+            'many' => sub {
+                if ( ( ( $_[0] == 6 ) ) ) { return 'many'; }
+                return;
+            },
+            'one' => sub {
+                if ( ( ( $_[0] == 1 ) ) ) { return 'one'; }
+                return;
+            },
+            'two' => sub {
+                if ( ( ( $_[0] == 2 ) ) ) { return 'two'; }
+                return;
+            },
+            'zero' => sub {
+                if ( ( ( $_[0] == 0 ) ) ) { return 'zero'; }
+                return;
+              }
         }
     },
     'posix' => {

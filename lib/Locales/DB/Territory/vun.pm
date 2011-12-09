@@ -2,7 +2,7 @@ package Locales::DB::Territory::vun;
 
 # Auto generated from CLDR
 
-$Locales::DB::Territory::vun::VERSION = '0.08';
+$Locales::DB::Territory::vun::VERSION = '0.09';
 
 $Locales::DB::Territory::vun::cldr_version = '2.0';
 

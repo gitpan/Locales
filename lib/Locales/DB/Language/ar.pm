@@ -2,7 +2,7 @@ package Locales::DB::Language::ar;
 
 # Auto generated from CLDR
 
-$Locales::DB::Language::ar::VERSION = '0.08';
+$Locales::DB::Language::ar::VERSION = '0.09';
 
 $Locales::DB::Language::ar::cldr_version = '2.0';
 
@@ -57,11 +57,26 @@ $Locales::DB::Language::ar::cldr_version = '2.0';
             'zero' => "n\ is\ 0"
         },
         'category_rules_compiled' => {
-            'few'  => "sub\ \{\ return\ \'few\'\ if\ \(\ \(\(\ int\(\$_\[0\]\)\ \=\=\ \$_\[0\]\ \&\&\ \(\$_\[0\]\ \%\ 100\)\ \>\=\ 3\ \&\&\ \(\$_\[0\]\ \%\ 100\)\ \<\=\ 10\ \)\)\)\;\ return\;\}\;",
-            'many' => "sub\ \{\ return\ \'many\'\ if\ \(\ \(\(\ int\(\$_\[0\]\)\ \=\=\ \$_\[0\]\ \&\&\ \(\$_\[0\]\ \%\ 100\)\ \>\=\ 11\ \&\&\ \(\$_\[0\]\ \%\ 100\)\ \<\=\ 99\ \)\)\)\;\ return\;\}\;",
-            'one'  => "sub\ \{\ return\ \'one\'\ if\ \(\ \(\(\ \$_\[0\]\ \=\=\ 1\)\)\)\;\ return\;\}\;",
-            'two'  => "sub\ \{\ return\ \'two\'\ if\ \(\ \(\(\ \$_\[0\]\ \=\=\ 2\)\)\)\;\ return\;\}\;",
-            'zero' => "sub\ \{\ return\ \'zero\'\ if\ \(\ \(\(\ \$_\[0\]\ \=\=\ 0\)\)\)\;\ return\;\}\;"
+            'few' => sub {
+                if ( ( ( int( $_[0] ) == $_[0] && ( $_[0] % 100 ) >= 3 && ( $_[0] % 100 ) <= 10 ) ) ) { return 'few'; }
+                return;
+            },
+            'many' => sub {
+                if ( ( ( int( $_[0] ) == $_[0] && ( $_[0] % 100 ) >= 11 && ( $_[0] % 100 ) <= 99 ) ) ) { return 'many'; }
+                return;
+            },
+            'one' => sub {
+                if ( ( ( $_[0] == 1 ) ) ) { return 'one'; }
+                return;
+            },
+            'two' => sub {
+                if ( ( ( $_[0] == 2 ) ) ) { return 'two'; }
+                return;
+            },
+            'zero' => sub {
+                if ( ( ( $_[0] == 0 ) ) ) { return 'zero'; }
+                return;
+              }
         }
     },
     'posix' => {

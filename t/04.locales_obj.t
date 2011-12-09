@@ -1,4 +1,4 @@
-use Test::More tests => 229;
+use Test::More tests => 249;
 use Test::Carp;
 
 use lib 'lib', '../lib';
@@ -218,23 +218,23 @@ ok( !defined $def_cr->(0), 'no category_rules gets default cr other res' );
 
 # test each type of 'category_rules' via plural_rule_string_to_code()
 
-is( Locales::plural_rule_string_to_code( 'n is 4',         "RETVAL" ), q{sub { return 'RETVAL' if ( (( $_[0] == 4))); return;};},         'plural rule: n is …' );
-is( Locales::plural_rule_string_to_code( 'n mod 100 is 4', "RETVAL" ), q{sub { return 'RETVAL' if ( (( ($_[0] % 100) == 4))); return;};}, 'plural rule: n mod … is …' );
+is( Locales::plural_rule_string_to_code( 'n is 4',         "RETVAL" ), q{sub { if ( (( $_[0] == 4))) { return 'RETVAL'; } return;}},         'plural rule: n is …' );
+is( Locales::plural_rule_string_to_code( 'n mod 100 is 4', "RETVAL" ), q{sub { if ( (( ($_[0] % 100) == 4))) { return 'RETVAL'; } return;}}, 'plural rule: n mod … is …' );
 
-is( Locales::plural_rule_string_to_code( 'n is not 4',         "RETVAL" ), q{sub { return 'RETVAL' if ( (( $_[0] != 4))); return;};},         'plural rule: n is not …' );
-is( Locales::plural_rule_string_to_code( 'n mod 100 is not 4', "RETVAL" ), q{sub { return 'RETVAL' if ( (( ($_[0] % 100) != 4))); return;};}, 'plural rule: n mod … is not …' );
+is( Locales::plural_rule_string_to_code( 'n is not 4',         "RETVAL" ), q{sub { if ( (( $_[0] != 4))) { return 'RETVAL'; } return;}},         'plural rule: n is not …' );
+is( Locales::plural_rule_string_to_code( 'n mod 100 is not 4', "RETVAL" ), q{sub { if ( (( ($_[0] % 100) != 4))) { return 'RETVAL'; } return;}}, 'plural rule: n mod … is not …' );
 
-is( Locales::plural_rule_string_to_code( 'n not in 1..3', "RETVAL" ), q{sub { return 'RETVAL' if ( (( int($_[0]) != $_[0] || $_[0] < 1 || $_[0] > 3 ))); return;};}, 'plural rule: n not in 1..3' );
-is( Locales::plural_rule_string_to_code( 'n mod 100 not in 1..3', "RETVAL" ), q{sub { return 'RETVAL' if ( (( int($_[0]) != $_[0] || ($_[0] % 100) < 1 || ($_[0] % 100) > 3 ))); return;};}, 'plural rule: n mod … not in 1..3' );
+is( Locales::plural_rule_string_to_code( 'n not in 1..3', "RETVAL" ),         q{sub { if ( (( int($_[0]) != $_[0] || $_[0] < 1 || $_[0] > 3 ))) { return 'RETVAL'; } return;}}, 'plural rule: n not in 1..3' );
+is( Locales::plural_rule_string_to_code( 'n mod 100 not in 1..3', "RETVAL" ), q{sub { if ( (( int($_[0]) != $_[0] || ($_[0] % 100) < 1 || ($_[0] % 100) > 3 ))) { return 'RETVAL'; } return;}}, 'plural rule: n mod … not in 1..3' );
 
-is( Locales::plural_rule_string_to_code( 'n not within 2..6', "RETVAL" ), q{sub { return 'RETVAL' if ( (( ($_[0] < 2 || $_[0] > 6) ))); return;};}, 'plural rule: n not within 2..6' );
-is( Locales::plural_rule_string_to_code( 'n mod 100 not within 4..6', "RETVAL" ), q{sub { return 'RETVAL' if ( (( (($_[0] % 100) < 4 || ($_[0] % 100) > 6) ))); return;};}, 'plural rule: n mod … not within 4..6' );
+is( Locales::plural_rule_string_to_code( 'n not within 2..6', "RETVAL" ),         q{sub { if ( (( ($_[0] < 2 || $_[0] > 6) ))) { return 'RETVAL'; } return;}}, 'plural rule: n not within 2..6' );
+is( Locales::plural_rule_string_to_code( 'n mod 100 not within 4..6', "RETVAL" ), q{sub { if ( (( (($_[0] % 100) < 4 || ($_[0] % 100) > 6) ))) { return 'RETVAL'; } return;}}, 'plural rule: n mod … not within 4..6' );
 
-is( Locales::plural_rule_string_to_code( 'n in 3..4', "RETVAL" ), q{sub { return 'RETVAL' if ( (( int($_[0]) == $_[0] && $_[0] >= 3 && $_[0] <= 4 ))); return;};}, 'plural rule: n in 3..4' );
-is( Locales::plural_rule_string_to_code( 'n mod 100 in 5..6', "RETVAL" ), q{sub { return 'RETVAL' if ( (( int($_[0]) == $_[0] && ($_[0] % 100) >= 5 && ($_[0] % 100) <= 6 ))); return;};}, 'plural rule: n mod … in 5..6' );
+is( Locales::plural_rule_string_to_code( 'n in 3..4', "RETVAL" ), q{sub { if ( (( int($_[0]) == $_[0] && $_[0] >= 3 && $_[0] <= 4 ))) { return 'RETVAL'; } return;}}, 'plural rule: n in 3..4' );
+is( Locales::plural_rule_string_to_code( 'n mod 100 in 5..6', "RETVAL" ), q{sub { if ( (( int($_[0]) == $_[0] && ($_[0] % 100) >= 5 && ($_[0] % 100) <= 6 ))) { return 'RETVAL'; } return;}}, 'plural rule: n mod … in 5..6' );
 
-is( Locales::plural_rule_string_to_code( 'n within 4..7', "RETVAL" ), q{sub { return 'RETVAL' if ( (( $_[0] >= 4 && $_[0] <= 7 ))); return;};}, 'plural rule: n within 4..7' );
-is( Locales::plural_rule_string_to_code( 'n mod 100 within 2..5', "RETVAL" ), q{sub { return 'RETVAL' if ( (( ($_[0] % 100) >= 2 && ($_[0] % 100) <= 5 ))); return;};}, 'plural rule: n mod … within 2..5' );
+is( Locales::plural_rule_string_to_code( 'n within 4..7', "RETVAL" ), q{sub { if ( (( $_[0] >= 4 && $_[0] <= 7 ))) { return 'RETVAL'; } return;}}, 'plural rule: n within 4..7' );
+is( Locales::plural_rule_string_to_code( 'n mod 100 within 2..5', "RETVAL" ), q{sub { if ( (( ($_[0] % 100) >= 2 && ($_[0] % 100) <= 5 ))) { return 'RETVAL'; } return;}}, 'plural rule: n mod … within 2..5' );
 
 ok( Locales::plural_rule_string_to_code( 'n within 4..7', "RETVAL" ) =~ m/return \'RETVAL\'/, "retval given" );
 ok( Locales::plural_rule_string_to_code('n within 4..7') =~ m/return \'1\'/, "retval not given" );
@@ -243,9 +243,40 @@ ok( Locales::plural_rule_string_to_code( 'n within 4..7', undef() ) =~ m/return 
 ok( Locales::plural_rule_string_to_code( 'n within 4..7', '' )      =~ m/return \'\'/,  "retval given ''" );
 
 # and/or
-is( Locales::plural_rule_string_to_code('n is 4 and n is 4 and n is 4'),          q{sub { return '1' if ( (( $_[0] == 4) && ( $_[0] == 4) && ( $_[0] == 4))); return;};},                        'plural_rule: and' );
-is( Locales::plural_rule_string_to_code('n is 4 or n is 4 or n is 4'),            q{sub { return '1' if ( (( $_[0] == 4)) ||  (( $_[0] == 4)) ||  (( $_[0] == 4))); return;};},                  'plural_rule: or' );
-is( Locales::plural_rule_string_to_code('n is 4 or n is 5 and n is 6 or n is 7'), q{sub { return '1' if ( (( $_[0] == 4)) ||  (( $_[0] == 5) && ( $_[0] == 6)) ||  (( $_[0] == 7))); return;};}, 'plural_rule: and and or' );
+is( Locales::plural_rule_string_to_code('n is 4 and n is 4 and n is 4'),          q{sub { if ( (( $_[0] == 4) && ( $_[0] == 4) && ( $_[0] == 4))) { return '1'; } return;}},                        'plural_rule: and' );
+is( Locales::plural_rule_string_to_code('n is 4 or n is 4 or n is 4'),            q{sub { if ( (( $_[0] == 4)) ||  (( $_[0] == 4)) ||  (( $_[0] == 4))) { return '1'; } return;}},                  'plural_rule: or' );
+is( Locales::plural_rule_string_to_code('n is 4 or n is 5 and n is 6 or n is 7'), q{sub { if ( (( $_[0] == 4)) ||  (( $_[0] == 5) && ( $_[0] == 6)) ||  (( $_[0] == 7))) { return '1'; } return;}}, 'plural_rule: and and or' );
+
+# JavaScript
+is( Locales::plural_rule_string_to_javascript_code( 'n is 4',         "RETVAL" ), q{function (n) {if ( (( n == 4))) { return 'RETVAL'; } return;}},         'plural rule: n is …' );
+is( Locales::plural_rule_string_to_javascript_code( 'n mod 100 is 4', "RETVAL" ), q{function (n) {if ( (( (n % 100) == 4))) { return 'RETVAL'; } return;}}, 'plural rule: n mod … is …' );
+
+is( Locales::plural_rule_string_to_javascript_code( 'n is not 4',         "RETVAL" ), q{function (n) {if ( (( n != 4))) { return 'RETVAL'; } return;}},         'plural rule: n is not …' );
+is( Locales::plural_rule_string_to_javascript_code( 'n mod 100 is not 4', "RETVAL" ), q{function (n) {if ( (( (n % 100) != 4))) { return 'RETVAL'; } return;}}, 'plural rule: n mod … is not …' );
+
+is( Locales::plural_rule_string_to_javascript_code( 'n not in 1..3', "RETVAL" ),         q{function (n) {if ( (( int(n) != n || n < 1 || n > 3 ))) { return 'RETVAL'; } return;}}, 'plural rule: n not in 1..3' );
+is( Locales::plural_rule_string_to_javascript_code( 'n mod 100 not in 1..3', "RETVAL" ), q{function (n) {if ( (( int(n) != n || (n % 100) < 1 || (n % 100) > 3 ))) { return 'RETVAL'; } return;}}, 'plural rule: n mod … not in 1..3' );
+
+is( Locales::plural_rule_string_to_javascript_code( 'n not within 2..6', "RETVAL" ),         q{function (n) {if ( (( (n < 2 || n > 6) ))) { return 'RETVAL'; } return;}}, 'plural rule: n not within 2..6' );
+is( Locales::plural_rule_string_to_javascript_code( 'n mod 100 not within 4..6', "RETVAL" ), q{function (n) {if ( (( ((n % 100) < 4 || (n % 100) > 6) ))) { return 'RETVAL'; } return;}}, 'plural rule: n mod … not within 4..6' );
+
+is( Locales::plural_rule_string_to_javascript_code( 'n in 3..4', "RETVAL" ), q{function (n) {if ( (( int(n) == n && n >= 3 && n <= 4 ))) { return 'RETVAL'; } return;}}, 'plural rule: n in 3..4' );
+is( Locales::plural_rule_string_to_javascript_code( 'n mod 100 in 5..6', "RETVAL" ), q{function (n) {if ( (( int(n) == n && (n % 100) >= 5 && (n % 100) <= 6 ))) { return 'RETVAL'; } return;}}, 'plural rule: n mod … in 5..6' );
+
+is( Locales::plural_rule_string_to_javascript_code( 'n within 4..7', "RETVAL" ), q{function (n) {if ( (( n >= 4 && n <= 7 ))) { return 'RETVAL'; } return;}}, 'plural rule: n within 4..7' );
+is( Locales::plural_rule_string_to_javascript_code( 'n mod 100 within 2..5', "RETVAL" ), q{function (n) {if ( (( (n % 100) >= 2 && (n % 100) <= 5 ))) { return 'RETVAL'; } return;}}, 'plural rule: n mod … within 2..5' );
+
+ok( Locales::plural_rule_string_to_javascript_code( 'n within 4..7', "RETVAL" ) =~ m/return \'RETVAL\'/, "retval given" );
+ok( Locales::plural_rule_string_to_javascript_code('n within 4..7') =~ m/return \'1\'/, "retval not given" );
+ok( Locales::plural_rule_string_to_javascript_code( 'n within 4..7', 0 )       =~ m/return \'0\'/, "retval given 0" );
+ok( Locales::plural_rule_string_to_javascript_code( 'n within 4..7', undef() ) =~ m/return \'1\'/, "retval given undef()" );
+ok( Locales::plural_rule_string_to_javascript_code( 'n within 4..7', '' )      =~ m/return \'\'/,  "retval given ''" );
+
+# and/or
+is( Locales::plural_rule_string_to_javascript_code('n is 4 and n is 4 and n is 4'),          q{function (n) {if ( (( n == 4) && ( n == 4) && ( n == 4))) { return '1'; } return;}},                        'plural_rule: and' );
+is( Locales::plural_rule_string_to_javascript_code('n is 4 or n is 4 or n is 4'),            q{function (n) {if ( (( n == 4)) ||  (( n == 4)) ||  (( n == 4))) { return '1'; } return;}},                  'plural_rule: or' );
+is( Locales::plural_rule_string_to_javascript_code('n is 4 or n is 5 and n is 6 or n is 7'), q{function (n) {if ( (( n == 4)) ||  (( n == 5) && ( n == 6)) ||  (( n == 7))) { return '1'; } return;}}, 'plural_rule: and and or' );
+#/ JavaScript
 
 # syntax errors
 # ok(!defined Locales::plural_rule_string_to_code('number is 4'), 'simply rule, syntax error');
@@ -277,7 +308,7 @@ my $nhr = {
 my $ncr = Locales::plural_rule_hashref_to_code($nhr);
 is_deeply(
     $nhr->{'category_rules_compiled'},
-    { 'one' => 'sub { return \'one\' if ( (( $_[0] != 1) && ( $_[0] != 3)) ||  (( $_[0] != 4) && ( $_[0] != 5) && ( $_[0] != 6)) ||  (( $_[0] == 7))); return;};' },
+    { 'one' => 'sub { if ( (( $_[0] != 1) && ( $_[0] != 3)) ||  (( $_[0] != 4) && ( $_[0] != 5) && ( $_[0] != 6)) ||  (( $_[0] == 7))) { return \'one\'; } return;}' },
     'category_rules_compiled built correctly, and/or as expected'
 );
 

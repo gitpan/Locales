@@ -14,6 +14,9 @@ die "Could not clear '$manifest': $!" if -e $manifest;
 chdir $locales_db || die "Could not change into '$locales_db': $!";
 
 unlink glob('../../../t/042.*.t');
+unlink glob('../../../share/javascript/misc_info/*');
+unlink glob('../../../share/javascript/code_to_name/*');
+
 for my $type qw(Language Territory) {
     File::Path::Tiny::mk($type) || die "Could not create '$type': $!";
 }

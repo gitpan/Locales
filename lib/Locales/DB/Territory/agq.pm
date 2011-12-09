@@ -2,7 +2,7 @@ package Locales::DB::Territory::agq;
 
 # Auto generated from CLDR
 
-$Locales::DB::Territory::agq::VERSION = '0.08';
+$Locales::DB::Territory::agq::VERSION = '0.09';
 
 $Locales::DB::Territory::agq::cldr_version = '2.0';
 

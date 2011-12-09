@@ -2,7 +2,7 @@ package Locales::DB::Territory::ko;
 
 # Auto generated from CLDR
 
-$Locales::DB::Territory::ko::VERSION = '0.08';
+$Locales::DB::Territory::ko::VERSION = '0.09';
 
 $Locales::DB::Territory::ko::cldr_version = '2.0';
 

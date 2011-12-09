@@ -2,7 +2,7 @@ package Locales::DB::Language::am;
 
 # Auto generated from CLDR
 
-$Locales::DB::Language::am::VERSION = '0.08';
+$Locales::DB::Language::am::VERSION = '0.09';
 
 $Locales::DB::Language::am::cldr_version = '2.0';
 
@@ -46,7 +46,12 @@ $Locales::DB::Language::am::cldr_version = '2.0';
             'other'
         ],
         'category_rules'          => { 'one' => "n\ in\ 0\.\.1" },
-        'category_rules_compiled' => { 'one' => "sub\ \{\ return\ \'one\'\ if\ \(\ \(\(\ int\(\$_\[0\]\)\ \=\=\ \$_\[0\]\ \&\&\ \$_\[0\]\ \>\=\ 0\ \&\&\ \$_\[0\]\ \<\=\ 1\ \)\)\)\;\ return\;\}\;" }
+        'category_rules_compiled' => {
+            'one' => sub {
+                if ( ( ( int( $_[0] ) == $_[0] && $_[0] >= 0 && $_[0] <= 1 ) ) ) { return 'one'; }
+                return;
+              }
+        }
     },
     'posix' => {
         'nostr'  => "አይ\:ይ",

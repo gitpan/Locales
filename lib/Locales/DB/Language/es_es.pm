@@ -2,12 +2,12 @@ package Locales::DB::Language::es_es;
 
 # Auto generated from CLDR
 
-$Locales::DB::Language::es_es::VERSION = '0.08';
+$Locales::DB::Language::es_es::VERSION = '0.09';
 
 $Locales::DB::Language::es_es::cldr_version = '2.0';
 
 %Locales::DB::Language::es_es::misc_info = (
-    'characters'   => { 'more_information' => "HASH\(0x100f524c0\)" },
+    'characters'   => { 'more_information' => "HASH\(0x100f60458\)" },
     'cldr_formats' => {
         '_decimal_format_decimal' => "\,",
         '_decimal_format_group'   => "\.",
@@ -46,7 +46,12 @@ $Locales::DB::Language::es_es::cldr_version = '2.0';
             'other'
         ],
         'category_rules'          => { 'one' => "n\ is\ 1" },
-        'category_rules_compiled' => { 'one' => "sub\ \{\ return\ \'one\'\ if\ \(\ \(\(\ \$_\[0\]\ \=\=\ 1\)\)\)\;\ return\;\}\;" }
+        'category_rules_compiled' => {
+            'one' => sub {
+                if ( ( ( $_[0] == 1 ) ) ) { return 'one'; }
+                return;
+              }
+        }
     },
     'posix' => {
         'nostr'  => "no\:n",

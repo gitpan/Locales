@@ -2,7 +2,7 @@ package Locales::DB::Territory::yav;
 
 # Auto generated from CLDR
 
-$Locales::DB::Territory::yav::VERSION = '0.08';
+$Locales::DB::Territory::yav::VERSION = '0.09';
 
 $Locales::DB::Territory::yav::cldr_version = '2.0';
 

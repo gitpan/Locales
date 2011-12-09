@@ -55,6 +55,10 @@ is_deeply(
 my $ok_rule_count = 0;
 my $error         = '';
 for my $rule ( keys %{ $Locales::DB::Language::dje::misc_info{'plural_forms'}->{'category_rules_compiled'} } ) {
+    if ( ref( $Locales::DB::Language::dje::misc_info{'plural_forms'}->{'category_rules_compiled'}{$rule} ) eq 'CODE' ) {
+        $ok_rule_count++;
+        next;
+    }
     eval $Locales::DB::Language::dje::misc_info{'plural_forms'}->{'category_rules_compiled'}{$rule};
     if ($@) {
         $error .= $@;
@@ -65,7 +69,7 @@ for my $rule ( keys %{ $Locales::DB::Language::dje::misc_info{'plural_forms'}->{
     }
 }
 ok( $ok_rule_count == keys %{ $Locales::DB::Language::dje::misc_info{'plural_forms'}->{'category_rules_compiled'} }, "each 'category_rules_compiled' eval without error - count" );
-is( $error, '', "each 'category_rules_compiled' eval without error - errors" );
+is( $error, '', "each 'category_rules_compiled' is a code ref or evals without error - errors" );
 
 my $self_obj = Locales->new('dje');
 ok( ref($self_obj), 'dje object created OK' );

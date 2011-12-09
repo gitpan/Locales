@@ -4,7 +4,7 @@ package Locales;
 # use strict;
 # use warnings;
 
-$Locales::VERSION      = '0.21';    # change in POD
+$Locales::VERSION      = '0.22';    # change in POD
 $Locales::cldr_version = '2.0';     # change in POD
 
 #### class methods ####
@@ -272,7 +272,7 @@ sub get_plural_form {
     #     and also perl's modulus-on-negative-values behavior
     my $abs_n = abs($n);    # negatives keep same category as positive
 
-    # TODO: build 'category_rules_function' in module building process
+    # As of 0.22 this will be skipped for mosules included w/ the main dist
     if ( !$self->{'language_data'}{'misc_info'}{'plural_forms'}{'category_rules_function'} ) {
         $self->{'language_data'}{'misc_info'}{'plural_forms'}{'category_rules_function'} = Locales::plural_rule_hashref_to_code( $self->{'language_data'}{'misc_info'}{'plural_forms'} );
         if ( !defined $self->{'language_data'}{'misc_info'}{'plural_forms'}{'category_rules_function'} ) {
@@ -800,6 +800,14 @@ sub normalize_for_key_lookup {
     return $key;
 }
 
+sub plural_rule_string_to_javascript_code {
+    my ( $plural_rule_string, $return ) = @_;
+    my $perl = plural_rule_string_to_code( $plural_rule_string, $return );
+    $perl =~ s/sub { /function (n) {/;
+    $perl =~ s/\$_\[0\]/n/g;
+    return $perl;
+}
+
 sub plural_rule_string_to_code {
     my ( $plural_rule_string, $return ) = @_;
     if ( !defined $return ) {
@@ -813,7 +821,7 @@ sub plural_rule_string_to_code {
         $m{$1} = "(\$_[0] % $1)";
     }
 
-    my $perl_code = "sub { return '$return' if (";
+    my $perl_code = "sub { if (";
 
     for my $or ( split /\s+or\s+/i, $plural_rule_string ) {
         my $and_exp;
@@ -860,7 +868,7 @@ sub plural_rule_string_to_code {
     }
     $perl_code =~ s/\s+\|\|\s*$//;
 
-    $perl_code .= '); return;};';
+    $perl_code .= ") { return '$return'; } return;}";
 
     return $perl_code;
 }
@@ -935,7 +943,7 @@ Locales - Methods for getting localized CLDR language/territory names (and a sub
 
 =head1 VERSION
 
-This document describes Locales version 0.21
+This document describes Locales version 0.22
 
 =head1 SYNOPSIS
 
@@ -1367,6 +1375,12 @@ This is used under the hood to facilitate get_plural_form(). That being the case
 
 This takes a hashref that contains rules, puts them in the hash, and returns an overlal code ref. Its pretty internal so if you really need the details have agander at the source.
 
+=item Locales::plural_rule_string_to_javascript_code
+
+Same as Locales::plural_rule_string_to_code() except it returns javascript code instead of perl code.
+
+Used internally when building this distributions share/javascript/ contents (JSON files for 'misc_info' hash and 'code_to_name').
+
 =back
 
 =head1 DIAGNOSTICS
@@ -1393,6 +1407,8 @@ None reported.
   - more CLDR version/misc-info fetchers
   - generally improve get_code_from_* lookups
   - tests that misc info doesn't get odd structs from XML instead of a string
+  - ? install share/ via L<File::ShareDir> mechanism ?
+  - vet share/javascript/ && document better
 
 =head1 DEPRECATED MODULES/INTERFACE
 

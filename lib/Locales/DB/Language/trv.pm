@@ -2,7 +2,7 @@ package Locales::DB::Language::trv;
 
 # Auto generated from CLDR
 
-$Locales::DB::Language::trv::VERSION = '0.08';
+$Locales::DB::Language::trv::VERSION = '0.09';
 
 $Locales::DB::Language::trv::cldr_version = '2.0';
 
@@ -41,7 +41,7 @@ $Locales::DB::Language::trv::cldr_version = '2.0';
         'lines'      => "top\-to\-bottom"
     },
     'plural_forms' => {
-        'category_list'  => [ 'other' ],
+        'category_list'  => ['other'],
         'category_rules' => {}
     },
     'posix' => {

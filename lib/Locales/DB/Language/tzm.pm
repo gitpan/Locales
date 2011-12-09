@@ -2,7 +2,7 @@ package Locales::DB::Language::tzm;
 
 # Auto generated from CLDR
 
-$Locales::DB::Language::tzm::VERSION = '0.08';
+$Locales::DB::Language::tzm::VERSION = '0.09';
 
 $Locales::DB::Language::tzm::cldr_version = '2.0';
 
@@ -46,7 +46,12 @@ $Locales::DB::Language::tzm::cldr_version = '2.0';
             'other'
         ],
         'category_rules'          => { 'one' => "n\ in\ 0\.\.1\ or\ n\ in\ 11\.\.99" },
-        'category_rules_compiled' => { 'one' => "sub\ \{\ return\ \'one\'\ if\ \(\ \(\(\ int\(\$_\[0\]\)\ \=\=\ \$_\[0\]\ \&\&\ \$_\[0\]\ \>\=\ 0\ \&\&\ \$_\[0\]\ \<\=\ 1\ \)\)\ \|\|\ \ \(\(\ int\(\$_\[0\]\)\ \=\=\ \$_\[0\]\ \&\&\ \$_\[0\]\ \>\=\ 11\ \&\&\ \$_\[0\]\ \<\=\ 99\ \)\)\)\;\ return\;\}\;" }
+        'category_rules_compiled' => {
+            'one' => sub {
+                if ( ( ( int( $_[0] ) == $_[0] && $_[0] >= 0 && $_[0] <= 1 ) ) || ( ( int( $_[0] ) == $_[0] && $_[0] >= 11 && $_[0] <= 99 ) ) ) { return 'one'; }
+                return;
+              }
+        }
     },
     'posix' => {
         'nostr'  => "Uhu\:U",

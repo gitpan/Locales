@@ -2,7 +2,7 @@ package Locales::DB::Language::mt;
 
 # Auto generated from CLDR
 
-$Locales::DB::Language::mt::VERSION = '0.08';
+$Locales::DB::Language::mt::VERSION = '0.09';
 
 $Locales::DB::Language::mt::cldr_version = '2.0';
 
@@ -53,9 +53,18 @@ $Locales::DB::Language::mt::cldr_version = '2.0';
             'one'  => "n\ is\ 1"
         },
         'category_rules_compiled' => {
-            'few'  => "sub\ \{\ return\ \'few\'\ if\ \(\ \(\(\ \$_\[0\]\ \=\=\ 0\)\)\ \|\|\ \ \(\(\ int\(\$_\[0\]\)\ \=\=\ \$_\[0\]\ \&\&\ \(\$_\[0\]\ \%\ 100\)\ \>\=\ 2\ \&\&\ \(\$_\[0\]\ \%\ 100\)\ \<\=\ 10\ \)\)\)\;\ return\;\}\;",
-            'many' => "sub\ \{\ return\ \'many\'\ if\ \(\ \(\(\ int\(\$_\[0\]\)\ \=\=\ \$_\[0\]\ \&\&\ \(\$_\[0\]\ \%\ 100\)\ \>\=\ 11\ \&\&\ \(\$_\[0\]\ \%\ 100\)\ \<\=\ 19\ \)\)\)\;\ return\;\}\;",
-            'one'  => "sub\ \{\ return\ \'one\'\ if\ \(\ \(\(\ \$_\[0\]\ \=\=\ 1\)\)\)\;\ return\;\}\;"
+            'few' => sub {
+                if ( ( ( $_[0] == 0 ) ) || ( ( int( $_[0] ) == $_[0] && ( $_[0] % 100 ) >= 2 && ( $_[0] % 100 ) <= 10 ) ) ) { return 'few'; }
+                return;
+            },
+            'many' => sub {
+                if ( ( ( int( $_[0] ) == $_[0] && ( $_[0] % 100 ) >= 11 && ( $_[0] % 100 ) <= 19 ) ) ) { return 'many'; }
+                return;
+            },
+            'one' => sub {
+                if ( ( ( $_[0] == 1 ) ) ) { return 'one'; }
+                return;
+              }
         }
     },
     'posix' => {

@@ -1,3 +1,10 @@
+0.22  Thu Dec  8 22:27:13 2011
+    - rt 71251: fallback needs normalized and split
+    - build 'category_rules_function' in module building process
+    - added plural_rule_string_to_javascript_code()
+    - used plural_rule_string_to_javascript_code() in building the file in share/javascript
+    - added TODO item regarding installing share/
+
 0.21  Tue Nov 29 09:34:07 2011
     - rt 72788: fix tests that fail when nvsize > 8, no code changes except version bump
 

@@ -2,7 +2,7 @@ package Locales::DB::Language::ff;
 
 # Auto generated from CLDR
 
-$Locales::DB::Language::ff::VERSION = '0.08';
+$Locales::DB::Language::ff::VERSION = '0.09';
 
 $Locales::DB::Language::ff::cldr_version = '2.0';
 
@@ -46,7 +46,12 @@ $Locales::DB::Language::ff::cldr_version = '2.0';
             'other'
         ],
         'category_rules'          => { 'one' => "n\ within\ 0\.\.2\ and\ n\ is\ not\ 2" },
-        'category_rules_compiled' => { 'one' => "sub\ \{\ return\ \'one\'\ if\ \(\ \(\(\ \$_\[0\]\ \>\=\ 0\ \&\&\ \$_\[0\]\ \<\=\ 2\ \)\ \&\&\ \(\ \$_\[0\]\ \!\=\ 2\)\)\)\;\ return\;\}\;" }
+        'category_rules_compiled' => {
+            'one' => sub {
+                if ( ( ( $_[0] >= 0 && $_[0] <= 2 ) && ( $_[0] != 2 ) ) ) { return 'one'; }
+                return;
+              }
+        }
     },
     'posix' => {
         'nostr'  => "Alaa\:A",

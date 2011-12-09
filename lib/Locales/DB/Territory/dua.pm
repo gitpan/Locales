@@ -2,7 +2,7 @@ package Locales::DB::Territory::dua;
 
 # Auto generated from CLDR
 
-$Locales::DB::Territory::dua::VERSION = '0.08';
+$Locales::DB::Territory::dua::VERSION = '0.09';
 
 $Locales::DB::Territory::dua::cldr_version = '2.0';
 

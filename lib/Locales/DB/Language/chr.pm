@@ -2,7 +2,7 @@ package Locales::DB::Language::chr;
 
 # Auto generated from CLDR
 
-$Locales::DB::Language::chr::VERSION = '0.08';
+$Locales::DB::Language::chr::VERSION = '0.09';
 
 $Locales::DB::Language::chr::cldr_version = '2.0';
 
@@ -35,7 +35,7 @@ $Locales::DB::Language::chr::cldr_version = '2.0';
         'quotation_end'             => '”',
         'quotation_start'           => '“'
     },
-    'fallback'    => [ 'en' ],
+    'fallback'    => ['en'],
     'orientation' => {
         'characters' => "left\-to\-right",
         'lines'      => "top\-to\-bottom"
@@ -46,7 +46,12 @@ $Locales::DB::Language::chr::cldr_version = '2.0';
             'other'
         ],
         'category_rules'          => { 'one' => "n\ is\ 1" },
-        'category_rules_compiled' => { 'one' => "sub\ \{\ return\ \'one\'\ if\ \(\ \(\(\ \$_\[0\]\ \=\=\ 1\)\)\)\;\ return\;\}\;" }
+        'category_rules_compiled' => {
+            'one' => sub {
+                if ( ( ( $_[0] == 1 ) ) ) { return 'one'; }
+                return;
+              }
+        }
     },
     'posix' => {
         'nostr'  => 'ᎥᏝ',

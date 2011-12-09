@@ -2,7 +2,7 @@ package Locales::DB::Language::lag;
 
 # Auto generated from CLDR
 
-$Locales::DB::Language::lag::VERSION = '0.08';
+$Locales::DB::Language::lag::VERSION = '0.09';
 
 $Locales::DB::Language::lag::cldr_version = '2.0';
 
@@ -51,8 +51,14 @@ $Locales::DB::Language::lag::cldr_version = '2.0';
             'zero' => "n\ is\ 0"
         },
         'category_rules_compiled' => {
-            'one'  => "sub\ \{\ return\ \'one\'\ if\ \(\ \(\(\ \$_\[0\]\ \>\=\ 0\ \&\&\ \$_\[0\]\ \<\=\ 2\ \)\ \&\&\ \(\ \$_\[0\]\ \!\=\ 0\)\ \&\&\ \(\ \$_\[0\]\ \!\=\ 2\)\)\)\;\ return\;\}\;",
-            'zero' => "sub\ \{\ return\ \'zero\'\ if\ \(\ \(\(\ \$_\[0\]\ \=\=\ 0\)\)\)\;\ return\;\}\;"
+            'one' => sub {
+                if ( ( ( $_[0] >= 0 && $_[0] <= 2 ) && ( $_[0] != 0 ) && ( $_[0] != 2 ) ) ) { return 'one'; }
+                return;
+            },
+            'zero' => sub {
+                if ( ( ( $_[0] == 0 ) ) ) { return 'zero'; }
+                return;
+              }
         }
     },
     'posix' => {

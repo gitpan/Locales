@@ -2,7 +2,7 @@ package Locales::DB::Territory::ewo;
 
 # Auto generated from CLDR
 
-$Locales::DB::Territory::ewo::VERSION = '0.08';
+$Locales::DB::Territory::ewo::VERSION = '0.09';
 
 $Locales::DB::Territory::ewo::cldr_version = '2.0';
 

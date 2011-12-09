@@ -2,7 +2,7 @@ package Locales::DB::Language::ro;
 
 # Auto generated from CLDR
 
-$Locales::DB::Language::ro::VERSION = '0.08';
+$Locales::DB::Language::ro::VERSION = '0.09';
 
 $Locales::DB::Language::ro::cldr_version = '2.0';
 
@@ -51,8 +51,14 @@ $Locales::DB::Language::ro::cldr_version = '2.0';
             'one' => "n\ is\ 1"
         },
         'category_rules_compiled' => {
-            'few' => "sub\ \{\ return\ \'few\'\ if\ \(\ \(\(\ \$_\[0\]\ \=\=\ 0\)\)\ \|\|\ \ \(\(\ \$_\[0\]\ \!\=\ 1\)\ \&\&\ \(\ int\(\$_\[0\]\)\ \=\=\ \$_\[0\]\ \&\&\ \(\$_\[0\]\ \%\ 100\)\ \>\=\ 1\ \&\&\ \(\$_\[0\]\ \%\ 100\)\ \<\=\ 19\ \)\)\)\;\ return\;\}\;",
-            'one' => "sub\ \{\ return\ \'one\'\ if\ \(\ \(\(\ \$_\[0\]\ \=\=\ 1\)\)\)\;\ return\;\}\;"
+            'few' => sub {
+                if ( ( ( $_[0] == 0 ) ) || ( ( $_[0] != 1 ) && ( int( $_[0] ) == $_[0] && ( $_[0] % 100 ) >= 1 && ( $_[0] % 100 ) <= 19 ) ) ) { return 'few'; }
+                return;
+            },
+            'one' => sub {
+                if ( ( ( $_[0] == 1 ) ) ) { return 'one'; }
+                return;
+              }
         }
     },
     'posix' => {

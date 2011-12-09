@@ -2,7 +2,7 @@ package Locales::DB::Language::gv;
 
 # Auto generated from CLDR
 
-$Locales::DB::Language::gv::VERSION = '0.08';
+$Locales::DB::Language::gv::VERSION = '0.09';
 
 $Locales::DB::Language::gv::cldr_version = '2.0';
 
@@ -46,7 +46,12 @@ $Locales::DB::Language::gv::cldr_version = '2.0';
             'other'
         ],
         'category_rules'          => { 'one' => "n\ mod\ 10\ in\ 1\.\.2\ or\ n\ mod\ 20\ is\ 0" },
-        'category_rules_compiled' => { 'one' => "sub\ \{\ return\ \'one\'\ if\ \(\ \(\(\ int\(\$_\[0\]\)\ \=\=\ \$_\[0\]\ \&\&\ \(\$_\[0\]\ \%\ 10\)\ \>\=\ 1\ \&\&\ \(\$_\[0\]\ \%\ 10\)\ \<\=\ 2\ \)\)\ \|\|\ \ \(\(\ \(\$_\[0\]\ \%\ 20\)\ \=\=\ 0\)\)\)\;\ return\;\}\;" }
+        'category_rules_compiled' => {
+            'one' => sub {
+                if ( ( ( int( $_[0] ) == $_[0] && ( $_[0] % 10 ) >= 1 && ( $_[0] % 10 ) <= 2 ) ) || ( ( ( $_[0] % 20 ) == 0 ) ) ) { return 'one'; }
+                return;
+              }
+        }
     },
     'posix' => {
         'nostr'  => "no\:n",
