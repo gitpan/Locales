@@ -50,7 +50,7 @@ $Data::Dumper::Useqq    = 1;
     }
 }
 
-my $v_offset     = '0.13';
+my $v_offset     = '0.14';
 my $mod_version  = $Locales::VERSION - $v_offset;
 my $cldr_version = $Locales::cldr_version;
 my $cldr_db_path;
@@ -984,7 +984,7 @@ sub build_javascript_share {
     
     my $loc = Locales->new();
     for my $tag (sort $loc->get_language_codes()) {
-        my $tag_loc = Locales->new($tag);
+        my $tag_loc = Locales->new($tag) || next;
         
         my $guts_m = $tag_loc->{'language_data'}{'misc_info'};
         for my $k (keys %{$guts_m->{'plural_forms'}{'category_rules_compiled'}}) {

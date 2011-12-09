@@ -4,7 +4,7 @@ package Locales;
 # use strict;
 # use warnings;
 
-$Locales::VERSION      = '0.22';    # change in POD
+$Locales::VERSION      = '0.23';    # change in POD
 $Locales::cldr_version = '2.0';     # change in POD
 
 #### class methods ####
@@ -943,7 +943,7 @@ Locales - Methods for getting localized CLDR language/territory names (and a sub
 
 =head1 VERSION
 
-This document describes Locales version 0.22
+This document describes Locales version 0.23
 
 =head1 SYNOPSIS
 

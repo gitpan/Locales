@@ -1,3 +1,6 @@
+0.23  Fri Dec  9 12:54:20 2011
+    - update share/ to not include unloadable locales, whups!
+    
 0.22  Thu Dec  8 22:27:13 2011
     - rt 71251: fallback needs normalized and split
     - build 'category_rules_function' in module building process
