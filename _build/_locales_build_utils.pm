@@ -11,6 +11,33 @@ use Encode ();    # to be stringified properly from hash value bug: s{\|\|\s*(\$
 use String::Unquotemeta;
 use JSON::Syck;
 
+# datetime.json
+our $tripped;
+use Test::Carp sub { $tripped = 1 if $_[0]; };
+use DateTime::Locale;
+use Class::Inspector;
+my $en_dt_loc = DateTime::Locale->load('en');
+my @dt_methods;
+for my $meth ( @{ Class::Inspector->methods( ref($en_dt_loc), "public" ) } ) {
+    next if $meth eq 'new' || $meth eq 'carp' || $meth eq 'format_for' || $meth eq 'validate_pos';
+    next if $meth =~ m/^(:?set_|STORABLE_)/;
+
+    *DateTime::Locale::Base::carp = sub { Carp::carp( $_[0] ) };
+    local $tripped = 0;
+    Test::Carp::does_carp_that_matches(
+        sub {
+            eval { $en_dt_loc->$meth() };
+        },
+        qr/The $meth method in DateTime::Locale::Base has been deprecated/
+    );
+    next if $tripped;
+
+    push @dt_methods, $meth;
+}
+my @dt_available_formats = $en_dt_loc->available_formats();
+
+# /datetime.json
+
 use Hash::Merge;
 Hash::Merge::specify_behavior(
     {
@@ -50,7 +77,7 @@ $Data::Dumper::Useqq    = 1;
     }
 }
 
-my $v_offset     = '0.14';
+my $v_offset     = '0.15';
 my $mod_version  = $Locales::VERSION - $v_offset;
 my $cldr_version = $Locales::cldr_version;
 my $cldr_db_path;
@@ -154,18 +181,18 @@ sub get_target_structs_from_cldr_for_tag {
                 for my $fb ( @{ $raw_struct->{'fallback'} } ) {
                     my $thing = ref($fb) ? $fb->{'content'} : $fb;
                     next if !defined $thing;
-                    push @{$fallback}, map { Locales::normalize_tag("$_") } split(/\s+/, $thing);
+                    push @{$fallback}, map { Locales::normalize_tag("$_") } split( /\s+/, $thing );
                 }
             }
             elsif ( $type eq 'HASH' ) {
                 if ( $raw_struct->{'fallback'}{'content'} ) {
-                    push @{$fallback}, map { Locales::normalize_tag("$_") } split(/\s+/, $raw_struct->{'fallback'}{'content'});
+                    push @{$fallback}, map { Locales::normalize_tag("$_") } split( /\s+/, $raw_struct->{'fallback'}{'content'} );
                 }
             }
         }
         else {
             if ( $raw_struct->{'fallback'} ) {
-                push @{$fallback}, map { Locales::normalize_tag("$_") } split(/\s+/, $raw_struct->{'fallback'});
+                push @{$fallback}, map { Locales::normalize_tag("$_") } split( /\s+/, $raw_struct->{'fallback'} );
             }
         }
     }
@@ -176,18 +203,18 @@ sub get_target_structs_from_cldr_for_tag {
                 for my $fb ( @{ $fallback_lang_misc_info->{'fallback'} } ) {
                     my $thing = ref($fb) ? $fb->{'content'} : $fb;
                     next if !defined $thing;
-                    push @{$fallback}, map { Locales::normalize_tag("$_") } split(/\s+/, $thing);
+                    push @{$fallback}, map { Locales::normalize_tag("$_") } split( /\s+/, $thing );
                 }
             }
             elsif ( $type eq 'HASH' ) {
                 if ( $fallback_lang_misc_info->{'fallback'}{'content'} ) {
-                    push @{$fallback}, map { Locales::normalize_tag("$_") } split(/\s+/, $fallback_lang_misc_info->{'fallback'}{'content'});
+                    push @{$fallback}, map { Locales::normalize_tag("$_") } split( /\s+/, $fallback_lang_misc_info->{'fallback'}{'content'} );
                 }
             }
         }
         else {
             if ( $fallback_lang_misc_info->{'fallback'} ) {
-                push @{$fallback}, map { Locales::normalize_tag("$_") } split(/\s+/, $fallback_lang_misc_info->{'fallback'});
+                push @{$fallback}, map { Locales::normalize_tag("$_") } split( /\s+/, $fallback_lang_misc_info->{'fallback'} );
             }
         }
     }
@@ -334,10 +361,10 @@ sub get_target_structs_from_cldr_for_tag {
         }
     }
 
-    my $plural_form_entry = $plural_forms->{$tag};    
+    my $plural_form_entry = $plural_forms->{$tag};
     if ( !$plural_form_entry ) {
         my ($parent_tag) = Locales::split_tag($tag);
-        if ($parent_tag ne $tag && exists $plural_forms->{$parent_tag})  {
+        if ( $parent_tag ne $tag && exists $plural_forms->{$parent_tag} ) {
             $plural_form_entry = $plural_forms->{$parent_tag};
         }
         else {
@@ -349,6 +376,7 @@ sub get_target_structs_from_cldr_for_tag {
             }
         }
     }
+
     # DO NOT DO THIS: $plural_form_entry ||= $plural_forms->{'en'};
 
     $lang_misc_info = {
@@ -498,6 +526,7 @@ sub write_language_module {
     my $name_to_code_str = _stringify_hash($name_to_code);
     my $misc_info_str;
     {
+
         # make values in plural_forms->category_rules_compiled be sub { ...} instead of 'sub \{ \.\.\. \}'
         #
         # this adds a package thing, maybe investigate?
@@ -506,14 +535,13 @@ sub write_language_module {
         #     print "RULE $k: $misc_info->{plural_forms}{category_rules_compiled}{$k}\n";
         #     $misc_info->{plural_forms}{category_rules_compiled}{$k} = eval "$misc_info->{plural_forms}{category_rules_compiled}{$k}";
         # }
-        
-        
-        $misc_info_str    = _stringify_hash($misc_info);
-        
-        for my $k (keys %{$misc_info->{'plural_forms'}{category_rules_compiled}}) {
+
+        $misc_info_str = _stringify_hash($misc_info);
+
+        for my $k ( keys %{ $misc_info->{'plural_forms'}{category_rules_compiled} } ) {
             $misc_info_str =~ s/(\'\Q$k\E\' \=\>) \"(sub\\ \\\{.*)\"/"$1" . String::Unquotemeta::unquotemeta("$2")/e;
         }
-        
+
         # print "DEBUG:\n$misc_info_str\n";exit;
     }
     _write_utf8_perl(
@@ -981,30 +1009,55 @@ SUCH DAMAGES.
 
 sub build_javascript_share {
     my ($tag) = @_;
-    
+
     my $loc = Locales->new();
-    for my $tag (sort $loc->get_language_codes()) {
+    for my $tag ( sort $loc->get_language_codes() ) {
         my $tag_loc = Locales->new($tag) || next;
-        
+
         my $guts_m = $tag_loc->{'language_data'}{'misc_info'};
-        for my $k (keys %{$guts_m->{'plural_forms'}{'category_rules_compiled'}}) {
-            $guts_m->{'plural_forms'}{'category_rules_compiled'}{$k} = Locales::plural_rule_string_to_javascript_code($guts_m->{'plural_forms'}{'category_rules'}{$k}, $k);
+        for my $k ( keys %{ $guts_m->{'plural_forms'}{'category_rules_compiled'} } ) {
+            $guts_m->{'plural_forms'}{'category_rules_compiled'}{$k} = Locales::plural_rule_string_to_javascript_code( $guts_m->{'plural_forms'}{'category_rules'}{$k}, $k );
         }
-        my $json = JSON::Syck::Dump($guts_m); # no eval, lets just die
+        my $json = JSON::Syck::Dump($guts_m);    # no eval, lets just die
         $json =~ s/\"(function \(n\) \{)/$1/g;
         $json =~ s/(return\;\})\"/$1/g;
-           
-        open( my $fh_m, '>', "share/javascript/misc_info/$tag.json") or die "Could not open 'share/javascript/misc_info/$tag.json': $!";
-        print {$fh_m} $json; 
-        close $fh_m;
-     
-        my $json_c = JSON::Syck::Dump( $tag_loc->{'language_data'}{'code_to_name'} );  # no eval, lets just die
 
-        open( my $fh_c, '>', "share/javascript/code_to_name/$tag.json") or die "Could not open 'share/javascript/code_to_name/$tag.json': $!";
+        open( my $fh_m, '>', "share/misc_info/$tag.js" ) or die "Could not open 'share/misc_info/$tag.js': $!";
+        print {$fh_m} $json;
+        close $fh_m;
+
+        my $json_c = JSON::Syck::Dump( $tag_loc->{'language_data'}{'code_to_name'} );    # no eval, lets just die
+
+        open( my $fh_c, '>', "share/code_to_name/$tag.json" ) or die "Could not open 'share/code_to_name/$tag.json': $!";
         print {$fh_c} $json_c;
         close $fh_c;
-   
-        append_file( $manifest, "share/javascript/misc_info/$tag.json\nshare/javascript/code_to_name/$tag.json\n" );    
+
+        my $dt_struct;
+        my $dt_loc = eval { DateTime::Locale->load( Locales::normalize_tag_for_datetime_locale($tag) ) };
+        if ($@) {
+
+            # Locales has $tag but DateTime::Locales does not (different CLDR version probably)
+            print "$tag datetime JSON will be en: $@";
+            $dt_loc = DateTime::Locale->load('en');
+        }
+
+        for my $format (@dt_available_formats) {
+            $dt_struct->{'format_for'}{$format} = $dt_loc->format_for($format);    # no eval, should die since it means incomplete data
+        }
+        for my $meth (@dt_methods) {
+            my $res = $dt_loc->$meth();
+            $dt_struct->{$meth} =
+                ref($res) eq 'ARRAY' ? [ @{$res} ]
+              : ref($res) eq 'HASH'  ? { %{$res} }
+              :                        $res;
+        }
+
+        my $json_d = JSON::Syck::Dump($dt_struct);                                 # no eval, lets just die
+        open( my $fh_d, '>', "share/datetime/$tag.json" ) or die "Could not open 'share/datetime/$tag.json': $!";
+        print {$fh_d} $json_d;
+        close $fh_d;
+
+        append_file( $manifest, "share/misc_info/$tag.js\nshare/code_to_name/$tag.json\nshare/datetime/$tag.json\n" );
     }
 }
 

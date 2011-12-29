@@ -4,7 +4,7 @@ package Locales;
 # use strict;
 # use warnings;
 
-$Locales::VERSION      = '0.23';    # change in POD
+$Locales::VERSION      = '0.24';    # change in POD
 $Locales::cldr_version = '2.0';     # change in POD
 
 #### class methods ####
@@ -805,6 +805,8 @@ sub plural_rule_string_to_javascript_code {
     my $perl = plural_rule_string_to_code( $plural_rule_string, $return );
     $perl =~ s/sub { /function (n) {/;
     $perl =~ s/\$_\[0\]/n/g;
+    $perl =~ s/int\(/parseInt\(/g;
+    $perl =~ s/n\s+%/ parseInt(n) %/g;    # normalize modulo behavior
     return $perl;
 }
 
@@ -931,6 +933,32 @@ sub get_cldr_plural_category_list {
     return qw(one two few many other zero);             # quant() arg order
 }
 
+sub get_fallback_list {
+    my ( $self, $special_lookup ) = @_;
+
+    my ( $super, $ter ) = split_tag( $self->{'locale'} );
+    return (
+        $self->{'locale'},
+        ( $super ne $self->{'locale'} && $super ne 'i' ? $super : () ),
+        ( @{ $self->{'language_data'}{'misc_info'}{'fallback'} } ),
+        (
+            defined $special_lookup && ref($special_lookup) eq 'CODE'
+            ? ( map { my $n = Locales::normalize_tag($_); $n ? ($n) : () } $special_lookup->( $self->{'locale'} ) )
+            : ()
+        ),
+        'en'
+    );
+}
+
+# get_cldr_$chart_$type_$name or better naming ?
+sub get_cldr_number_symbol_decimal {
+    return $_[0]->{'language_data'}{'misc_info'}{'cldr_formats'}{'_decimal_format_decimal'} || '.';
+}
+
+sub get_cldr_number_symbol_group {
+    return $_[0]->{'language_data'}{'misc_info'}{'cldr_formats'}{'_decimal_format_group'} || ',';
+}
+
 1;
 
 __END__
@@ -943,7 +971,7 @@ Locales - Methods for getting localized CLDR language/territory names (and a sub
 
 =head1 VERSION
 
-This document describes Locales version 0.23
+This document describes Locales version 0.24
 
 =head1 SYNOPSIS
 
@@ -1138,6 +1166,34 @@ See L<http://unicode.org/repos/cldr-tmp/trunk/diff/by_type/names.localeDisplayPa
 =item get_locale_display_pattern_from_code_fast()
 
 Same as get_locale_display_pattern_from_code() except it should use less-overhead. Can be called as a function also so you can use it without creating an object.
+
+=item get_cldr_number_symbol_decimal()
+
+Returns the decimal point symbol for the object's locale. Takes no arguments.
+
+For formatting numbers use get_formatted_decimal().
+
+=item get_cldr_number_symbol_group() 
+
+Returns the integer grouping symbol for the object's locale. Takes no arguments.
+
+For formatting numbers use get_formatted_decimal().
+
+=item get_fallback_list()
+
+Returns a fallback list of locales in the order they apply based on the object's locale.
+
+The basic list will be: object's locale, object's super if any, the object's CLDR fallback if any, “special lookup” if any, 'en'
+
+    my @list = $fr_ca->get_fallback_list();
+    # fr_ca fr en
+
+"special lookup" is a code ref that can be passed in as the first optional arg. 
+
+It is given the object's locale when called and should return a list of locale tags (they will be normalized).
+
+    my @list = $fr_ca->get_fallback_list(sub { return $_[0] =~ m/fr/ ? qw(i_yoda i_love_rhi) : () } );
+    # fr_ca fr i_yoda i_love_rhi en
 
 =item get_plural_form()
 
@@ -1379,7 +1435,7 @@ This takes a hashref that contains rules, puts them in the hash, and returns an 
 
 Same as Locales::plural_rule_string_to_code() except it returns javascript code instead of perl code.
 
-Used internally when building this distributions share/javascript/ contents (JSON files for 'misc_info' hash and 'code_to_name').
+Used internally when building this distribution's share/misc_info contents.
 
 =back
 
@@ -1408,7 +1464,7 @@ None reported.
   - generally improve get_code_from_* lookups
   - tests that misc info doesn't get odd structs from XML instead of a string
   - ? install share/ via L<File::ShareDir> mechanism ?
-  - vet share/javascript/ && document better
+  - vet share/ && document better
 
 =head1 DEPRECATED MODULES/INTERFACE
 

@@ -1,4 +1,4 @@
-use Test::More tests => 249;
+use Test::More tests => 256;
 use Test::Carp;
 
 use lib 'lib', '../lib';
@@ -31,24 +31,24 @@ is( Locales->get_cldr_version(), $Locales::cldr_version, 'get_cldr_version() as 
 my $t = Locales->new();
 is( $t->get_cldr_version(), $Locales::cldr_version, 'get_cldr_version() as object method' );
 
-is( $t->get_list_and(),                undef,                  'get_list_and() no args means nothing returned' );
-is( $t->get_list_and('a'),             'a',                    'get_list_and() 1 arg' );
-is( $t->get_list_and(qw(a b)),         'a and b',              'get_list_and() 2 args' );
-is( $t->get_list_and(qw(a b c)),       'a, b, and c',          'get_list_and() 3 args' );
-is( $t->get_list_and(qw(a b c d)),     'a, b, c, and d',       'get_list_and() 3+ args 1' );
-is( $t->get_list_and(qw(a b c d e)),   'a, b, c, d, and e',    'get_list_and() 3+ args 2' );
-is( $t->get_list_and(qw(a b c d e f)), 'a, b, c, d, e, and f', 'get_list_and() 3+ args 3' );
-is( $t->get_list_and(qw({0} {1} {0} {0})), '{0}, {1}, {0}, and {0}', 'CLDR parsing handles patterns passed in as args - AND');
+is( $t->get_list_and(),                    undef,                    'get_list_and() no args means nothing returned' );
+is( $t->get_list_and('a'),                 'a',                      'get_list_and() 1 arg' );
+is( $t->get_list_and(qw(a b)),             'a and b',                'get_list_and() 2 args' );
+is( $t->get_list_and(qw(a b c)),           'a, b, and c',            'get_list_and() 3 args' );
+is( $t->get_list_and(qw(a b c d)),         'a, b, c, and d',         'get_list_and() 3+ args 1' );
+is( $t->get_list_and(qw(a b c d e)),       'a, b, c, d, and e',      'get_list_and() 3+ args 2' );
+is( $t->get_list_and(qw(a b c d e f)),     'a, b, c, d, e, and f',   'get_list_and() 3+ args 3' );
+is( $t->get_list_and(qw({0} {1} {0} {0})), '{0}, {1}, {0}, and {0}', 'CLDR parsing handles patterns passed in as args - AND' );
 
 # get_list_or() is a stub that is basically get_list_and() until the OR info is in the CLDR (http://unicode.org/cldr/trac/ticket/4051)
-is( $t->get_list_or(),                undef,                  'get_list_or() no args means nothing returned' );
-is( $t->get_list_or('a'),             'a',                    'get_list_or() 1 arg' );
-is( $t->get_list_or(qw(a b)),         'a and b',              'get_list_or() 2 args' );
-is( $t->get_list_or(qw(a b c)),       'a, b, and c',          'get_list_or() 3 args' );
-is( $t->get_list_or(qw(a b c d)),     'a, b, c, and d',       'get_list_or() 3+ args 1' );
-is( $t->get_list_or(qw(a b c d e)),   'a, b, c, d, and e',    'get_list_or() 3+ args 2' );
-is( $t->get_list_or(qw(a b c d e f)), 'a, b, c, d, e, and f', 'get_list_or() 3+ args 3' );
-is( $t->get_list_or(qw({0} {1} {0} {0})), '{0}, {1}, {0}, and {0}', 'CLDR parsing handles patterns passed in as args - OR');
+is( $t->get_list_or(),                    undef,                    'get_list_or() no args means nothing returned' );
+is( $t->get_list_or('a'),                 'a',                      'get_list_or() 1 arg' );
+is( $t->get_list_or(qw(a b)),             'a and b',                'get_list_or() 2 args' );
+is( $t->get_list_or(qw(a b c)),           'a, b, and c',            'get_list_or() 3 args' );
+is( $t->get_list_or(qw(a b c d)),         'a, b, c, and d',         'get_list_or() 3+ args 1' );
+is( $t->get_list_or(qw(a b c d e)),       'a, b, c, d, and e',      'get_list_or() 3+ args 2' );
+is( $t->get_list_or(qw(a b c d e f)),     'a, b, c, d, e, and f',   'get_list_or() 3+ args 3' );
+is( $t->get_list_or(qw({0} {1} {0} {0})), '{0}, {1}, {0}, and {0}', 'CLDR parsing handles patterns passed in as args - OR' );
 
 my $es = Locales->new("es");
 is( $es->get_list_and(),                undef,               'get_list_and() no args means nothing returned' );
@@ -78,13 +78,13 @@ is( $t->get_formatted_decimal('1234567890.12345'),  '1,234,567,890.12345',  'bas
 is( $t->get_formatted_decimal(-1234567890.12345),   '-1,234,567,890.12345', 'basic dec negative - num' );
 is( $t->get_formatted_decimal('-1234567890.12345'), '-1,234,567,890.12345', 'basic dec negative - str' );
 
-is( $t->get_formatted_decimal( 1234567890,          3 ), '1,234,567,890',       'max - basic int - num' );
-is( $t->get_formatted_decimal( '1234567890',        3 ), '1,234,567,890',       'max - basic int - str' );
-is( $t->get_formatted_decimal( -1234567890,         3 ), '-1,234,567,890',      'max - basic int negative - num' );
-is( $t->get_formatted_decimal( '-1234567890',       3 ), '-1,234,567,890',      'max - basic int negative - str' );
-is( $t->get_formatted_decimal( 1234567890.12345,    3 ), '1,234,567,890.123',   'max - no round - basic dec - num' );
-is( $t->get_formatted_decimal( '1234567890.12345',  3 ), '1,234,567,890.123',   'max - no round - basic dec - str' );
-is( $t->get_formatted_decimal( -1234567890.12345,   3 ), '-1,234,567,890.123',  'max - no round - basic dec negative - num' );
+is( $t->get_formatted_decimal( 1234567890,         3 ), '1,234,567,890',      'max - basic int - num' );
+is( $t->get_formatted_decimal( '1234567890',       3 ), '1,234,567,890',      'max - basic int - str' );
+is( $t->get_formatted_decimal( -1234567890,        3 ), '-1,234,567,890',     'max - basic int negative - num' );
+is( $t->get_formatted_decimal( '-1234567890',      3 ), '-1,234,567,890',     'max - basic int negative - str' );
+is( $t->get_formatted_decimal( 1234567890.12345,   3 ), '1,234,567,890.123',  'max - no round - basic dec - num' );
+is( $t->get_formatted_decimal( '1234567890.12345', 3 ), '1,234,567,890.123',  'max - no round - basic dec - str' );
+is( $t->get_formatted_decimal( -1234567890.12345,  3 ), '-1,234,567,890.123', 'max - no round - basic dec negative - num' );
 
 # use like() instead of is() here due to numeric behavior and nvsize issues (see rt 72788)
 like( $t->get_formatted_decimal( '-1234567890.12345', 4 ), qr/^-1,234,567,890\.123[45]$/, 'max - no round - basic dec negative - str' );
@@ -160,10 +160,10 @@ is( $other_other_other->get_plural_form("1.1"), "other", "special category 0 1.x
 is( $other_other_other->get_plural_form("2.1"), "other", "special category 0 2.x +" );
 
 does_carp_that_matches(
-    sub { 
+    sub {
         local $other_other_other->{'verbose'} = 1;
-        $other_other_other->get_plural_form(42,qw(a b c d e f g h i j k)); 
-    }, 
+        $other_other_other->get_plural_form( 42, qw(a b c d e f g h i j k) );
+    },
     qr/The number of given values \(\d+\) does not match the number of categories \(\d+\)\./
 );
 
@@ -224,10 +224,10 @@ is( Locales::plural_rule_string_to_code( 'n mod 100 is 4', "RETVAL" ), q{sub { i
 is( Locales::plural_rule_string_to_code( 'n is not 4',         "RETVAL" ), q{sub { if ( (( $_[0] != 4))) { return 'RETVAL'; } return;}},         'plural rule: n is not …' );
 is( Locales::plural_rule_string_to_code( 'n mod 100 is not 4', "RETVAL" ), q{sub { if ( (( ($_[0] % 100) != 4))) { return 'RETVAL'; } return;}}, 'plural rule: n mod … is not …' );
 
-is( Locales::plural_rule_string_to_code( 'n not in 1..3', "RETVAL" ),         q{sub { if ( (( int($_[0]) != $_[0] || $_[0] < 1 || $_[0] > 3 ))) { return 'RETVAL'; } return;}}, 'plural rule: n not in 1..3' );
+is( Locales::plural_rule_string_to_code( 'n not in 1..3', "RETVAL" ), q{sub { if ( (( int($_[0]) != $_[0] || $_[0] < 1 || $_[0] > 3 ))) { return 'RETVAL'; } return;}}, 'plural rule: n not in 1..3' );
 is( Locales::plural_rule_string_to_code( 'n mod 100 not in 1..3', "RETVAL" ), q{sub { if ( (( int($_[0]) != $_[0] || ($_[0] % 100) < 1 || ($_[0] % 100) > 3 ))) { return 'RETVAL'; } return;}}, 'plural rule: n mod … not in 1..3' );
 
-is( Locales::plural_rule_string_to_code( 'n not within 2..6', "RETVAL" ),         q{sub { if ( (( ($_[0] < 2 || $_[0] > 6) ))) { return 'RETVAL'; } return;}}, 'plural rule: n not within 2..6' );
+is( Locales::plural_rule_string_to_code( 'n not within 2..6', "RETVAL" ), q{sub { if ( (( ($_[0] < 2 || $_[0] > 6) ))) { return 'RETVAL'; } return;}}, 'plural rule: n not within 2..6' );
 is( Locales::plural_rule_string_to_code( 'n mod 100 not within 4..6', "RETVAL" ), q{sub { if ( (( (($_[0] % 100) < 4 || ($_[0] % 100) > 6) ))) { return 'RETVAL'; } return;}}, 'plural rule: n mod … not within 4..6' );
 
 is( Locales::plural_rule_string_to_code( 'n in 3..4', "RETVAL" ), q{sub { if ( (( int($_[0]) == $_[0] && $_[0] >= 3 && $_[0] <= 4 ))) { return 'RETVAL'; } return;}}, 'plural rule: n in 3..4' );
@@ -248,23 +248,23 @@ is( Locales::plural_rule_string_to_code('n is 4 or n is 4 or n is 4'),          
 is( Locales::plural_rule_string_to_code('n is 4 or n is 5 and n is 6 or n is 7'), q{sub { if ( (( $_[0] == 4)) ||  (( $_[0] == 5) && ( $_[0] == 6)) ||  (( $_[0] == 7))) { return '1'; } return;}}, 'plural_rule: and and or' );
 
 # JavaScript
-is( Locales::plural_rule_string_to_javascript_code( 'n is 4',         "RETVAL" ), q{function (n) {if ( (( n == 4))) { return 'RETVAL'; } return;}},         'plural rule: n is …' );
-is( Locales::plural_rule_string_to_javascript_code( 'n mod 100 is 4', "RETVAL" ), q{function (n) {if ( (( (n % 100) == 4))) { return 'RETVAL'; } return;}}, 'plural rule: n mod … is …' );
+is( Locales::plural_rule_string_to_javascript_code( 'n is 4', "RETVAL" ), q{function (n) {if ( (( n == 4))) { return 'RETVAL'; } return;}}, 'plural rule: n is …' );
+is( Locales::plural_rule_string_to_javascript_code( 'n mod 100 is 4', "RETVAL" ), q{function (n) {if ( (( ( parseInt(n) % 100) == 4))) { return 'RETVAL'; } return;}}, 'plural rule: n mod … is …' );
 
-is( Locales::plural_rule_string_to_javascript_code( 'n is not 4',         "RETVAL" ), q{function (n) {if ( (( n != 4))) { return 'RETVAL'; } return;}},         'plural rule: n is not …' );
-is( Locales::plural_rule_string_to_javascript_code( 'n mod 100 is not 4', "RETVAL" ), q{function (n) {if ( (( (n % 100) != 4))) { return 'RETVAL'; } return;}}, 'plural rule: n mod … is not …' );
+is( Locales::plural_rule_string_to_javascript_code( 'n is not 4', "RETVAL" ), q{function (n) {if ( (( n != 4))) { return 'RETVAL'; } return;}}, 'plural rule: n is not …' );
+is( Locales::plural_rule_string_to_javascript_code( 'n mod 100 is not 4', "RETVAL" ), q{function (n) {if ( (( ( parseInt(n) % 100) != 4))) { return 'RETVAL'; } return;}}, 'plural rule: n mod … is not …' );
 
-is( Locales::plural_rule_string_to_javascript_code( 'n not in 1..3', "RETVAL" ),         q{function (n) {if ( (( int(n) != n || n < 1 || n > 3 ))) { return 'RETVAL'; } return;}}, 'plural rule: n not in 1..3' );
-is( Locales::plural_rule_string_to_javascript_code( 'n mod 100 not in 1..3', "RETVAL" ), q{function (n) {if ( (( int(n) != n || (n % 100) < 1 || (n % 100) > 3 ))) { return 'RETVAL'; } return;}}, 'plural rule: n mod … not in 1..3' );
+is( Locales::plural_rule_string_to_javascript_code( 'n not in 1..3', "RETVAL" ), q{function (n) {if ( (( parseInt(n) != n || n < 1 || n > 3 ))) { return 'RETVAL'; } return;}}, 'plural rule: n not in 1..3' );
+is( Locales::plural_rule_string_to_javascript_code( 'n mod 100 not in 1..3', "RETVAL" ), q{function (n) {if ( (( parseInt(n) != n || ( parseInt(n) % 100) < 1 || ( parseInt(n) % 100) > 3 ))) { return 'RETVAL'; } return;}}, 'plural rule: n mod … not in 1..3' );
 
-is( Locales::plural_rule_string_to_javascript_code( 'n not within 2..6', "RETVAL" ),         q{function (n) {if ( (( (n < 2 || n > 6) ))) { return 'RETVAL'; } return;}}, 'plural rule: n not within 2..6' );
-is( Locales::plural_rule_string_to_javascript_code( 'n mod 100 not within 4..6', "RETVAL" ), q{function (n) {if ( (( ((n % 100) < 4 || (n % 100) > 6) ))) { return 'RETVAL'; } return;}}, 'plural rule: n mod … not within 4..6' );
+is( Locales::plural_rule_string_to_javascript_code( 'n not within 2..6', "RETVAL" ), q{function (n) {if ( (( (n < 2 || n > 6) ))) { return 'RETVAL'; } return;}}, 'plural rule: n not within 2..6' );
+is( Locales::plural_rule_string_to_javascript_code( 'n mod 100 not within 4..6', "RETVAL" ), q{function (n) {if ( (( (( parseInt(n) % 100) < 4 || ( parseInt(n) % 100) > 6) ))) { return 'RETVAL'; } return;}}, 'plural rule: n mod … not within 4..6' );
 
-is( Locales::plural_rule_string_to_javascript_code( 'n in 3..4', "RETVAL" ), q{function (n) {if ( (( int(n) == n && n >= 3 && n <= 4 ))) { return 'RETVAL'; } return;}}, 'plural rule: n in 3..4' );
-is( Locales::plural_rule_string_to_javascript_code( 'n mod 100 in 5..6', "RETVAL" ), q{function (n) {if ( (( int(n) == n && (n % 100) >= 5 && (n % 100) <= 6 ))) { return 'RETVAL'; } return;}}, 'plural rule: n mod … in 5..6' );
+is( Locales::plural_rule_string_to_javascript_code( 'n in 3..4', "RETVAL" ), q{function (n) {if ( (( parseInt(n) == n && n >= 3 && n <= 4 ))) { return 'RETVAL'; } return;}}, 'plural rule: n in 3..4' );
+is( Locales::plural_rule_string_to_javascript_code( 'n mod 100 in 5..6', "RETVAL" ), q{function (n) {if ( (( parseInt(n) == n && ( parseInt(n) % 100) >= 5 && ( parseInt(n) % 100) <= 6 ))) { return 'RETVAL'; } return;}}, 'plural rule: n mod … in 5..6' );
 
 is( Locales::plural_rule_string_to_javascript_code( 'n within 4..7', "RETVAL" ), q{function (n) {if ( (( n >= 4 && n <= 7 ))) { return 'RETVAL'; } return;}}, 'plural rule: n within 4..7' );
-is( Locales::plural_rule_string_to_javascript_code( 'n mod 100 within 2..5', "RETVAL" ), q{function (n) {if ( (( (n % 100) >= 2 && (n % 100) <= 5 ))) { return 'RETVAL'; } return;}}, 'plural rule: n mod … within 2..5' );
+is( Locales::plural_rule_string_to_javascript_code( 'n mod 100 within 2..5', "RETVAL" ), q{function (n) {if ( (( ( parseInt(n) % 100) >= 2 && ( parseInt(n) % 100) <= 5 ))) { return 'RETVAL'; } return;}}, 'plural rule: n mod … within 2..5' );
 
 ok( Locales::plural_rule_string_to_javascript_code( 'n within 4..7', "RETVAL" ) =~ m/return \'RETVAL\'/, "retval given" );
 ok( Locales::plural_rule_string_to_javascript_code('n within 4..7') =~ m/return \'1\'/, "retval not given" );
@@ -273,9 +273,10 @@ ok( Locales::plural_rule_string_to_javascript_code( 'n within 4..7', undef() ) =
 ok( Locales::plural_rule_string_to_javascript_code( 'n within 4..7', '' )      =~ m/return \'\'/,  "retval given ''" );
 
 # and/or
-is( Locales::plural_rule_string_to_javascript_code('n is 4 and n is 4 and n is 4'),          q{function (n) {if ( (( n == 4) && ( n == 4) && ( n == 4))) { return '1'; } return;}},                        'plural_rule: and' );
-is( Locales::plural_rule_string_to_javascript_code('n is 4 or n is 4 or n is 4'),            q{function (n) {if ( (( n == 4)) ||  (( n == 4)) ||  (( n == 4))) { return '1'; } return;}},                  'plural_rule: or' );
+is( Locales::plural_rule_string_to_javascript_code('n is 4 and n is 4 and n is 4'),          q{function (n) {if ( (( n == 4) && ( n == 4) && ( n == 4))) { return '1'; } return;}},                    'plural_rule: and' );
+is( Locales::plural_rule_string_to_javascript_code('n is 4 or n is 4 or n is 4'),            q{function (n) {if ( (( n == 4)) ||  (( n == 4)) ||  (( n == 4))) { return '1'; } return;}},              'plural_rule: or' );
 is( Locales::plural_rule_string_to_javascript_code('n is 4 or n is 5 and n is 6 or n is 7'), q{function (n) {if ( (( n == 4)) ||  (( n == 5) && ( n == 6)) ||  (( n == 7))) { return '1'; } return;}}, 'plural_rule: and and or' );
+
 #/ JavaScript
 
 # syntax errors
@@ -320,6 +321,36 @@ my $en     = Locales->new('en');
 my $fr     = Locales->new('fr');
 my $ar     = Locales->new('ar');
 my $it     = Locales->new('it');
+
+is( $it->get_cldr_number_symbol_group(),   '.', 'get_cldr_number_symbol_group()' );
+is( $it->get_cldr_number_symbol_decimal(), ',', 'get_cldr_number_symbol_decimal()' );
+my $fr_ca = Locales->new('fr_ca');
+is_deeply(
+    [ $fr_ca->get_fallback_list() ],
+    [qw(fr_ca fr en)],
+    'get_fallback_list() (super) no args'
+);
+is_deeply(
+    [ $fr_ca->get_fallback_list( sub { return $_[0] =~ m/fr/ ? qw(i_yoda i-Love-Rhi ***) : () } ) ],
+    [qw(fr_ca fr i_yoda i_love_rhi en)],
+    'get_fallback_list() (super) code arg (w/ unnormalized value and an invalid value)'
+);
+is_deeply(
+    [ $fr->get_fallback_list() ],
+    [qw(fr en)],
+    'get_fallback_list() (no super) no args'
+);
+is_deeply(
+    [ $fr->get_fallback_list( sub { return $_[0] =~ m/fr/ ? qw(i_yoda i-Love-Rhi ***) : () } ) ],
+    [qw(fr i_yoda i_love_rhi en)],
+    'get_fallback_list() (no super) code arg (w/ unnormalized value and an invalid value)'
+);
+my $uk = Locales->new('uk');
+is_deeply(
+    [ $uk->get_fallback_list() ],
+    [qw(uk ru en)],
+    'get_fallback_list() CLDR'
+);
 
 ok( $en->get_native_language_from_code('en') eq $Locales::DB::Language::en::code_to_name{'en'}, 'get_native_language_from_code() 1 w/ en' );
 ok( $en->get_native_language_from_code('fr') eq $Locales::DB::Language::fr::code_to_name{'fr'}, 'get_native_language_from_code() 2 w/ en' );

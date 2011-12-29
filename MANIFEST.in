@@ -16,4 +16,5 @@ t/pod-coverage.t
 t/pod.t
 t/03.cldr_db.t 
 t/04.locales_obj.t
+t/05.plural_rules_behavior.t
 

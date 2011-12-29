@@ -1,3 +1,10 @@
+0.24  Wed Dec 28 22:34:09 2011
+    - rt 73238 added get_fallback_list()
+    - rt 73268 added datetime JSON file to share/
+    - change naming in share/ to be more inline w/ JSON/JS naming conventions
+    - get_cldr_number_symbol_decimal() and get_cldr_number_symbol_group() accessors
+    - Add tests that the javascript plural functions behave the same as the perl plural functions
+
 0.23  Fri Dec  9 12:54:20 2011
     - update share/ to not include unloadable locales, whups!
     
