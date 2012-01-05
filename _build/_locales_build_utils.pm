@@ -10,6 +10,7 @@ use File::Slurp;
 use Encode ();    # to be stringified properly from hash value bug: s{\|\|\s*(\$fallback_lang_misc_info\-\>\S*)\,}{|| Encode::decode_utf8($1),}
 use String::Unquotemeta;
 use JSON::Syck;
+use JavaScript::Minifier::XS;
 
 # datetime.json
 our $tripped;
@@ -77,7 +78,7 @@ $Data::Dumper::Useqq    = 1;
     }
 }
 
-my $v_offset     = '0.15';
+my $v_offset     = '0.16';
 my $mod_version  = $Locales::VERSION - $v_offset;
 my $cldr_version = $Locales::cldr_version;
 my $cldr_db_path;
@@ -709,6 +710,96 @@ $fast_norm_str
     );
 }
 
+sub write_get_plural_form_test {
+    my ($tag) = @_;
+
+    my $loc = Locales->new($tag) || die die "Could not create object for $tag: \$@";
+    
+    my $arg_tests_count = 2;
+    if ( $loc->get_plural_form(0) eq 'other' ) {
+        $arg_tests_count = 4;
+    }
+    
+    _write_utf8_perl(
+        "../../../t/06.$tag.t", qq{
+# Auto generated during CLDR build
+
+use lib 'lib', '../lib';
+use Test::More;
+
+use Locales;
+
+diag( "Verifying perl and js get_plural_form() behave the same for $tag." );
+
+if (!\$ENV{'RELEASE_TESTING'}) {
+    plan 'skip_all' => 'These tests are only run under RELEASE_TESTING.';
+}
+
+my \$obj = Locales->new('$tag') || die "Could not create object for $tag: \$@";
+
+my \@nums = ( 0, 1.6, 2.2, 3.14159, 42.78, 0 .. 256 );
+
+eval 'use JE ()';
+plan \$@ ? ( 'skip_all' => 'JE.pm required for testing JS/Perl plural behavior tests' ) : ( 'tests' => ( scalar(\@nums) * (4 + $arg_tests_count) ) );
+my \$js = JE->new();
+
+use File::Slurp;
+my \$root = '.';    # TODO: make me portable
+if ( -d '../share/' ) {
+    \$root = '..';
+}
+if ( !-d "\$root/share/" ) {
+    die "Can not determine share directory.";
+}
+
+my \@cats = map { "args_\$_" } \$obj->get_plural_form_categories();
+my \$cats_args = join(', ', map { "'\$_'" } \@cats);
+
+my \$jsfile = File::Slurp::read_file("\$root/share/functions/\$obj->{'locale'}.js") or die "Could not read '\$root/share/functions/\$obj->{'locale'}.js': \$!";
+
+for my \$n (\@nums) {
+    my \$res = \$js->eval("var X = \$jsfile;return X.get_plural_form(\$n)");
+    is_deeply(
+        [ \$res->[0], \$res->[1] ],    # have to do this to stringify JE object properly
+        [ \$obj->get_plural_form(\$n) ],
+        "perl and js get_plural_form() behave the same. Tag: \$obj->{'locale'} Number: \$n"
+    );
+    is(\$res->[1], 0, "using special is 0 for \$n (no args)");
+    
+    my \$res_n = \$js->eval("var X = \$jsfile;return X.get_plural_form(-\$n)");
+    is_deeply(
+        [ \$res_n->[0], \$res_n->[1] ],    # have to do this to stringify JE object properly
+        [ \$obj->get_plural_form("-\$n") ],
+        "perl and js get_plural_form() behave the same. Tag: \$obj->{'locale'} Number: -\$n"
+    );
+    is(\$res_n->[1], 0, "using special is 0 for -\$n (no args)");
+    
+    my \$res_s = \$js->eval("var X = \$jsfile;return X.get_plural_form(\$n,\$cats_args)");
+    is_deeply(
+        [ \$res_s->[0], \$res_s->[1] ],    # have to do this to stringify JE object properly
+        [ \$obj->get_plural_form(\$n,\@cats) ],
+        "perl and js get_plural_form() behave the same. Tag: \$obj->{'locale'} Number: \$n"
+    );
+    is(\$res_s->[1], 0, "using special is 0 for \$n (args w/ no spec zero)");
+
+    if ($arg_tests_count == 4) {
+        my \$res_n = \$js->eval("var X = \$jsfile;return X.get_plural_form(\$n, \$cats_args, 'spec_zeroth')");
+        is_deeply(
+            [ \$res_n->[0], \$res_n->[1] ],    # have to do this to stringify JE object properly
+            [ \$obj->get_plural_form("\$n",\@cats, 'spec_zeroth') ],
+            "perl and js get_plural_form() behave the same. Tag: \$obj->{'locale'} Number: \$n"
+        );
+        my \$spec_bool = \$n == 0 ? 1 : 0;
+        is(\$res_n->[1], \$spec_bool, "using special is \$spec_bool for \$n (args w/ spec zero)");
+    }
+    
+     # TODO: ? too many/too few args and check for carp ?
+}
+        },
+        "t/06.$tag.t",
+    );
+}
+
 sub write_native_module {
     my ( $native_map, $fallback_lookup ) = @_;
 
@@ -1026,6 +1117,107 @@ sub build_javascript_share {
         print {$fh_m} $json;
         close $fh_m;
 
+        my $cats_list_js = JSON::Syck::Dump( $guts_m->{'plural_forms'}{'category_list'} );
+        my $cats_proc_js = JSON::Syck::Dump( [ Locales::get_cldr_plural_category_list(1) ] );
+        my $cats_rule_js = JSON::Syck::Dump( $guts_m->{'plural_forms'}{'category_rules_compiled'} );
+        $cats_rule_js =~ s/"(function[^"]+)"/$1/g;
+        
+        open( my $fh_f, '>', "share/functions/$tag.js" ) or die "Could not open 'share/functions/$tag.js': $!";
+
+        # var category_process_order = $cats_proc_js;
+        # var category_rules_lookup  = $cats_rule_js;
+        # var categories = $cats_list_js;
+
+        my $js_code = <<"END_FUNC";
+{
+    'get_plural_form' : function (n) {
+        var category;
+        var category_values = Array.prototype.slice.call(arguments,1);
+
+        var has_extra_for_zero = 0;
+        var abs_n = Math.abs(n);
+        var category_process_order = $cats_proc_js;
+        var category_rules_lookup  = $cats_rule_js;
+
+        for (i=0; i < category_process_order.length; i++) {
+            if (category_rules_lookup[category_process_order[i]]) {
+                category = category_rules_lookup[category_process_order[i]](abs_n);
+                if (category) break;
+            }
+        }
+
+        var categories = $cats_list_js;
+
+        if ( category_values.length === 0 ) {
+             category_values = categories; // no args will return the category name
+        }
+        else {
+            var cat_len = categories.length;
+            var val_len = category_values.length;
+
+            var cat_len_plus_one = cat_len + 1;
+            if ( val_len === cat_len_plus_one ) {
+                has_extra_for_zero++;
+            }
+            else if ( cat_len !== val_len ) {
+                if (window.console) console.warn( 'The number of given values (' + val_len + ') does not match the number of categories (' + cat_len + ').' );
+            }
+        }
+
+        if ( category === undefined) {
+            var cat_idx = has_extra_for_zero && abs_n !== 0 ? -2 : -1;
+            var sliced = category_values.slice(cat_idx);
+            return [sliced[0], has_extra_for_zero && abs_n === 0 ? 1 : 0];
+        }
+        else {
+            var return_value;
+          GET_POSITION:
+            while(1) {
+                var cat_pos_in_list;
+                var index = -1;
+               CATEGORY:
+                 for (i=0; i < categories.length; i++ ) {
+                     index++;
+                     if ( categories[i] === category ) {
+                         cat_pos_in_list = index;
+                         break CATEGORY;
+                     }
+                 }
+
+                 if ( cat_pos_in_list === undefined && category !== 'other' ) {
+                     if (window.console) console.warn( 'The category (' + category + ') is not used by this locale.');
+                     category = 'other';
+                     continue GET_POSITION;
+                 }
+                 else if ( cat_pos_in_list === undefined) {
+                     var cat_idx = has_extra_for_zero && abs_n !== 0 ? -2 : -1;
+                     var sliced = category_values.slice(cat_idx);
+                     return_value = [sliced[0], has_extra_for_zero && abs_n === 0 ? 1 : 0]
+                     break GET_POSITION;
+                 }
+                 else {
+                     if ( has_extra_for_zero && category === 'other' ) {
+                         var cat_idx = has_extra_for_zero && abs_n === 0 ? -1 : cat_pos_in_list;
+                         var sliced = category_values.slice(cat_idx);
+                         return_value = [sliced[0], has_extra_for_zero && abs_n === 0 ? 1 : 0];
+                         break GET_POSITION;
+                     }
+                     else {
+                         return_value = [category_values[cat_pos_in_list], 0];
+                         break GET_POSITION;
+                     }
+                 }
+                 break GET_POSITION;
+            }
+
+            return return_value;
+        }
+    }
+}
+END_FUNC
+        print {$fh_f} JavaScript::Minifier::XS::minify($js_code);
+        close $fh_f;
+
         my $json_c = JSON::Syck::Dump( $tag_loc->{'language_data'}{'code_to_name'} );    # no eval, lets just die
 
         open( my $fh_c, '>', "share/code_to_name/$tag.json" ) or die "Could not open 'share/code_to_name/$tag.json': $!";
@@ -1057,7 +1249,7 @@ sub build_javascript_share {
         print {$fh_d} $json_d;
         close $fh_d;
 
-        append_file( $manifest, "share/misc_info/$tag.js\nshare/code_to_name/$tag.json\nshare/datetime/$tag.json\n" );
+        append_file( $manifest, "share/misc_info/$tag.js\nshare/code_to_name/$tag.json\nshare/datetime/$tag.json\nshare/functions/$tag.js\n" );
     }
 }
 

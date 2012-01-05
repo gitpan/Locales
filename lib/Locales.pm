@@ -4,7 +4,7 @@ package Locales;
 # use strict;
 # use warnings;
 
-$Locales::VERSION      = '0.24';    # change in POD
+$Locales::VERSION      = '0.25';    # change in POD
 $Locales::cldr_version = '2.0';     # change in POD
 
 #### class methods ####
@@ -272,7 +272,6 @@ sub get_plural_form {
     #     and also perl's modulus-on-negative-values behavior
     my $abs_n = abs($n);    # negatives keep same category as positive
 
-    # As of 0.22 this will be skipped for mosules included w/ the main dist
     if ( !$self->{'language_data'}{'misc_info'}{'plural_forms'}{'category_rules_function'} ) {
         $self->{'language_data'}{'misc_info'}{'plural_forms'}{'category_rules_function'} = Locales::plural_rule_hashref_to_code( $self->{'language_data'}{'misc_info'}{'plural_forms'} );
         if ( !defined $self->{'language_data'}{'misc_info'}{'plural_forms'}{'category_rules_function'} ) {
@@ -805,8 +804,8 @@ sub plural_rule_string_to_javascript_code {
     my $perl = plural_rule_string_to_code( $plural_rule_string, $return );
     $perl =~ s/sub { /function (n) {/;
     $perl =~ s/\$_\[0\]/n/g;
+    $perl =~ s/ \(n \% ([0-9]+)\) \+ \(n-int\(n\)\) /n % $1/g;
     $perl =~ s/int\(/parseInt\(/g;
-    $perl =~ s/n\s+%/ parseInt(n) %/g;    # normalize modulo behavior
     return $perl;
 }
 
@@ -820,7 +819,10 @@ sub plural_rule_string_to_code {
 
     my %m;
     while ( $plural_rule_string =~ m/mod ([0-9]+)/g ) {
-        $m{$1} = "(\$_[0] % $1)";
+
+        # CLDR plural rules (http://unicode.org/reports/tr35/#Language_Plural_Rules):
+        #      'mod' (modulus) is a remainder operation as defined in Java; for example, the result of "4.3 mod 3" is 1.3.
+        $m{$1} = "( (\$_[0] % $1) + (\$_[0]-int(\$_[0])) )";
     }
 
     my $perl_code = "sub { if (";
@@ -909,7 +911,7 @@ sub plural_rule_hashref_to_code {
                 # Does $n match $hr->{$cat} ?
 
                 if ( ref( $hr->{'category_rules_compiled'}{$cat} ) ne 'CODE' ) {
-                    $hr->{'category_rules_compiled'}{$cat} = eval "$hr->{'category_rules_compiled'}{$cat}";
+                    $hr->{'category_rules_compiled'}{$cat} = eval "$hr->{'category_rules_compiled'}{$cat}";    # As of 0.22 this will be skipped for modules included w/ the main dist
                 }
 
                 if ( $hr->{'category_rules_compiled'}{$cat}->($n) ) {
@@ -971,7 +973,7 @@ Locales - Methods for getting localized CLDR language/territory names (and a sub
 
 =head1 VERSION
 
-This document describes Locales version 0.24
+This document describes Locales version 0.25
 
 =head1 SYNOPSIS
 

@@ -25,11 +25,11 @@ my @en_terr_codes = sort( keys %Locales::DB::Territory::en::code_to_name );
 
 my %lang_lu;
 @lang_lu{@en_lang_codes} = ();
-ok(!( grep { !exists $lang_lu{$_} } @langs ), 'en codes contain available locales');
+ok( !( grep { !exists $lang_lu{$_} } @langs ), 'en codes contain available locales' );
 
 sub _readdir {
     my ($dir) = @_;
-    if(opendir(my $dh, $dir)) {
+    if ( opendir( my $dh, $dir ) ) {
         my @contents = grep !/^\.\.?$/, readdir($dh);
         closedir($dh);
         return @contents;

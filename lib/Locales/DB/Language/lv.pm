@@ -52,7 +52,7 @@ $Locales::DB::Language::lv::cldr_version = '2.0';
         },
         'category_rules_compiled' => {
             'one' => sub {
-                if ( ( ( ( $_[0] % 10 ) == 1 ) && ( ( $_[0] % 100 ) != 11 ) ) ) { return 'one'; }
+                if ( ( ( ( ( $_[0] % 10 ) + ( $_[0] - int( $_[0] ) ) ) == 1 ) && ( ( ( $_[0] % 100 ) + ( $_[0] - int( $_[0] ) ) ) != 11 ) ) ) { return 'one'; }
                 return;
             },
             'zero' => sub {

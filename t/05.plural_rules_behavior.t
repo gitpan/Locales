@@ -4,6 +4,7 @@ use Locales;
 
 my @tests;
 
+diag "Setting up for individual rule tests.";
 my $loc = Locales->new('en');
 for my $tag ( sort $loc->get_language_codes() ) {
     my $tag_loc = Locales->new($tag) || next;
@@ -17,12 +18,14 @@ for my $tag ( sort $loc->get_language_codes() ) {
 }
 
 eval 'use JE ()';
-plan $@ ? ( 'skip_all' => 'JE.pm required for testing JS/Perl plural behavior tests' ) : ( 'tests' => scalar(@tests) * 261 );    ## ( 261 * 2 ) );
+plan $@ ? ( 'skip_all' => 'JE.pm required for testing JS/Perl plural behavior tests' ) : ( 'tests' => ( scalar(@tests) * 262 ) );
 my $js = JE->new();
 my $err;
+my @nums = ( 0, 1.6, 2.2, 3.14159, 42.78, 0 .. 256 );
+diag "Starting individual rule tests.";
 
-my $res = $js->eval("function xyz () { return $ARGV[0] };xyz();");
-for my $n ( 1.6, 2.2, 3.14159, 42.78, 0 .. 256 ) {
+for my $n (@nums) {
+
     for my $t (@tests) {
         my $perl = eval "$t->[2]";
         is(

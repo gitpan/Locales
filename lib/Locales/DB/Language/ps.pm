@@ -35,7 +35,7 @@ $Locales::DB::Language::ps::cldr_version = '2.0';
         'quotation_end'             => "\â\\",
         'quotation_start'           => "\â\\"
     },
-    'fallback'    => ['fa_af'],
+    'fallback'    => [ 'fa_af' ],
     'orientation' => {
         'characters' => "right\-to\-left",
         'lines'      => "top\-to\-bottom"

@@ -54,15 +54,15 @@ $Locales::DB::Language::sl::cldr_version = '2.0';
         },
         'category_rules_compiled' => {
             'few' => sub {
-                if ( ( ( int( $_[0] ) == $_[0] && ( $_[0] % 100 ) >= 3 && ( $_[0] % 100 ) <= 4 ) ) ) { return 'few'; }
+                if ( ( ( int( $_[0] ) == $_[0] && ( ( $_[0] % 100 ) + ( $_[0] - int( $_[0] ) ) ) >= 3 && ( ( $_[0] % 100 ) + ( $_[0] - int( $_[0] ) ) ) <= 4 ) ) ) { return 'few'; }
                 return;
             },
             'one' => sub {
-                if ( ( ( ( $_[0] % 100 ) == 1 ) ) ) { return 'one'; }
+                if ( ( ( ( ( $_[0] % 100 ) + ( $_[0] - int( $_[0] ) ) ) == 1 ) ) ) { return 'one'; }
                 return;
             },
             'two' => sub {
-                if ( ( ( ( $_[0] % 100 ) == 2 ) ) ) { return 'two'; }
+                if ( ( ( ( ( $_[0] % 100 ) + ( $_[0] - int( $_[0] ) ) ) == 2 ) ) ) { return 'two'; }
                 return;
               }
         }

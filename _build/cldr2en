@@ -29,3 +29,5 @@ _locales_build_utils::write_language_module( 'en', $lang_code_to_name, $lang_nam
 _locales_build_utils::write_territory_module( 'en', $terr_code_to_name, $terr_name_to_code );
 
 _locales_build_utils::write_locale_test('en');
+
+_locales_build_utils::write_get_plural_form_test('en');

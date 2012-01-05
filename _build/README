@@ -17,6 +17,7 @@ How to update:
 4) tidy it all (rt 69971)
 
   perltidy -b `find lib/Locales/DB -name '*.pm'`
+  perltidy -b lib/Locales.pm
   rm `find . -name '*.bak'`
 
 5) perl Makefile.PL && make && make test 

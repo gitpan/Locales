@@ -35,7 +35,7 @@ $Locales::DB::Language::zu::cldr_version = '2.0';
         'quotation_end'             => '’',
         'quotation_start'           => '‘'
     },
-    'fallback'    => ['en_za'],
+    'fallback'    => [ 'en_za' ],
     'orientation' => {
         'characters' => "left\-to\-right",
         'lines'      => "top\-to\-bottom"

@@ -1,3 +1,10 @@
+0.25  Tue Jan  3 23:38:40 2012
+    - rt 73571 (copy/paste leftover)
+    - rt 73572 (comment typo)
+    - Added 90 more plural rule tests (i.e. @plural_tests in t/04.…, only 2 of which failed in 0.24 due to rt 73678)
+    - rt 73678 (do Java style modulus in plural rules per CLDR)
+    - javascript functions (initial get_plural_form() w/ perl/js tests in t/06.…)
+
 0.24  Wed Dec 28 22:34:09 2011
     - rt 73238 added get_fallback_list()
     - rt 73268 added datetime JSON file to share/

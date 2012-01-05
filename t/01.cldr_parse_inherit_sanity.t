@@ -1,26 +1,26 @@
 use Test::More tests => 7;
 
 BEGIN {
-    use_ok( 'Locales' );
+    use_ok('Locales');
 }
 
-diag( "Testing Locales $Locales::VERSION" );
+diag("Testing Locales $Locales::VERSION");
 
 is(
     Locales->new('fr')->{'language_data'}{'misc_info'}{'cldr_formats'}{'_decimal_format_group'},
-    "\xC2\xA0", 
+    "\xC2\xA0",
     "XML parsed whitespace-only content properly"
 );
 
 isnt(
     Locales->new('pt_br')->{'language_data'}{'misc_info'}{'delimiters'}{'alternate_quotation_end'},
-    undef(), 
+    undef(),
     "deep struct undef inherited"
 );
 
 isnt(
     ref( Locales->new('ak')->{'language_data'}{'misc_info'}{'delimiters'}{'alternate_quotation_end'} ),
-    'HASH', 
+    'HASH',
     "deep struct hash in XML value fetched"
 );
 
