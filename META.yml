@@ -1,18 +1,18 @@
 --- #YAML:1.0
 name:               Locales
-version:            0.25
+version:            0.26
 abstract:           Methods for getting localized CLDR language/territory names (and a subset of other data)
 author:
     - Daniel Muey <http://drmuey.com/cpan_contact.pl>
 license:            unknown
 distribution_type:  module
 configure_requires:
-    ExtUtils::MakeMaker:  0
+    ExtUtils::MakeMaker:  6.56
 build_requires:
-    ExtUtils::MakeMaker:  0
-requires:
-    Test::Carp:  0
-    Test::More:  0
+    File::Slurp:  0
+    Test::Carp:   0
+    Test::More:   0
+requires:  {}
 no_index:
     directory:
         - t

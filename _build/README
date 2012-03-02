@@ -6,7 +6,7 @@ How to update:
 
 2) build modules out of CLDR, something like this:
 
-   Note: If the DB mods are NOT changing you'll have to update "my $v_offset" in _locales_build_utils.pm
+   Note: If the DB mods are NOT changing you'll have to update "my $v_offset" in _locales_build_utils.pm && perl -pi -e 's{0\.16}{0.17}g;' t/042.*
    
    ./_build/cldr2locales ../Downloads/
    
@@ -23,5 +23,7 @@ How to update:
 5) perl Makefile.PL && make && make test 
 
 6) enable strict/warnings: ... make test, undo
+
+Also: RELEASE_TESTING=1 make test 
 
 7) ... make dist && sudo make install

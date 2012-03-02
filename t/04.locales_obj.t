@@ -1,4 +1,4 @@
-use Test::More tests => 346;
+use Test::More tests => 348;
 use Test::Carp;
 
 use lib 'lib', '../lib';
@@ -21,7 +21,11 @@ use Locales::DB::Language::ar;
 
 # normalize_tag_for_datetime_locale
 is( Locales::normalize_tag_for_datetime_locale("EN"),    'en',    'DT with no country part' );
-is( Locales::normalize_tag_for_datetime_locale("en-gb"), 'en_GB', 'DT with countyr part' );
+is( Locales::normalize_tag_for_datetime_locale("en-gb"), 'en_GB', 'DT with country part' );
+
+# normalize_tag_for_ietf
+is( Locales::normalize_tag_for_ietf("EN"),    'en',    'IETF with no country part' );
+is( Locales::normalize_tag_for_ietf("en-gb"), 'en-GB', 'IETF with country part' );
 
 # normalize_tag_for_datetime_locale
 # normalize_for_key_lookup

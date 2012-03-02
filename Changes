@@ -1,3 +1,8 @@
+0.26  Mon Feb 27 12:18:39 2012
+    - rt 75166: POD: change DataTime::Locale to DateTime::Locale
+    - rt 73892: Undeclared dependency on File::Slurp – add most of the proposed patch Makefile.PL part
+    - rt 75167: add normalize_tag_for_ietf()
+    
 0.25  Tue Jan  3 23:38:40 2012
     - rt 73571 (copy/paste leftover)
     - rt 73572 (comment typo)

@@ -4,7 +4,7 @@ package Locales;
 # use strict;
 # use warnings;
 
-$Locales::VERSION      = '0.25';    # change in POD
+$Locales::VERSION      = '0.26';    # change in POD
 $Locales::cldr_version = '2.0';     # change in POD
 
 #### class methods ####
@@ -776,11 +776,23 @@ sub normalize_tag {
 }
 
 sub normalize_tag_for_datetime_locale {
-    my ( $pre, $pst ) = split_tag( $_[0] );
+    my ( $pre, $pst ) = split_tag( $_[0] ); # we only do language[_territory]
     return if !defined $pre;
 
     if ($pst) {
         return $pre . '_' . uc($pst);
+    }
+    else {
+        return $pre;
+    }
+}
+
+sub normalize_tag_for_ietf {
+    my ( $pre, $pst ) = split_tag( $_[0] ); # we only do language[_territory]
+    return if !defined $pre;
+
+    if ($pst) {
+        return $pre . '-' . uc($pst);
     }
     else {
         return $pre;
@@ -973,7 +985,7 @@ Locales - Methods for getting localized CLDR language/territory names (and a sub
 
 =head1 VERSION
 
-This document describes Locales version 0.25
+This document describes Locales version 0.26
 
 =head1 SYNOPSIS
 
@@ -1349,9 +1361,17 @@ Returns the normalized tag.
 
 =item Locales::normalize_tag_for_datetime_locale()
 
-Like normalize_tag() except the return value should be suitable for L<DataTime::Locale>
+Like normalize_tag() except the return value should be suitable for L<DateTime::Locale>
 
    print Locales::normalize_tag_for_datetime_locale("  en-GB\n "); # 'en_GB'
+
+=item Locales::normalize_tag_for_ietf()
+
+Like normalize_tag() except the return value should be suitable for IETF.
+
+This is not a comprehensive IETF formatter, it is intended (for now at least) for the subset of tags Locales.pm uses.
+
+   print Locales::normalize_tag_for_ietf("  en_gb\n "); # 'en-GB'
 
 =item Locales::split_tag()
 
