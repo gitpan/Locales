@@ -860,6 +860,7 @@ lib/Locales/DB/CharacterOrientation/Tiny.pm
 lib/Locales/DB/LocaleDisplayPattern.pm
 lib/Locales/DB/LocaleDisplayPattern/Tiny.pm
 lib/Locales/DB/Docs/PluralForms.pm
+lib/Locales/DB/Loadable.pm
 share/misc_info/aa.js
 share/code_to_name/aa.json
 share/datetime/aa.json
@@ -1696,4 +1697,6 @@ share/misc_info/zu.js
 share/code_to_name/zu.json
 share/datetime/zu.json
 share/functions/zu.js
-META.yml                                 Module meta-data (added by MakeMaker)
+share/db/loadable.json
+META.yml                                 Module YAML meta-data (added by MakeMaker)
+META.json                                Module JSON meta-data (added by MakeMaker)

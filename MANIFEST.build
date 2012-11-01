@@ -840,6 +840,7 @@ lib/Locales/DB/CharacterOrientation/Tiny.pm
 lib/Locales/DB/LocaleDisplayPattern.pm
 lib/Locales/DB/LocaleDisplayPattern/Tiny.pm
 lib/Locales/DB/Docs/PluralForms.pm
+lib/Locales/DB/Loadable.pm
 share/misc_info/aa.js
 share/code_to_name/aa.json
 share/datetime/aa.json
@@ -1676,3 +1677,4 @@ share/misc_info/zu.js
 share/code_to_name/zu.json
 share/datetime/zu.json
 share/functions/zu.js
+share/db/loadable.json

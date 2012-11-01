@@ -1,4 +1,4 @@
-use Test::More tests => 348;
+use Test::More tests => 396;
 use Test::Carp;
 
 use lib 'lib', '../lib';
@@ -19,6 +19,16 @@ use Locales::DB::Language::ar;
 # normalize_tag
 # normalize_tag with trailing _
 
+is_deeply( [ Locales::non_locale_list() ], [ 'art', 'mis', 'mul', 'und', 'zxx' ], 'Locales::non_locale_list()' );
+ok( !Locales::is_non_locale("fr"),       'Locales::is_non_locale() false w/ locale tag' );
+ok( Locales::is_non_locale("ART"),       'Locales::is_non_locale() true w/ non-locale tag' );
+ok( !Locales::is_non_locale('adfvadfd'), 'Locales::is_non_locale() false w/ non-existent tag' );
+
+is_deeply( [ Locales::typical_en_alias_list() ], [ 'en_us', 'i_default' ], 'Locales::typical_en_alias_list()' );
+ok( !Locales::is_typical_en_alias("fr"),       'Locales::is_typical_en_alias() false w/ locale tag' );
+ok( Locales::is_typical_en_alias("en-US"),     'Locales::is_typical_en_alias() true w/ non-locale tag' );
+ok( !Locales::is_typical_en_alias('adfvadfd'), 'Locales::is_typical_en_alias() false w/ non-existent tag' );
+
 # normalize_tag_for_datetime_locale
 is( Locales::normalize_tag_for_datetime_locale("EN"),    'en',    'DT with no country part' );
 is( Locales::normalize_tag_for_datetime_locale("en-gb"), 'en_GB', 'DT with country part' );
@@ -34,6 +44,38 @@ is( Locales::get_cldr_version(), $Locales::cldr_version, 'get_cldr_version() as 
 is( Locales->get_cldr_version(), $Locales::cldr_version, 'get_cldr_version() as class method' );
 my $t = Locales->new();
 is( $t->get_cldr_version(), $Locales::cldr_version, 'get_cldr_version() as object method' );
+
+ok( scalar( Locales::get_loadable_language_codes() ) > 42, 'Locales::get_loadable_language_codes() has data' );           # number is arbitrary, there are lots more in actuality, I just needed a reasonable number and I like 42
+ok( Locales::territory_code_is_known('mx'),                'Locales::territory_code_is_known() w/ known territory' );
+ok( Locales::tag_is_loadable('es'),                        'Locales::tag_is_loadable() w/ loadable tag' );
+ok( !Locales::territory_code_is_known('WAKKA'),            'Locales::territory_code_is_known() w/ unknown territory' );
+ok( !Locales::tag_is_loadable('WAKKA'),                    'Locales::tag_is_loadable() w/ unloadable tag' );
+for my $nlt ( Locales::non_locale_list() ) {
+    ok( !Locales::tag_is_loadable($nlt),         "Locales::tag_is_loadable() w/ non-locale tag ($nlt) returns false" );
+    ok( !Locales::territory_code_is_known($nlt), "Locales::territory_code_is_known() w/ non-locale tag ($nlt) returns false" );
+}
+
+my $class = 'Locales';
+my $cobj  = Locales->new("fr");
+my $sobj  = $class->new("fr");
+is_deeply( $cobj, $sobj, "VAR->new() returns expected object" );
+my $oobj = $cobj->new("fr");
+is_deeply( $cobj, $oobj, "OBJ->new() returns expected object" );
+
+my $soft = Locales->new("es-MX");
+ok( $soft, 'Soft locale: object created' );
+is( $soft->{'locale'},                             'es_mx',              'Soft locale: locale is entire tag' );
+is( $soft->get_locale(),                           'es_mx',              'get_locale() is correct' );
+is( $soft->{'soft_locale_fallback'},               'es',                 'Soft locale: soft_locale_fallback is the super tag' );
+is( $soft->get_soft_locale_fallback(),             'es',                 'Soft locale: get_soft_locale_fallback() is correct' );
+is( $soft->get_language(),                         'es',                 'Soft locale: get_language() is correct' );
+is( $soft->get_territory(),                        'mx',                 'Soft locale: get_territory() is correct' );
+is( $soft->get_native_language_from_code(),        'español (México)', 'Soft locale: get_native_language_from_code() is correct w/ out passing always-return boolean' );
+is( $soft->get_locale_display_pattern_from_code(), '{0} ({1})',          'Soft locale: get_locale_display_pattern_from_code() is correct w/ out passing always-return boolean' );
+is( $soft->get_character_orientation_from_code(),  'left-to-right',      'Soft locale: get_character_orientation_from_code() is correct w/ out passing always-return boolean' );
+is( $soft->get_language_from_code(),               'español (México)', 'Soft locale: get_language_from_code() returns as expected w/ out passing always-return boolean' );
+is( $soft->get_language_from_code('fr'),           'francés',           'Soft locale: get_language_from_code() on argument returns as expected' );
+is( $soft->get_territory_from_code(),              'México',            'Soft locale: get_territory_from_code() returns as expected (no force logic required)' );
 
 is( $t->get_list_and(),                    undef,                    'get_list_and() no args means nothing returned' );
 is( $t->get_list_and('a'),                 'a',                      'get_list_and() 1 arg' );
@@ -199,6 +241,13 @@ my $other_other_other = Locales->new('en');
 is( $other_other_other->get_plural_form("0.1"), "other", "special category 0 0.x" );
 is( $other_other_other->get_plural_form("1.1"), "other", "special category 0 1.x" );
 is( $other_other_other->get_plural_form("2.1"), "other", "special category 0 2.x +" );
+
+ok( !$one_one_other->supports_special_zeroth(), 'supports_special_zeroth() is false as expected' );
+is( $one_one_other->plural_category_count(), 2, 'plural_category_count() is correct count and does not fatcor in special zeroth' );
+ok( !$one_other_other->supports_special_zeroth(), 'supports_special_zeroth() is false as expected' );
+is( $one_other_other->plural_category_count(), 3, 'plural_category_count() is correct count and does not fatcor in special zeroth' );
+ok( $other_other_other->supports_special_zeroth(), 'supports_special_zeroth() is true as expected' );
+is( $other_other_other->plural_category_count(), 2, 'plural_category_count() is correct count and does not fatcor in special zeroth' );
 
 does_carp_that_matches(
     sub {
@@ -441,6 +490,11 @@ ok( $en_au->get_territory() eq 'au', 'get_territory tag w/ territory' );
 ## get_* territory ##
 is_deeply( [ sort( keys %Locales::DB::Territory::en::code_to_name ) ],   [ sort( $en->get_territory_codes() ) ], 'get_territory_codes()' );
 is_deeply( [ sort( values %Locales::DB::Territory::en::code_to_name ) ], [ sort( $en->get_territory_names() ) ], 'get_territory_names()' );
+my %lu = $en->get_territory_lookup();
+is_deeply( \%lu, \%Locales::DB::Territory::en::code_to_name, 'get_territory_lookup() returns expected data' );
+$lu->{"this is not a locale code"} = 42;
+ok( !exists $Locales::DB::Territory::en::code_to_name{"this is not a locale code"}, "get_territory_lookup() is a copy that does not modify the internal data" );
+
 ok( $en->get_territory_from_code('us')      eq $Locales::DB::Territory::en::code_to_name{'us'}, 'get_territory_from_code() w/ known arg' );
 ok( $en->get_territory_from_code('  en-GB') eq $Locales::DB::Territory::en::code_to_name{'gb'}, 'get_territory_from_code() normalized' );
 ok( !$en->get_territory_from_code('ucscs'), 'get_territory_from_code() w/ unknown arg' );
@@ -457,6 +511,11 @@ ok( \&Locales::territory2code eq \&Locales::get_code_from_territory, 'territory2
 ## get* language ##
 is_deeply( [ sort( keys %Locales::DB::Language::en::code_to_name ) ],   [ sort( $en->get_language_codes() ) ], 'get_language_codes()' );
 is_deeply( [ sort( values %Locales::DB::Language::en::code_to_name ) ], [ sort( $en->get_language_names() ) ], 'get_language_names()' );
+%lu = $en->get_language_lookup();
+is_deeply( \%lu, \%Locales::DB::Language::en::code_to_name, 'get_language_lookup() returns expected data' );
+$lu->{"this is not a locale code"} = 42;
+ok( !exists $Locales::DB::Language::en::code_to_name{"this is not a locale code"}, "get_language_lookup() is a copy that does not modify the internal data" );
+
 ok( $en->get_language_from_code('en')      eq $Locales::DB::Language::en::code_to_name{'en'},    'get_language_from_code() w/ known arg' );
 ok( $en->get_language_from_code('  en-GB') eq $Locales::DB::Language::en::code_to_name{'en_gb'}, 'get_language_from_code() normalized' );
 ok( !$en->get_language_from_code('ucscs'), 'get_language_from_code() w/ unknown arg' );

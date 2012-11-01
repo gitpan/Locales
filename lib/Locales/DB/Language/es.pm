@@ -7,12 +7,7 @@ $Locales::DB::Language::es::VERSION = '0.09';
 $Locales::DB::Language::es::cldr_version = '2.0';
 
 %Locales::DB::Language::es::misc_info = (
-    'characters' => {
-        'more_information' => {
-            'content' => "\[\.\.\.\]",
-            'draft'   => 'contributed'
-        }
-    },
+    'characters'   => { 'more_information' => "\[\.\.\.\]" },
     'cldr_formats' => {
         '_decimal_format_decimal' => "\,",
         '_decimal_format_group'   => "\.",

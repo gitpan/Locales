@@ -7,7 +7,7 @@ $Locales::DB::Language::es_es::VERSION = '0.09';
 $Locales::DB::Language::es_es::cldr_version = '2.0';
 
 %Locales::DB::Language::es_es::misc_info = (
-    'characters'   => { 'more_information' => "HASH\(0x102072938\)" },
+    'characters'   => { 'more_information' => "\[\.\.\.\]" },
     'cldr_formats' => {
         '_decimal_format_decimal' => "\,",
         '_decimal_format_group'   => "\.",

@@ -22,8 +22,6 @@ How to update:
 
 5) perl Makefile.PL && make && make test 
 
-6) enable strict/warnings: ... make test, undo
-
-Also: RELEASE_TESTING=1 make test 
+6) RELEASE_TESTING=1 make test 
 
 7) ... make dist && sudo make install

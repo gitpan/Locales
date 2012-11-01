@@ -78,7 +78,7 @@ $Data::Dumper::Useqq    = 1;
     }
 }
 
-my $v_offset     = '0.17';
+my $v_offset     = '0.18';
 my $mod_version  = $Locales::VERSION - $v_offset;
 my $cldr_version = $Locales::cldr_version;
 my $cldr_db_path;
@@ -429,7 +429,11 @@ sub get_target_structs_from_cldr_for_tag {
             },
         },
         'characters' => {
-            'more_information' => $raw_struct->{'characters'}{'moreInformation'} || Encode::decode_utf8( $fallback_lang_misc_info->{'characters'}{'more_information'} ),
+            'more_information' => (
+                ref( $raw_struct->{'characters'}{'moreInformation'} ) eq 'HASH'
+                ? ( $raw_struct->{'characters'}{'moreInformation'}{'content'} || Encode::decode_utf8( $fallback_lang_misc_info->{'characters'}{'more_information'} ) )
+                : ( $raw_struct->{'characters'}{'moreInformation'} || Encode::decode_utf8( $fallback_lang_misc_info->{'characters'}{'more_information'} ) )
+            )
         },
         'delimiters' => {
             map {
@@ -714,12 +718,12 @@ sub write_get_plural_form_test {
     my ($tag) = @_;
 
     my $loc = Locales->new($tag) || die die "Could not create object for $tag: \$@";
-    
+
     my $arg_tests_count = 2;
     if ( $loc->get_plural_form(0) eq 'other' ) {
         $arg_tests_count = 4;
     }
-    
+
     _write_utf8_perl(
         "../../../t/06.$tag.t", qq{
 # Auto generated during CLDR build
@@ -826,6 +830,50 @@ $fallback_lookup_str);
         'lib/Locales/DB/Native.pm',
         1,
     );
+}
+
+sub write_db_loadable_module {
+    my $en = Locales->new('en');
+
+    my $code_hr;
+    my $terr_hr;
+
+    for my $t ( $en->get_territory_codes() ) {
+        $terr_hr->{$t} = 1;
+    }
+
+    for my $c ( $en->get_language_codes() ) {
+        next if Locales::is_non_locale($c);
+
+        if ( Locales->new($c) ) {
+            $code_hr->{$c} = 1;
+        }
+    }
+
+    my $code_str = _stringify_hash_no_dumper($code_hr);
+    my $terr_str = _stringify_hash_no_dumper($terr_hr);
+
+    _write_utf8_perl(
+        "$locales_db/Loadable.pm", qq{package Locales::DB::Loadable;
+
+# Auto generated from CLDR
+
+\$Locales::DB::Loadable::VERSION = '$mod_version';
+
+\$Locales::DB::Loadable::cldr_version = '$cldr_version';
+
+\%Locales::DB::Loadable::code = ( 
+$code_str);
+
+\%Locales::DB::Loadable::territory = (
+$terr_str);
+
+1;    
+        },
+        'lib/Locales/DB/Loadable.pm',
+        1,
+    );
+
 }
 
 sub write_character_orientation_module {
@@ -983,7 +1031,8 @@ sub write_plural_forms_argument_pod {
     my ( $plural_forms, $isfallback ) = @_;
     File::Path::Tiny::mk("$locales_db/Docs") || die "Could not create '$locales_db/Docs': $!";
 
-    my $pod_items = '';
+    my $pod_starts = '__END__';    # this is to prevent mis-parsing for CPAN like rt 76129
+    my $pod_items  = '';
 
     for my $ent ( @{$plural_forms} ) {
 
@@ -1013,7 +1062,7 @@ sub write_plural_forms_argument_pod {
 
 1;
 
-__END__
+$pod_starts
 
 =encoding utf-8
 
@@ -1101,6 +1150,13 @@ SUCH DAMAGES.
 sub build_javascript_share {
     my ($tag) = @_;
 
+    if ( -d 'share/' ) {
+        File::Path::Tiny::rm('share/') || die "Could not remove 'share/': $!";
+    }
+    for my $d (qw(misc_info/ functions/ code_to_name/ datetime/ db/)) {
+        File::Path::Tiny::mk("share/$d") || die "Could not create 'share/$d': $!";
+    }
+
     my $loc = Locales->new();
     for my $tag ( sort $loc->get_language_codes() ) {
         my $tag_loc = Locales->new($tag) || next;
@@ -1121,7 +1177,7 @@ sub build_javascript_share {
         my $cats_proc_js = JSON::Syck::Dump( [ Locales::get_cldr_plural_category_list(1) ] );
         my $cats_rule_js = JSON::Syck::Dump( $guts_m->{'plural_forms'}{'category_rules_compiled'} );
         $cats_rule_js =~ s/"(function[^"]+)"/$1/g;
-        
+
         open( my $fh_f, '>', "share/functions/$tag.js" ) or die "Could not open 'share/functions/$tag.js': $!";
 
         # var category_process_order = $cats_proc_js;
@@ -1251,6 +1307,14 @@ END_FUNC
 
         append_file( $manifest, "share/misc_info/$tag.js\nshare/code_to_name/$tag.json\nshare/datetime/$tag.json\nshare/functions/$tag.js\n" );
     }
+
+    require Locales::DB::Loadable;
+    my $json_d = JSON::Syck::Dump( { 'code' => \%Locales::DB::Loadable::code, 'territory' => \%Locales::DB::Loadable::territory } );    # no eval, lets just die
+    open( my $fh_d, '>', "share/db/loadable.json" ) or die "Could not open 'share/db/loadable.json': $!";
+    print {$fh_d} $json_d;
+    close $fh_d;
+
+    append_file( $manifest, "share/db/loadable.json" );
 }
 
 sub build_manifest {

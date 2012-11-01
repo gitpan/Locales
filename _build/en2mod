@@ -4,6 +4,7 @@ use lib '_build';
 use _locales_build_utils;
 
 my ( $cldr_db_path, $locales_db, $manifest ) = _locales_build_utils::init_paths_from_argv();
+
 # use Data::Dumper;print Dumper($_locales_build_utils::plural_forms);
 
 chdir $locales_db || die "Could not change into '$locales_db': $!";
@@ -16,7 +17,7 @@ if ( $l ne $tag ) {
     print "Fetching root for $tag ($l)\n";
     @root = ( _locales_build_utils::get_target_structs_from_cldr_for_tag( $l, {}, {}, {} ) )[ 0, 3, 2 ];
 
-   #  use Data::Dumper;print Dumper($root[2]);
+    #  use Data::Dumper;print Dumper($root[2]);
 }
 
 require Locales::DB::Language::en;

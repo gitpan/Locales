@@ -1,3 +1,23 @@
+0.27  Mon Oct 29 23:00:14 2012
+    - rt 80247: make new() work properly when used as object method
+    - rt 76129: move __END__ from the string into variable (in plural rules .pm builder function) 
+                so that CPAN parser doesn't mistake it for the actual one
+    - move POD tests under RELEASE_TESTING
+    - enable strict/warnings
+    - fix more_information harvesting to handle the es_es-type-structures
+    - rt 80132: add get_language_lookup() and get_territory_lookup()
+    - rt 77404: a few object features:
+        + soft locale support (get_soft_locale_fallback() method) 
+            + tag_is_soft_locale(L_T) 
+                + tag_is_loadable(L[_T])
+                + territory_code_is_known(T)
+        + get_loadable_language_codes()
+            + Locale::DB::Loadable (for this function and the soft locale related functions)
+        + supports_special_zeroth(), plural_category_count()
+        + 'Supported Locale Criteria' to POD, 
+        + non_locale_list(), is_non_locale(), 
+        + typical_en_alias_list(), is_typical_en_alias()
+
 0.26  Mon Feb 27 12:18:39 2012
     - rt 75166: POD: change DataTime::Locale to DateTime::Locale
     - rt 73892: Undeclared dependency on File::Slurp – add most of the proposed patch Makefile.PL part

@@ -61,6 +61,8 @@ _locales_build_utils::write_name_pattern_module( $name_pattern, $isfallback );
 
 _locales_build_utils::write_plural_forms_argument_pod( \@plural_forms, $isfallback );
 
+_locales_build_utils::write_db_loadable_module();
+
 _locales_build_utils::build_javascript_share();
 
 _locales_build_utils::build_manifest();

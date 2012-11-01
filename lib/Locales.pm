@@ -1,10 +1,9 @@
 package Locales;
 
-# These should work when enabled before uploading to CPAN, they are disabled in production per the request of a sponsor.
-# use strict;
-# use warnings;
+use strict;
+use warnings;
 
-$Locales::VERSION      = '0.26';    # change in POD
+$Locales::VERSION      = '0.27';    # change in POD
 $Locales::cldr_version = '2.0';     # change in POD
 
 #### class methods ####
@@ -20,22 +19,30 @@ sub new {
     $tag = normalize_tag($tag) || 'en';
 
     if ( !exists $singleton_stash{$tag} ) {
+
         my $locale = {
             'locale' => $tag,
         };
 
-        my $inc_class = $class;
+        if ( my $soft = tag_is_soft_locale($tag) ) {
+
+            # return if exists $conf->{'soft_locales'} && !$conf->{'soft_locales'};
+            $locale->{'soft_locale_fallback'} = $soft;
+            $tag = $soft;
+        }
+
+        my $inc_class = ref($class) ? ref($class) : $class;
         $inc_class =~ s{(?:\:\:|\')}{/}g;    # per Module::Want::get_inc_key()
 
         if ( !exists $INC{"$inc_class/DB/Language/$tag.pm"} ) {
-            eval "require $class\::DB::Language::$tag" || return;
+            eval "require $class\::DB::Language::$tag" || return;    # Module::Want::have_mod("$class\::DB::Language::$tag");
         }
 
         if ( !exists $INC{"$inc_class/DB/Territory/$tag.pm"} ) {
-            eval "require $class\::DB::Territory::$tag" || return;
+            eval "require $class\::DB::Territory::$tag" || return;    # Module::Want::have_mod("$class\::DB::Language::$tag");
         }
 
-        my ( $language, $territory ) = split_tag($tag);
+        my ( $language, $territory ) = split_tag( $locale->{'locale'} );
 
         no strict 'refs';
 
@@ -64,6 +71,11 @@ sub new {
 
 #### object methods ####
 
+sub get_soft_locale_fallback {
+    return $_[0]->{'soft_locale_fallback'} if $_[0]->{'soft_locale_fallback'};
+    return;
+}
+
 sub get_locale { shift->{'locale'} }
 
 sub get_territory { shift->{'territory'} }
@@ -75,7 +87,7 @@ sub get_native_language_from_code {
 
     my $class = ref($self) ? ref($self) : $self;
     if ( !exists $self->{'native_data'} ) {
-        eval "require $class\::DB::Native;" || return;
+        eval "require $class\::DB::Native;" || return;    # Module::Want::have_mod("$class\::DB::Native");
         no strict 'refs';
         $self->{'native_data'} = {
             'VERSION'      => \${"$class\::DB::Native::VERSION"},
@@ -84,10 +96,12 @@ sub get_native_language_from_code {
         };
     }
 
-    $always_return ||= 0;
     $code ||= $self->{'locale'};
     $code = normalize_tag($code);
     return if !defined $code;
+
+    $always_return ||= 1 if $code eq $self->get_locale() && $self->get_soft_locale_fallback();    # force $always_return under soft locale objects
+    $always_return ||= 0;
 
     if ( exists $self->{'native_data'}{'code_to_name'}{$code} ) {
         return $self->{'native_data'}{'code_to_name'}{$code};
@@ -183,7 +197,7 @@ sub get_locale_display_pattern_from_code {
 
     my $class = ref($self) ? ref($self) : $self;
     if ( !exists $self->{'locale_display_pattern_data'} ) {
-        eval "require $class\::DB::LocaleDisplayPattern;" || return;
+        eval "require $class\::DB::LocaleDisplayPattern;" || return;                         # Module::Want::have_mod("$class\::DB::LocaleDisplayPattern");
         no strict 'refs';
         $self->{'locale_display_pattern_data'} = {
             'VERSION'         => \${"$class\::DB::LocaleDisplayPattern::VERSION"},
@@ -192,10 +206,12 @@ sub get_locale_display_pattern_from_code {
         };
     }
 
-    $always_return ||= 0;
     $code ||= $self->{'locale'};
     $code = normalize_tag($code);
     return if !defined $code;
+
+    $always_return ||= 1 if $code eq $self->get_locale() && $self->get_soft_locale_fallback();    # force $always_return under soft locale objects
+    $always_return ||= 0;
 
     if ( exists $self->{'locale_display_pattern_data'}{'code_to_pattern'}{$code} ) {
         return $self->{'locale_display_pattern_data'}{'code_to_pattern'}{$code};
@@ -230,7 +246,7 @@ sub get_character_orientation_from_code {
 
     my $class = ref($self) ? ref($self) : $self;
     if ( !exists $self->{'character_orientation_data'} ) {
-        eval "require $class\::DB::CharacterOrientation;" || return;
+        eval "require $class\::DB::CharacterOrientation;" || return;              # Module::Want::have_mod("$class\::DB::CharacterOrientation");
         no strict 'refs';
         $self->{'character_orientation_data'} = {
             'VERSION'      => \${"$class\::DB::CharacterOrientation::VERSION"},
@@ -239,10 +255,12 @@ sub get_character_orientation_from_code {
         };
     }
 
-    $always_return ||= 0;
     $code ||= $self->{'locale'};
     $code = normalize_tag($code);
     return if !defined $code;
+
+    $always_return ||= 1 if $code eq $self->get_locale() && $self->get_soft_locale_fallback();    # force $always_return under soft locale objects
+    $always_return ||= 0;
 
     if ( exists $self->{'character_orientation_data'}{'code_to_name'}{$code} ) {
         return $self->{'character_orientation_data'}{'code_to_name'}{$code};
@@ -259,6 +277,15 @@ sub get_character_orientation_from_code {
 
 sub get_plural_form_categories {
     return @{ $_[0]->{'language_data'}{'misc_info'}{'plural_forms'}{'category_list'} };
+}
+
+sub supports_special_zeroth {
+    return 1 if $_[0]->get_plural_form(0) eq 'other';
+    return;
+}
+
+sub plural_category_count {
+    return scalar( $_[0]->get_plural_form_categories() );
 }
 
 sub get_plural_form {
@@ -656,11 +683,19 @@ sub get_territory_names {
     return values %{ shift->{'territory_data'}{'code_to_name'} };
 }
 
+sub get_territory_lookup {
+    return %{ shift->{'territory_data'}{'code_to_name'} };
+}
+
 sub get_territory_from_code {
     my ( $self, $code, $always_return ) = @_;
+
     $code ||= $self->{'territory'};
     $code = normalize_tag($code);
     return if !defined $code;
+
+    # this is not needed in this method:
+    # $always_return ||= 1 if $code eq $self->get_locale() && $self->get_soft_locale_fallback(); # force $always_return under soft locale objects
 
     if ( exists $self->{'territory_data'}{'code_to_name'}{$code} ) {
         return $self->{'territory_data'}{'code_to_name'}{$code};
@@ -701,12 +736,19 @@ sub get_language_names {
     return values %{ shift->{'language_data'}{'code_to_name'} };
 }
 
+sub get_language_lookup {
+    return %{ shift->{'language_data'}{'code_to_name'} };
+}
+
 sub get_language_from_code {
     my ( $self, $code, $always_return ) = @_;
-    $always_return ||= 0;
+
     $code ||= $self->{'locale'};
     $code = normalize_tag($code);
     return if !defined $code;
+
+    $always_return ||= 1 if $code eq $self->get_locale() && $self->get_soft_locale_fallback();    # force $always_return under soft locale objects
+    $always_return ||= 0;
 
     if ( exists $self->{'language_data'}{'code_to_name'}{$code} ) {
         return $self->{'language_data'}{'code_to_name'}{$code};
@@ -747,8 +789,50 @@ sub get_code_from_language {
 
 #### utility functions ####
 
+sub tag_is_soft_locale {
+    my ($tag) = @_;
+    my ( $l, $t ) = split_tag($tag);
+
+    return if !defined $l;    # invalid tag is not soft
+
+    return if !$t;                             # no territory part means it is not soft
+    return if tag_is_loadable($tag);           # if it can be loaded directly then it is not soft
+    return if !territory_code_is_known($t);    # if the territory part is not known then it is not soft
+    return if !tag_is_loadable($l);            # if the language part is not known then it is not soft
+    return $l;                                 # it is soft, so return the value suitable for 'soft_locale_fallback'
+}
+
+sub tag_is_loadable {
+    my ( $tag, $as_territory ) = @_;           # not documenting internal $as_territory, just use territory_code_is_known() directly
+
+    if ( !exists $INC{"Locales/DB/Loadable.pm"} ) {
+        eval "require Locales::DB::Loadable" || return;    # Module::Want::have_mod("Locales::DB::Loadable") || return;
+    }
+
+    if ($as_territory) {
+        return 1 if exists $Locales::DB::Loadable::territory{$tag};
+    }
+    else {
+        return 1 if exists $Locales::DB::Loadable::code{$tag};
+    }
+
+    return;
+}
+
+sub get_loadable_language_codes {
+    if ( !exists $INC{"Locales/DB/Loadable.pm"} ) {
+        eval "require Locales::DB::Loadable" || return;    # Module::Want::have_mod("Locales::DB::Loadable") || return;
+    }
+
+    return keys %Locales::DB::Loadable::code;
+}
+
+sub territory_code_is_known {
+    return tag_is_loadable( $_[0], 1 );
+}
+
 sub split_tag {
-    return split( /_/, normalize_tag( $_[0] ), 2 );    # we only do language[_territory]
+    return split( /_/, normalize_tag( $_[0] ), 2 );        # we only do language[_territory]
 }
 
 sub get_i_tag_for_string {
@@ -760,6 +844,34 @@ sub get_i_tag_for_string {
     else {
         return 'i_' . $norm;
     }
+}
+
+my %non_locales = (
+    'und' => 1,
+    'zxx' => 1,
+    'mul' => 1,
+    'mis' => 1,
+    'art' => 1,
+);
+
+sub non_locale_list {
+    return sort keys %non_locales;
+}
+
+sub is_non_locale {
+    my $tag = normalize_tag( $_[0] ) || return;
+    return 1 if exists $non_locales{$tag};
+    return;
+}
+
+sub typical_en_alias_list {
+    return ( 'en_us', 'i_default' );
+}
+
+sub is_typical_en_alias {
+    my $tag = normalize_tag( $_[0] ) || return;
+    return 1 if $tag eq 'en_us' || $tag eq 'i_default';
+    return;
 }
 
 sub normalize_tag {
@@ -776,7 +888,7 @@ sub normalize_tag {
 }
 
 sub normalize_tag_for_datetime_locale {
-    my ( $pre, $pst ) = split_tag( $_[0] ); # we only do language[_territory]
+    my ( $pre, $pst ) = split_tag( $_[0] );            # we only do language[_territory]
     return if !defined $pre;
 
     if ($pst) {
@@ -788,7 +900,7 @@ sub normalize_tag_for_datetime_locale {
 }
 
 sub normalize_tag_for_ietf {
-    my ( $pre, $pst ) = split_tag( $_[0] ); # we only do language[_territory]
+    my ( $pre, $pst ) = split_tag( $_[0] );            # we only do language[_territory]
     return if !defined $pre;
 
     if ($pst) {
@@ -985,7 +1097,7 @@ Locales - Methods for getting localized CLDR language/territory names (and a sub
 
 =head1 VERSION
 
-This document describes Locales version 0.26
+This document describes Locales version 0.27
 
 =head1 SYNOPSIS
 
@@ -1019,9 +1131,41 @@ For consistency all data is written in utf-8. No conversion should be necessary 
 
 Note: You probably [don't need to/should not] use L<utf8> in regards to the data contained herein.
 
-=head1 Based on CLDR 2.0
+=head1 Based on CLDR
 
-You can learn about the Unicode Common Locale Data Repository at L<http://cldr.unicode.org/>
+This module is based on CLDR v2.0.
+
+You can learn about the Unicode Common Locale Data Repository at L<http://cldr.unicode.org/>.
+
+=head1 Supported Locale Criteria
+
+The locale tags that can be objectified fit this criteria:
+
+=over 4
+
+=item the locale must have data in the CLDR
+
+As noted in “I am using a locale code that I know exists in the CLDR but I can't use it anywhere in Locales” in L</"BEFORE YOU SUBMIT A BUG REPORT">.
+
+=item the locale must have an entry in CLDR’s en data
+
+As noted in “I am using a locale code that I know exists in the CLDR but I can't use it anywhere in Locales” in L</"BEFORE YOU SUBMIT A BUG REPORT">.
+
+=item the locale can only have language and territory parts
+
+As noted in the L</DESCRIPTION>.
+
+=item the only exceptions are “soft locales”.
+
+As described in L</Soft Locales>.
+
+=back
+
+=head1 Soft Locales
+
+As “soft locale” is a language-territory locale that does not fit the L</Supported Locale Criteria> directly but its super does and the territory is known. 
+
+For example “es-MX” does not fit the cireteria but “es” does and “MX” is a valid territory code.
 
 =head1 INTERFACE 
 
@@ -1067,6 +1211,19 @@ Takes no arguments.
 
 Returns the territory portion of the object's locale if any (e.g. 'en_au'), undef if there is none (e.g. 'it').
 
+=item get_soft_locale_fallback()
+
+Takes no arguments. 
+
+Returns the locale that the object is based on in the case that the given locale (i.e. L</get_locale()>) is a L<soft locale|/Soft Locales>.
+
+Note: If you do not want to have soft locale objects you should simply not call new() if it is soft:
+
+    - my $loc = Locales->new($tag) || die $@;
+    + my $loc = (Locales::tag_is_soft_locale($tag) ? undef : Locales->new($tag)) || die $@;
+
+This could be added to the constructor but for now I don't want to make it more complicated only to support something that seems odd. If you have a use case submit an rt w/ details. Thanks!
+
 =item numf()
 
 Note: As of v0.17 you probably want L</get_formatted_decimal()> instead of numf().
@@ -1098,6 +1255,12 @@ Returns an unsorted list of known territory codes.
 Take no arguments. 
 
 Returns an unsorted list of the display names for each known territory code.
+
+=item get_territory_lookup()
+
+Take no arguments. 
+
+Returns a copy of the lookup hash of the display names for each known territory code.
 
 =item get_territory_from_code()
 
@@ -1138,6 +1301,12 @@ Returns an unsorted list of known language codes.
 Take no arguments. 
 
 Returns an unsorted list of the display names for each known language code.
+
+=item get_language_lookup()
+
+Take no arguments. 
+
+Returns a copy of the lookup hash of the display names for each known language code.
 
 =item get_language_from_code()
 
@@ -1262,6 +1431,22 @@ The locale's plural rules come up with a category that is not applicalble to the
 Returns an array of the CLDR plural rule category names that this locale uses.
 
 Their order corresponds to the position of the corresponing value that get_plural_form() uses.
+
+=item supports_special_zeroth()
+
+Takes no arguments, returns a boolean.
+
+It is true if the locale uses the L<Locales::DB::Docs::PluralForms/"“Special Zero” Argument">. 
+
+False if it does not.
+
+=item plural_category_count()
+
+Takes no arguments.
+
+Returns the number of plural categories applicable to the object’s locale. 
+
+Does not factor in support (or not) of the L<special zeroth category|/supports_special_zeroth()>.
 
 =item get_list_and()
 
@@ -1404,6 +1589,40 @@ For example, the language "Yoda Speak" does not have an ISO code. You'd have to 
         # if it is a language name then we fetch the code otherwise, at this point, we know it is a code, so return a normailized version
         _create_locale_files( $en->get_code_from_language($yoda) || Locales::normalize_tag($yoda) );
     }
+
+=item Locales::tag_is_soft_locale()
+
+Takes a single argument, the locale tag you want to check to see if it is <soft locale|/Soft Locales> or not.
+
+If it is it returns the super portion that an object would be based on. If it is not it returns false.
+
+=item Locales::tag_is_loadable()
+
+Returns true if the given tag can be loaded as a Locales object via new(). False otherwise.
+
+=item Locales::territory_code_is_known()
+
+Returns true if the given tag is a known territory. False otherwise.
+
+=item Locales::get_loadable_language_codes()
+
+Takes no arguments. Returns an unsorted list of codes that can be loaded as a Locales object via new().
+
+=item Locales::non_locale_list()
+
+Takes no arguments. Returns a list of locale tags that are not actually locales. e.g. 'mul' means “Multiple Languages”.
+
+=item Locales::is_non_locale()
+
+Takes a locale tag as the argument and returns true if it is a non-locale code (See L</Locales::non_locale_list()>), false otherwise.
+
+=item Locales::typical_en_alias_list
+
+Takes no arguments. Returns a list of locale tags that are typically aliases of 'en'.
+
+=item Locales::is_typical_en_alias
+
+Takes a locale tag as the argument and returns true if it is typically an alias of 'en' (See L</Locales::typical_en_alias_list()>), false otherwise.
 
 =item Locales::normalize_for_key_lookup()
 
