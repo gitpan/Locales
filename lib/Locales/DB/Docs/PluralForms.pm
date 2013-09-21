@@ -1,5 +1,8 @@
 package Locales::DB::Docs::PluralForms;
 
+use strict;
+use warnings;
+
 # Auto generated from CLDR
 
 $Locales::DB::Docs::PluralForms::VERSION = '0.09';

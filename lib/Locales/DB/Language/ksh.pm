@@ -1,5 +1,8 @@
 package Locales::DB::Language::ksh;
 
+use strict;
+use warnings;
+
 # Auto generated from CLDR
 
 $Locales::DB::Language::ksh::VERSION = '0.09';

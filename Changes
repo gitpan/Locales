@@ -1,3 +1,15 @@
+0.28
+    - re-Tidy
+    - add critic, tidy, and spelling tests
+    - rt 84952: POD typo
+    - rt 80546: hide package line to fix rt 76129
+    - Add get_formatted_ellipsis_[initial,medial,final]()
+    - improve temporary get_list_or()
+    - add quote() and quote_alt()
+    - Add {'misc'}{'list_quote_mode'} all/some/none (defaulting to all for now at least)
+    - rt 81223: probably a local issue (out of disk space so a module missing, etc)
+        - prove -w t/05.plural_rules_behavior.t == All tests successful. (40k+ tests)
+
 0.27  Mon Oct 29 23:00:14 2012
     - rt 80247: make new() work properly when used as object method
     - rt 76129: move __END__ from the string into variable (in plural rules .pm builder function) 

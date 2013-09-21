@@ -1,5 +1,8 @@
 package Locales::DB::Territory::ebu;
 
+use strict;
+use warnings;
+
 # Auto generated from CLDR
 
 $Locales::DB::Territory::ebu::VERSION = '0.09';

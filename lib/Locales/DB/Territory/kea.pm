@@ -1,5 +1,8 @@
 package Locales::DB::Territory::kea;
 
+use strict;
+use warnings;
+
 # Auto generated from CLDR
 
 $Locales::DB::Territory::kea::VERSION = '0.09';

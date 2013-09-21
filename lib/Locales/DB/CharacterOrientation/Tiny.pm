@@ -1,5 +1,8 @@
 package Locales::DB::CharacterOrientation::Tiny;
 
+use strict;
+use warnings;
+
 # Auto generated from CLDR
 
 $Locales::DB::CharacterOrientation::Tiny::VERSION = '0.09';

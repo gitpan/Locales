@@ -1,5 +1,8 @@
 package Locales::DB::Territory::nus;
 
+use strict;
+use warnings;
+
 # Auto generated from CLDR
 
 $Locales::DB::Territory::nus::VERSION = '0.09';

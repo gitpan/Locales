@@ -1,5 +1,8 @@
 package Locales::DB::Language::bs;
 
+use strict;
+use warnings;
+
 # Auto generated from CLDR
 
 $Locales::DB::Language::bs::VERSION = '0.09';
@@ -35,7 +38,7 @@ $Locales::DB::Language::bs::cldr_version = '2.0';
         'quotation_end'             => '’',
         'quotation_start'           => '‘'
     },
-    'fallback'    => [ 'sr_latn' ],
+    'fallback'    => ['sr_latn'],
     'orientation' => {
         'characters' => "left\-to\-right",
         'lines'      => "top\-to\-bottom"

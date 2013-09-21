@@ -1,5 +1,8 @@
 package Locales::DB::Territory::agq;
 
+use strict;
+use warnings;
+
 # Auto generated from CLDR
 
 $Locales::DB::Territory::agq::VERSION = '0.09';

@@ -1,5 +1,8 @@
 package Locales::DB::Language::he;
 
+use strict;
+use warnings;
+
 # Auto generated from CLDR
 
 $Locales::DB::Language::he::VERSION = '0.09';
@@ -35,7 +38,7 @@ $Locales::DB::Language::he::cldr_version = '2.0';
         'quotation_end'             => '”',
         'quotation_start'           => '“'
     },
-    'fallback'    => [ 'en' ],
+    'fallback'    => ['en'],
     'orientation' => {
         'characters' => "right\-to\-left",
         'lines'      => "top\-to\-bottom"

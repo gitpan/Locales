@@ -1,5 +1,8 @@
 package Locales::DB::Language::ml;
 
+use strict;
+use warnings;
+
 # Auto generated from CLDR
 
 $Locales::DB::Language::ml::VERSION = '0.09';

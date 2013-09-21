@@ -1,5 +1,8 @@
 package Locales::DB::Territory::fur;
 
+use strict;
+use warnings;
+
 # Auto generated from CLDR
 
 $Locales::DB::Territory::fur::VERSION = '0.09';

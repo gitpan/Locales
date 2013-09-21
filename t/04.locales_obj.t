@@ -1,4 +1,4 @@
-use Test::More tests => 396;
+use Test::More tests => 423;
 use Test::Carp;
 
 use lib 'lib', '../lib';
@@ -77,6 +77,48 @@ is( $soft->get_language_from_code(),               'español (México)', 'Soft l
 is( $soft->get_language_from_code('fr'),           'francés',           'Soft locale: get_language_from_code() on argument returns as expected' );
 is( $soft->get_territory_from_code(),              'México',            'Soft locale: get_territory_from_code() returns as expected (no force logic required)' );
 
+is( $t->quote("foo"),     "“foo”", 'quote() does quotation_' );
+is( $t->quote_alt("foo"), '‘foo’', 'quote_alt() does alternate_quotation_' );
+
+{
+    local $t->{'misc'}{'list_quote_mode'} = 'unknown';
+
+    does_carp_that_matches(
+        sub {
+            is( $t->get_list_and( 1, 2, 3, 4 ), '1, 2, 3, and 4', 'get_list_and() w/ invalid list_quote_mode default to none behavior' );
+        },
+        qr/\{misc\}\{list_quote_mode\} is set to an unknown value/,
+    );
+    does_carp_that_matches(
+        sub {
+            is( $t->get_list_or( 1, 2, 3, 4 ), '1, 2, 3, or 4', 'get_list_and() w/ invalid list_quote_mode default to none behavior' );
+        },
+        qr/\{misc\}\{list_quote_mode\} is set to an unknown value/
+    );
+
+    delete $t->{'misc'}{'list_quote_mode'};
+    is( $t->get_list_and( 1, 2, 3, 4 ), '1, 2, 3, and 4', 'get_list_and() w/ missing list_quote_mode default to none behavior' );
+    is( $t->get_list_or( 1, 2, 3, 4 ), '1, 2, 3, or 4', 'get_list_and() w/ missing list_quote_mode default to none behavior' );
+}
+
+is( $t->{'misc'}{'list_quote_mode'}, 'all',    "{'misc'}{'list_quote_mode'} default to 'all'" );
+is( $t->get_list_and(),              '“”', 'get_list_and() no args, list_quote_mode=all' );
+is( $t->get_list_and( 'a', undef, 2, "", 0, "  ", "\xc2\xa0" ), "“a”, “”, “2”, “”, “0”, “  ”, and “\xc2\xa0”", 'get_list_and() arg types, list_quote_mode=all' );
+is( $t->get_list_and(qw({0} {1} {0} {0})), '“{0}”, “{1}”, “{0}”, and “{0}”', 'CLDR parsing handles patterns passed in as args - AND, list_quote_mode=all' );
+is( $t->get_list_or(), '“”', 'get_list_or() no args, list_quote_mode=all' );    # get_list_or() is a stub …
+is( $t->get_list_or( 'a', undef, 2, "", 0, "  ", "\xc2\xa0" ), "“a”, “”, “2”, “”, “0”, “  ”, or “\xc2\xa0”", 'get_list_or() arg types, list_quote_mode=all' );    # get_list_or() is a stub …
+is( $t->get_list_or(qw({0} {1} {0} {0})), '“{0}”, “{1}”, “{0}”, or “{0}”', 'CLDR parsing handles patterns passed in as args - OR, list_quote_mode=all' );
+
+$t->{'misc'}{'list_quote_mode'} = 'some';
+is( $t->get_list_and(), '“”', 'get_list_and() no args, list_quote_mode=some' );
+is( $t->get_list_and( 'a', undef, 2, "", 0, "  ", "\xc2\xa0" ), "a, “”, 2, “”, 0, “  ”, and “\xc2\xa0”", 'get_list_and() arg types, list_quote_mode=some' );
+is( $t->get_list_and(qw({0} {1} {0} {0})), '{0}, {1}, {0}, and {0}', 'CLDR parsing handles patterns passed in as args - AND, list_quote_mode=some' );
+is( $t->get_list_or(),                     '“”',                 'get_list_or() no args, list_quote_mode=some' );                                                                         # get_list_or() is a stub …
+is( $t->get_list_or( 'a', undef, 2, "", 0, "  ", "\xc2\xa0" ), "a, “”, 2, “”, 0, “  ”, or “\xc2\xa0”", 'get_list_or() arg types, list_quote_mode=some' );                     # get_list_or() is a stub …
+is( $t->get_list_or(qw({0} {1} {0} {0})), '{0}, {1}, {0}, or {0}', 'CLDR parsing handles patterns passed in as args - OR, list_quote_mode=some' );
+
+$t->{'misc'}{'list_quote_mode'} = 'none';
+
 is( $t->get_list_and(),                    undef,                    'get_list_and() no args means nothing returned' );
 is( $t->get_list_and('a'),                 'a',                      'get_list_and() 1 arg' );
 is( $t->get_list_and(qw(a b)),             'a and b',                'get_list_and() 2 args' );
@@ -86,17 +128,28 @@ is( $t->get_list_and(qw(a b c d e)),       'a, b, c, d, and e',      'get_list_a
 is( $t->get_list_and(qw(a b c d e f)),     'a, b, c, d, e, and f',   'get_list_and() 3+ args 3' );
 is( $t->get_list_and(qw({0} {1} {0} {0})), '{0}, {1}, {0}, and {0}', 'CLDR parsing handles patterns passed in as args - AND' );
 
-# get_list_or() is a stub that is basically get_list_and() until the OR info is in the CLDR (http://unicode.org/cldr/trac/ticket/4051)
-is( $t->get_list_or(),                    undef,                    'get_list_or() no args means nothing returned' );
-is( $t->get_list_or('a'),                 'a',                      'get_list_or() 1 arg' );
-is( $t->get_list_or(qw(a b)),             'a and b',                'get_list_or() 2 args' );
-is( $t->get_list_or(qw(a b c)),           'a, b, and c',            'get_list_or() 3 args' );
-is( $t->get_list_or(qw(a b c d)),         'a, b, c, and d',         'get_list_or() 3+ args 1' );
-is( $t->get_list_or(qw(a b c d e)),       'a, b, c, d, and e',      'get_list_or() 3+ args 2' );
-is( $t->get_list_or(qw(a b c d e f)),     'a, b, c, d, e, and f',   'get_list_or() 3+ args 3' );
-is( $t->get_list_or(qw({0} {1} {0} {0})), '{0}, {1}, {0}, and {0}', 'CLDR parsing handles patterns passed in as args - OR' );
+# get_list_or() is a stub that is english only until the OR info is in the CLDR (http://unicode.org/cldr/trac/ticket/4051)
+is( $t->get_list_or(),                    undef,                   'get_list_or() no args means nothing returned' );
+is( $t->get_list_or('a'),                 'a',                     'get_list_or() 1 arg' );
+is( $t->get_list_or(qw(a b)),             'a or b',                'get_list_or() 2 args' );
+is( $t->get_list_or(qw(a b c)),           'a, b, or c',            'get_list_or() 3 args' );
+is( $t->get_list_or(qw(a b c d)),         'a, b, c, or d',         'get_list_or() 3+ args 1' );
+is( $t->get_list_or(qw(a b c d e)),       'a, b, c, d, or e',      'get_list_or() 3+ args 2' );
+is( $t->get_list_or(qw(a b c d e f)),     'a, b, c, d, e, or f',   'get_list_or() 3+ args 3' );
+is( $t->get_list_or(qw({0} {1} {0} {0})), '{0}, {1}, {0}, or {0}', 'CLDR parsing handles patterns passed in as args - OR' );
+
+is( $t->get_formatted_ellipsis_initial("foo"), '…foo', 'get_formatted_ellipsis_initial()' );
+is( $t->get_formatted_ellipsis_medial( "bar", "baz" ), 'bar…baz', 'get_formatted_ellipsis_medial()' );
+is( $t->get_formatted_ellipsis_final("zop"), 'zop…', 'get_formatted_ellipsis_final()' );
+
+my $de = Locales->new('de');
+is( $de->get_formatted_ellipsis_initial("foo"), '… foo', 'get_formatted_ellipsis_initial()' );
+is( $de->get_formatted_ellipsis_medial( "bar", "baz" ), 'bar … baz', 'get_formatted_ellipsis_medial()' );
+is( $de->get_formatted_ellipsis_final("zop"), 'zop …', 'get_formatted_ellipsis_final()' );
 
 my $es = Locales->new("es");
+$es->{'misc'}{'list_quote_mode'} = 'none';
+
 is( $es->get_list_and(),                undef,               'get_list_and() no args means nothing returned' );
 is( $es->get_list_and('a'),             'a',                 'get_list_and() 1 arg' );
 is( $es->get_list_and(qw(a b)),         'a y b',             'get_list_and() 2 args' );
@@ -105,14 +158,14 @@ is( $es->get_list_and(qw(a b c d)),     'a, b, c y d',       'get_list_and() 3+ 
 is( $es->get_list_and(qw(a b c d e)),   'a, b, c, d y e',    'get_list_and() 3+ args 2' );
 is( $es->get_list_and(qw(a b c d e f)), 'a, b, c, d, e y f', 'get_list_and() 3+ args 3' );
 
-# get_list_or() is a stub that is basically get_list_and() until the OR info is in the CLDR (http://unicode.org/cldr/trac/ticket/4051)
-is( $es->get_list_or(),                undef,               'get_list_or() no args means nothing returned' );
-is( $es->get_list_or('a'),             'a',                 'get_list_or() 1 arg' );
-is( $es->get_list_or(qw(a b)),         'a y b',             'get_list_or() 2 args' );
-is( $es->get_list_or(qw(a b c)),       'a, b y c',          'get_list_or() 3 args' );
-is( $es->get_list_or(qw(a b c d)),     'a, b, c y d',       'get_list_or() 3+ args 1' );
-is( $es->get_list_or(qw(a b c d e)),   'a, b, c, d y e',    'get_list_or() 3+ args 2' );
-is( $es->get_list_or(qw(a b c d e f)), 'a, b, c, d, e y f', 'get_list_or() 3+ args 3' );
+# get_list_or() is a stub that is english only get_list_and() until the OR info is in the CLDR (http://unicode.org/cldr/trac/ticket/4051)
+is( $es->get_list_or(),                undef,                 'get_list_or() no args means nothing returned' );
+is( $es->get_list_or('a'),             'a',                   'get_list_or() 1 arg' );
+is( $es->get_list_or(qw(a b)),         'a or b',              'get_list_or() 2 args' );
+is( $es->get_list_or(qw(a b c)),       'a, b, or c',          'get_list_or() 3 args' );
+is( $es->get_list_or(qw(a b c d)),     'a, b, c, or d',       'get_list_or() 3+ args 1' );
+is( $es->get_list_or(qw(a b c d e)),   'a, b, c, d, or e',    'get_list_or() 3+ args 2' );
+is( $es->get_list_or(qw(a b c d e f)), 'a, b, c, d, e, or f', 'get_list_or() 3+ args 3' );
 
 # get_formatted_decimal()
 is( $t->get_formatted_decimal(1234567890),          '1,234,567,890',        'basic int - num' );
@@ -281,7 +334,7 @@ is_deeply( [ $other_other_other->get_plural_form( 42, 'box', 'boxes', 'no boxes'
 is_deeply( [ $other_other_other->get_plural_form( 0,  'box', 'boxes', 'no boxes' ) ], [ 'no boxes', 1 ], '0 w/ no zero extra - array context' );
 
 ok( Locales::get_i_tag_for_string('i_win') eq 'i_win', "i_ tag not prepended when we have it already" );
-ok( Locales::get_i_tag_for_string('win')   eq 'i_win', "i_ tag prepended when we don't have it already" );
+ok( Locales::get_i_tag_for_string('win') eq 'i_win',   "i_ tag prepended when we don't have it already" );
 
 is_deeply(
     [ $other_other_other->get_plural_form_categories() ],
@@ -328,9 +381,9 @@ is( Locales::plural_rule_string_to_code( 'n mod 100 within 2..5', "RETVAL" ), q{
 
 ok( Locales::plural_rule_string_to_code( 'n within 4..7', "RETVAL" ) =~ m/return \'RETVAL\'/, "retval given" );
 ok( Locales::plural_rule_string_to_code('n within 4..7') =~ m/return \'1\'/, "retval not given" );
-ok( Locales::plural_rule_string_to_code( 'n within 4..7', 0 )       =~ m/return \'0\'/, "retval given 0" );
+ok( Locales::plural_rule_string_to_code( 'n within 4..7', 0 ) =~ m/return \'0\'/,       "retval given 0" );
 ok( Locales::plural_rule_string_to_code( 'n within 4..7', undef() ) =~ m/return \'1\'/, "retval given undef()" );
-ok( Locales::plural_rule_string_to_code( 'n within 4..7', '' )      =~ m/return \'\'/,  "retval given ''" );
+ok( Locales::plural_rule_string_to_code( 'n within 4..7', '' ) =~ m/return \'\'/,       "retval given ''" );
 
 # and/or
 is( Locales::plural_rule_string_to_code('n is 4 and n is 4 and n is 4'),          q{sub { if ( (( $_[0] == 4) && ( $_[0] == 4) && ( $_[0] == 4))) { return '1'; } return;}},                        'plural_rule: and' );
@@ -358,9 +411,9 @@ is( Locales::plural_rule_string_to_javascript_code( 'n mod 100 within 2..5', "RE
 
 ok( Locales::plural_rule_string_to_javascript_code( 'n within 4..7', "RETVAL" ) =~ m/return \'RETVAL\'/, "retval given" );
 ok( Locales::plural_rule_string_to_javascript_code('n within 4..7') =~ m/return \'1\'/, "retval not given" );
-ok( Locales::plural_rule_string_to_javascript_code( 'n within 4..7', 0 )       =~ m/return \'0\'/, "retval given 0" );
+ok( Locales::plural_rule_string_to_javascript_code( 'n within 4..7', 0 ) =~ m/return \'0\'/,       "retval given 0" );
 ok( Locales::plural_rule_string_to_javascript_code( 'n within 4..7', undef() ) =~ m/return \'1\'/, "retval given undef()" );
-ok( Locales::plural_rule_string_to_javascript_code( 'n within 4..7', '' )      =~ m/return \'\'/,  "retval given ''" );
+ok( Locales::plural_rule_string_to_javascript_code( 'n within 4..7', '' ) =~ m/return \'\'/,       "retval given ''" );
 
 # and/or
 is( Locales::plural_rule_string_to_javascript_code('n is 4 and n is 4 and n is 4'),          q{function (n) {if ( (( n == 4) && ( n == 4) && ( n == 4))) { return '1'; } return;}},                    'plural_rule: and' );
@@ -471,20 +524,20 @@ for my $m (qw(get_locale_display_pattern_from_code get_locale_display_pattern_fr
 }
 
 my $xx = Locales->new('adfvddsfvsdfv');
-ok( $@,   '$@ is set after invalid arg' );
-ok( !$xx, 'new() returns false on invalid arg' );
+ok( $@,                          '$@ is set after invalid arg' );
+ok( !$xx,                        'new() returns false on invalid arg' );
 ok( $no_arg->get_locale eq 'en', 'no arg default to en' );
-ok( $en->get_locale     eq 'en', 'en arg is en' );
-ok( $no_arg             eq $en,  '>1 en\'s singleton' );
-ok( $fr->get_locale     eq 'fr', 'known arg is correct locale' );
+ok( $en->get_locale eq 'en',     'en arg is en' );
+ok( $no_arg eq $en,              '>1 en\'s singleton' );
+ok( $fr->get_locale eq 'fr',     'known arg is correct locale' );
 Locales->new("Locales;print 'injection attack;'");
 ok( $@ =~ m{Locales\/DB\/Language\/locales_print_injectio_nattack\.pm}, 'injection attack via eval thwarted by normalization' );
 
 ##  get_territory() && get_language ##
 ok( $en->get_language() eq 'en', 'get_language tag w/ no territory' );
-ok( !$en->get_territory(), 'get_territory tag w/ no territory' );
+ok( !$en->get_territory(),       'get_territory tag w/ no territory' );
 my $en_au = Locales->new('en_au');
-ok( $en_au->get_language()  eq 'en', 'get_language tag w/ territory' );
+ok( $en_au->get_language() eq 'en',  'get_language tag w/ territory' );
 ok( $en_au->get_territory() eq 'au', 'get_territory tag w/ territory' );
 
 ## get_* territory ##
@@ -495,14 +548,14 @@ is_deeply( \%lu, \%Locales::DB::Territory::en::code_to_name, 'get_territory_look
 $lu->{"this is not a locale code"} = 42;
 ok( !exists $Locales::DB::Territory::en::code_to_name{"this is not a locale code"}, "get_territory_lookup() is a copy that does not modify the internal data" );
 
-ok( $en->get_territory_from_code('us')      eq $Locales::DB::Territory::en::code_to_name{'us'}, 'get_territory_from_code() w/ known arg' );
+ok( $en->get_territory_from_code('us') eq $Locales::DB::Territory::en::code_to_name{'us'},      'get_territory_from_code() w/ known arg' );
 ok( $en->get_territory_from_code('  en-GB') eq $Locales::DB::Territory::en::code_to_name{'gb'}, 'get_territory_from_code() normalized' );
-ok( !$en->get_territory_from_code('ucscs'), 'get_territory_from_code() w/ unknown arg' );
+ok( !$en->get_territory_from_code('ucscs'),                                                     'get_territory_from_code() w/ unknown arg' );
 ok( $en->get_territory_from_code( 'ucscs', 1 ) eq 'ucscs', 'get_territory_from_code() w/ unknown arg + always_return' );
 ok( $en->get_code_from_territory( $Locales::DB::Territory::en::code_to_name{'us'} ) eq 'us', 'get_territory_from_code() w/ known arg' );
-ok( !$en->get_code_from_territory('asdcasdcasdcdc'), 'get_code_from_territory() w/ unknown arg' );
+ok( !$en->get_code_from_territory('asdcasdcasdcdc'),                                         'get_code_from_territory() w/ unknown arg' );
 
-ok( !$en->get_territory_from_code(), 'get_territory_from_code() no arg on locale w/ out a territory' );
+ok( !$en->get_territory_from_code(),                                                                              'get_territory_from_code() no arg on locale w/ out a territory' );
 ok( $en_au->get_territory_from_code() eq $Locales::DB::Territory::en_au::code_to_name{ $en_au->get_territory() }, 'get_territory_from_code() no arg on locale w/ a territory' );
 
 ok( \&Locales::code2territory eq \&Locales::get_territory_from_code, 'code2territory aliases get_territory_from_code' );
@@ -516,14 +569,14 @@ is_deeply( \%lu, \%Locales::DB::Language::en::code_to_name, 'get_language_lookup
 $lu->{"this is not a locale code"} = 42;
 ok( !exists $Locales::DB::Language::en::code_to_name{"this is not a locale code"}, "get_language_lookup() is a copy that does not modify the internal data" );
 
-ok( $en->get_language_from_code('en')      eq $Locales::DB::Language::en::code_to_name{'en'},    'get_language_from_code() w/ known arg' );
+ok( $en->get_language_from_code('en') eq $Locales::DB::Language::en::code_to_name{'en'},         'get_language_from_code() w/ known arg' );
 ok( $en->get_language_from_code('  en-GB') eq $Locales::DB::Language::en::code_to_name{'en_gb'}, 'get_language_from_code() normalized' );
-ok( !$en->get_language_from_code('ucscs'), 'get_language_from_code() w/ unknown arg' );
+ok( !$en->get_language_from_code('ucscs'),                                                       'get_language_from_code() w/ unknown arg' );
 ok( $en->get_territory_from_code( 'ucscs', 1 ) eq 'ucscs', 'get_language_from_code() w/ unknown arg + always_return' );
 ok( $en->get_code_from_language( $Locales::DB::Language::en::code_to_name{'en'} ) eq 'en', 'get_code_from_language() w/ known arg' );
-ok( !$en->get_code_from_language('asdcasdcasdcdc'), 'get_code_from_language() w/ unknown arg' );
+ok( !$en->get_code_from_language('asdcasdcasdcdc'),                                        'get_code_from_language() w/ unknown arg' );
 
-ok( $en->get_language_from_code()    eq $Locales::DB::Language::en_au::code_to_name{ $en->get_locale() },    'get_language_from_code() no arg on locale w/ out a territory' );
+ok( $en->get_language_from_code() eq $Locales::DB::Language::en_au::code_to_name{ $en->get_locale() },       'get_language_from_code() no arg on locale w/ out a territory' );
 ok( $en_au->get_language_from_code() eq $Locales::DB::Language::en_au::code_to_name{ $en_au->get_locale() }, 'get_territory_from_code() no arg on locale w/ a territory' );
 
 ok( $en->get_language_from_code( 'yyyy',       1 ) eq 'yyyy',                                                   'get_language_from_code() + unknown lang only + always_return' );

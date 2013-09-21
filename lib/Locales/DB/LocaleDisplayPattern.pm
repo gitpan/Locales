@@ -1,5 +1,8 @@
 package Locales::DB::LocaleDisplayPattern;
 
+use strict;
+use warnings;
+
 # Auto generated from CLDR
 
 $Locales::DB::LocaleDisplayPattern::VERSION = '0.09';

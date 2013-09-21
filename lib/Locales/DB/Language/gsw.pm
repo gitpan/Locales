@@ -1,5 +1,8 @@
 package Locales::DB::Language::gsw;
 
+use strict;
+use warnings;
+
 # Auto generated from CLDR
 
 $Locales::DB::Language::gsw::VERSION = '0.09';
@@ -35,7 +38,7 @@ $Locales::DB::Language::gsw::cldr_version = '2.0';
         'quotation_end'             => '»',
         'quotation_start'           => '«'
     },
-    'fallback'    => [ 'de_ch' ],
+    'fallback'    => ['de_ch'],
     'orientation' => {
         'characters' => "left\-to\-right",
         'lines'      => "top\-to\-bottom"

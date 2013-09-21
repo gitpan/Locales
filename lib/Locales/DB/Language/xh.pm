@@ -1,5 +1,8 @@
 package Locales::DB::Language::xh;
 
+use strict;
+use warnings;
+
 # Auto generated from CLDR
 
 $Locales::DB::Language::xh::VERSION = '0.09';
@@ -41,7 +44,7 @@ $Locales::DB::Language::xh::cldr_version = '2.0';
         'lines'      => "top\-to\-bottom"
     },
     'plural_forms' => {
-        'category_list'  => [ 'other' ],
+        'category_list'  => ['other'],
         'category_rules' => {}
     },
     'posix' => {

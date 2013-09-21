@@ -1,5 +1,8 @@
 package Locales::DB::Territory::ewo;
 
+use strict;
+use warnings;
+
 # Auto generated from CLDR
 
 $Locales::DB::Territory::ewo::VERSION = '0.09';

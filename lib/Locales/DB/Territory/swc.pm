@@ -1,5 +1,8 @@
 package Locales::DB::Territory::swc;
 
+use strict;
+use warnings;
+
 # Auto generated from CLDR
 
 $Locales::DB::Territory::swc::VERSION = '0.09';

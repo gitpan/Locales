@@ -1,5 +1,8 @@
 package Locales::DB::Territory::dyo;
 
+use strict;
+use warnings;
+
 # Auto generated from CLDR
 
 $Locales::DB::Territory::dyo::VERSION = '0.09';

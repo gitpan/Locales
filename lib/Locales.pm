@@ -3,7 +3,7 @@ package Locales;
 use strict;
 use warnings;
 
-$Locales::VERSION      = '0.27';    # change in POD
+$Locales::VERSION      = '0.28';    # change in POD
 $Locales::cldr_version = '2.0';     # change in POD
 
 #### class methods ####
@@ -35,16 +35,16 @@ sub new {
         $inc_class =~ s{(?:\:\:|\')}{/}g;    # per Module::Want::get_inc_key()
 
         if ( !exists $INC{"$inc_class/DB/Language/$tag.pm"} ) {
-            eval "require $class\::DB::Language::$tag" || return;    # Module::Want::have_mod("$class\::DB::Language::$tag");
+            eval "require $class\::DB::Language::$tag" || return;    ## no critic # Module::Want::have_mod("$class\::DB::Language::$tag");
         }
 
         if ( !exists $INC{"$inc_class/DB/Territory/$tag.pm"} ) {
-            eval "require $class\::DB::Territory::$tag" || return;    # Module::Want::have_mod("$class\::DB::Language::$tag");
+            eval "require $class\::DB::Territory::$tag" || return;    ## no critic # Module::Want::have_mod("$class\::DB::Language::$tag");
         }
 
         my ( $language, $territory ) = split_tag( $locale->{'locale'} );
 
-        no strict 'refs';
+        no strict 'refs';                                             ## no critic
 
         $locale->{'language'}      = $language;
         $locale->{'language_data'} = {
@@ -62,6 +62,8 @@ sub new {
             'code_to_name' => \%{"$class\::DB::Territory::$tag\::code_to_name"},
             'name_to_code' => \%{"$class\::DB::Territory::$tag\::name_to_code"},
         };
+
+        $locale->{'misc'}{'list_quote_mode'} = 'all';
 
         $singleton_stash{$tag} = bless $locale, $class;
     }
@@ -87,8 +89,8 @@ sub get_native_language_from_code {
 
     my $class = ref($self) ? ref($self) : $self;
     if ( !exists $self->{'native_data'} ) {
-        eval "require $class\::DB::Native;" || return;    # Module::Want::have_mod("$class\::DB::Native");
-        no strict 'refs';
+        eval "require $class\::DB::Native;" || return;    ## no critic # Module::Want::have_mod("$class\::DB::Native");
+        no strict 'refs';                                 ## no critic
         $self->{'native_data'} = {
             'VERSION'      => \${"$class\::DB::Native::VERSION"},
             'cldr_version' => \${"$class\::DB::Native::cldr_version"},
@@ -167,7 +169,7 @@ sub numf {
     }
     elsif ( $always_return && $self->{'language_data'}{'misc_info'}{'cldr_formats'}{'_decimal_format_group'} && $self->{'language_data'}{'misc_info'}{'cldr_formats'}{'_decimal_format_decimal'} ) {
         return 2 if $self->{'language_data'}{'misc_info'}{'cldr_formats'}{'_decimal_format_decimal'} eq ',';
-        return 2 if $self->{'language_data'}{'misc_info'}{'cldr_formats'}{'_decimal_format_group'}   eq '.';
+        return 2 if $self->{'language_data'}{'misc_info'}{'cldr_formats'}{'_decimal_format_group'} eq '.';
         return 1;
     }
 
@@ -197,8 +199,8 @@ sub get_locale_display_pattern_from_code {
 
     my $class = ref($self) ? ref($self) : $self;
     if ( !exists $self->{'locale_display_pattern_data'} ) {
-        eval "require $class\::DB::LocaleDisplayPattern;" || return;                         # Module::Want::have_mod("$class\::DB::LocaleDisplayPattern");
-        no strict 'refs';
+        eval "require $class\::DB::LocaleDisplayPattern;" || return;                         ## no critic # Module::Want::have_mod("$class\::DB::LocaleDisplayPattern");
+        no strict 'refs';                                                                    ## no critic
         $self->{'locale_display_pattern_data'} = {
             'VERSION'         => \${"$class\::DB::LocaleDisplayPattern::VERSION"},
             'cldr_version'    => \${"$class\::DB::LocaleDisplayPattern::cldr_version"},
@@ -246,8 +248,8 @@ sub get_character_orientation_from_code {
 
     my $class = ref($self) ? ref($self) : $self;
     if ( !exists $self->{'character_orientation_data'} ) {
-        eval "require $class\::DB::CharacterOrientation;" || return;              # Module::Want::have_mod("$class\::DB::CharacterOrientation");
-        no strict 'refs';
+        eval "require $class\::DB::CharacterOrientation;" || return;              ## no critic # Module::Want::have_mod("$class\::DB::CharacterOrientation");
+        no strict 'refs';                                                         ## no critic
         $self->{'character_orientation_data'} = {
             'VERSION'      => \${"$class\::DB::CharacterOrientation::VERSION"},
             'cldr_version' => \${"$class\::DB::CharacterOrientation::cldr_version"},
@@ -369,11 +371,58 @@ sub get_plural_form {
 
 # pending http://unicode.org/cldr/trac/ticket/4051
 sub get_list_or {
-    goto &get_list_and;    # I told you it was stub in the changelog, POD, test, and here!
+    my ( $self, @items ) = @_;
+
+    # I told you it was stub in the changelog, POD, test, and here!
+    $self->_quote_get_list_items( \@items );
+
+    return                          if !@items;
+    return $items[0]                if @items == 1;
+    return "$items[0] or $items[1]" if @items == 2;
+
+    my $last = pop(@items);
+    return join( ', ', @items ) . ", or $last";
+}
+
+sub _quote_get_list_items {
+    my ( $self, $items_ar ) = @_;
+
+    my $cnt = 0;
+
+    if ( exists $self->{'misc'}{'list_quote_mode'} && $self->{'misc'}{'list_quote_mode'} ne 'none' ) {
+        if ( $self->{'misc'}{'list_quote_mode'} eq 'all' ) {
+            @{$items_ar} = ('') if @{$items_ar} == 0;
+
+            for my $i ( 0 .. scalar( @{$items_ar} ) - 1 ) {
+                $items_ar->[$i] = '' if !defined $items_ar->[$i];
+                $items_ar->[$i] = $self->quote( $items_ar->[$i] );
+                $cnt++;
+            }
+        }
+        elsif ( $self->{'misc'}{'list_quote_mode'} eq 'some' ) {
+            @{$items_ar} = ('') if @{$items_ar} == 0;
+
+            for my $i ( 0 .. scalar( @{$items_ar} ) - 1 ) {
+                $items_ar->[$i] = '' if !defined $items_ar->[$i];
+                if ( $items_ar->[$i] eq '' || $items_ar->[$i] =~ m/\A(?: |\xc2\xa0)+\z/ ) {
+                    $items_ar->[$i] = $self->quote( $items_ar->[$i] );
+                    $cnt++;
+                }
+            }
+        }
+        else {
+            require Carp;
+            Carp::carp('$self->{misc}{list_quote_mode} is set to an unknown value');
+        }
+    }
+
+    return $cnt;
 }
 
 sub get_list_and {
     my ( $self, @items ) = @_;
+
+    $self->_quote_get_list_items( \@items );
 
     return if !@items;
     return $items[0] if @items == 1;
@@ -384,13 +433,12 @@ sub get_list_and {
         return $two;
     }
     else {
-        @items = map { s/\{([01])\}/__\{__${1}__\}__/g; $_ } @items;    # I know ick, patches welcome
+        @items = map { my $c = $_; $c =~ s/\{([01])\}/__\{__${1}__\}__/g; $c } @items;    # I know ick, patches welcome
 
         my $aggregate = $self->{'language_data'}{'misc_info'}{'cldr_formats'}{'list'}{'start'};
         $aggregate =~ s/\{([01])\}/$items[$1]/g;
 
-        my $i;                                                          # buffer
-        for $i ( 2 .. $#items ) {
+        for my $i ( 2 .. $#items ) {
             next if $i == $#items;
             my $middle = $self->{'language_data'}{'misc_info'}{'cldr_formats'}{'list'}{'middle'};
             $middle =~ s/\{0\}/$aggregate/g;
@@ -406,6 +454,41 @@ sub get_list_and {
 
         return $end;
     }
+}
+
+sub quote {
+    my ( $self, $value ) = @_;
+    $value = '' if !defined $value;
+
+    return $self->{'language_data'}{'misc_info'}{'delimiters'}{'quotation_start'} . $value . $self->{'language_data'}{'misc_info'}{'delimiters'}{'quotation_end'};
+}
+
+sub quote_alt {
+    my ( $self, $value ) = @_;
+    $value = '' if !defined $value;
+
+    return $self->{'language_data'}{'misc_info'}{'delimiters'}{'alternate_quotation_start'} . $value . $self->{'language_data'}{'misc_info'}{'delimiters'}{'alternate_quotation_end'};
+}
+
+sub get_formatted_ellipsis_initial {
+    my ( $self, $str ) = @_;
+    my $pattern = $self->{'language_data'}{'misc_info'}{'cldr_formats'}{'ellipsis'}{'initial'} || '…{0}';
+    $pattern =~ s/\{0\}/$str/;
+    return $pattern;
+}
+
+sub get_formatted_ellipsis_medial {
+    my ($self) = @_;    # my ($self, $first, $second) = @_;
+    my $pattern = $self->{'language_data'}{'misc_info'}{'cldr_formats'}{'ellipsis'}{'medial'} || '{0}…{1}';
+    $pattern =~ s/\{(0|1)\}/$_[$1 + 1]/g;    # use index instead of variable to avoid formatter confusion, e.g. $first contains the string '{1}'
+    return $pattern;
+}
+
+sub get_formatted_ellipsis_final {
+    my ( $self, $str ) = @_;
+    my $pattern = $self->{'language_data'}{'misc_info'}{'cldr_formats'}{'ellipsis'}{'final'} || '{0}…';
+    $pattern =~ s/\{0\}/$str/;
+    return $pattern;
 }
 
 # TODO get_formatted_percent() get_formatted_permille() other symbols like infinity, plus sign etc
@@ -441,10 +524,10 @@ sub get_formatted_decimal {
         # $n = "$n"; # turn it into a string, trailing zero's go away
 
         if ( $n =~ m/\.([0-9]{$max_len})([0-9])?/ ) {
-            my $trim = $1;                                                              # (defined $2 && $2 > 4) ? $1 + 1 : $1;
+            my $trim = $1;    # (defined $2 && $2 > 4) ? $1 + 1 : $1;
 
             if ( defined $2 && $2 > 4 ) {
-                if ( ( $trim + 1 ) !~ m/e/i ) {                                         # poor man's is exponential check.
+                if ( ( $trim + 1 ) !~ m/e/i ) {    # poor man's is exponential check.
                     $trim++;
                 }
             }
@@ -806,7 +889,7 @@ sub tag_is_loadable {
     my ( $tag, $as_territory ) = @_;           # not documenting internal $as_territory, just use territory_code_is_known() directly
 
     if ( !exists $INC{"Locales/DB/Loadable.pm"} ) {
-        eval "require Locales::DB::Loadable" || return;    # Module::Want::have_mod("Locales::DB::Loadable") || return;
+        eval "require Locales::DB::Loadable" || return;    ## no critic # Module::Want::have_mod("Locales::DB::Loadable") || return;
     }
 
     if ($as_territory) {
@@ -821,7 +904,7 @@ sub tag_is_loadable {
 
 sub get_loadable_language_codes {
     if ( !exists $INC{"Locales/DB/Loadable.pm"} ) {
-        eval "require Locales::DB::Loadable" || return;    # Module::Want::have_mod("Locales::DB::Loadable") || return;
+        eval "require Locales::DB::Loadable" || return;    ## no critic # Module::Want::have_mod("Locales::DB::Loadable") || return;
     }
 
     return keys %Locales::DB::Loadable::code;
@@ -855,7 +938,7 @@ my %non_locales = (
 );
 
 sub non_locale_list {
-    return sort keys %non_locales;
+    return ( sort keys %non_locales );
 }
 
 sub is_non_locale {
@@ -914,10 +997,10 @@ sub normalize_tag_for_ietf {
 sub normalize_for_key_lookup {
     my $key = $_[0];
     return if !defined $key;
-    $key =~ tr/A-Z/a-z/;                 # lowercase
-                                         # $key =~ s{^\s+}{};   # trim WS from begining
-                                         # $key =~ s{\s+$}{};   # trim WS from end
-                                         # $key =~ s{\s+}{ }g;   # collapse multi WS to one space
+    $key =~ tr/A-Z/a-z/;    # lowercase
+                            # $key =~ s{^\s+}{};   # trim WS from begining
+                            # $key =~ s{\s+$}{};   # trim WS from end
+                            # $key =~ s{\s+}{ }g;   # collapse multi WS to one space
     $key =~ s{\s+}{}g;
     $key =~ s{[\'\"\-\(\)\[\]\_]+}{}g;
     return $key;
@@ -1035,7 +1118,7 @@ sub plural_rule_hashref_to_code {
                 # Does $n match $hr->{$cat} ?
 
                 if ( ref( $hr->{'category_rules_compiled'}{$cat} ) ne 'CODE' ) {
-                    $hr->{'category_rules_compiled'}{$cat} = eval "$hr->{'category_rules_compiled'}{$cat}";    # As of 0.22 this will be skipped for modules included w/ the main dist
+                    $hr->{'category_rules_compiled'}{$cat} = eval "$hr->{'category_rules_compiled'}{$cat}";    ## no critic # As of 0.22 this will be skipped for modules included w/ the main dist
                 }
 
                 if ( $hr->{'category_rules_compiled'}{$cat}->($n) ) {
@@ -1056,7 +1139,7 @@ sub get_cldr_plural_category_list {
 
     # Order is important for Locale::Maketext::Utils::quant():
     #   one (singular), two (dual), few (paucal), many, other, zero
-    return qw(one two few many other zero);             # quant() arg order
+    return qw(one two few many other zero);    # quant() arg order
 }
 
 sub get_fallback_list {
@@ -1097,7 +1180,7 @@ Locales - Methods for getting localized CLDR language/territory names (and a sub
 
 =head1 VERSION
 
-This document describes Locales version 0.27
+This document describes Locales version 0.28
 
 =head1 SYNOPSIS
 
@@ -1125,7 +1208,7 @@ Currently the data/methods include translated locale names and territory names.
 
 For simplicity Locales does not work with or know about Variants or Scripts. It only knows about languages and territories.
 
-Also it does not conatin all the data contained in CLDR. For example, L<DateTime>'s localization already has all the calender/date/time info from CLDR. Other information has not had any demand yet.
+Also it does not contain all the data contained in CLDR. For example, L<DateTime>’s localization already has all the calender/date/time info from CLDR. Other information has not had any demand yet.
 
 For consistency all data is written in utf-8. No conversion should be necessary if you are (wisely) using utf-8 as your character set everywhere (See L<http://drmuey.com\/?do=page&id=57> for more info on that.).
 
@@ -1165,7 +1248,7 @@ As described in L</Soft Locales>.
 
 As “soft locale” is a language-territory locale that does not fit the L</Supported Locale Criteria> directly but its super does and the territory is known. 
 
-For example “es-MX” does not fit the cireteria but “es” does and “MX” is a valid territory code.
+For example “es-MX” does not fit the criteria but “es” does and “MX” is a valid territory code.
 
 =head1 INTERFACE 
 
@@ -1175,9 +1258,9 @@ Takes one argument, the locale tag whose CLDR data you want to use.
 
 No argument defaults to 'en'.
 
-It is an argument based singleton so you can call it more than once with out it having to rebuild the object everytime.
+It is an argument based singleton so you can call it more than once with out it having to rebuild the object every time.
 
-It returns false if a locale given is not vailable. $@ should have been set at that point by eval.
+It returns false if a locale given is not available. $@ should have been set at that point by eval.
 
     my $en = Locales->new('en') or die $@;
 
@@ -1203,13 +1286,13 @@ Returns the normalized locale of the object, this is the same as the argument to
 
 Takes no arguments.
 
-Returns the language portion of the object's locale.
+Returns the language portion of the object’s locale.
 
 =item get_territory()
 
 Takes no arguments.
 
-Returns the territory portion of the object's locale if any (e.g. 'en_au'), undef if there is none (e.g. 'it').
+Returns the territory portion of the object’s locale if any (e.g. 'en_au'), undef if there is none (e.g. 'it').
 
 =item get_soft_locale_fallback()
 
@@ -1230,13 +1313,13 @@ Note: As of v0.17 you probably want L</get_formatted_decimal()> instead of numf(
 
 Takes one optional boolean argument.
 
-Returns 1 if the object's locale's number format is comma for thousand separator, period for decimal.
+Returns 1 if the object’ss locale’s number format is comma for thousand separator, period for decimal.
 
-Returns 2  if the object's locale's number format is period for thousand separator, comma for decimal.
+Returns 2  if the object’s locale’s number format is period for thousand separator, comma for decimal.
 
 Otherwise it returns a reference to a 3 element array containing this CLDR data: number format, separator character, decimal character.
 
-The boolean argument, when true will do it's best to determine and return a 1 or a 2.
+The boolean argument, when true will do it’s best to determine and return a 1 or a 2.
 
 =back
 
@@ -1264,9 +1347,9 @@ Returns a copy of the lookup hash of the display names for each known territory 
 
 =item get_territory_from_code()
 
-Takes one argument, the locale code whose territory name you want to find. Defaults to the territory of the of object's locale, if any.
+Takes one argument, the locale code whose territory name you want to find. Defaults to the territory of the of object’s locale, if any.
 
-Returns the name of the given tag's territory or, if not found, the territory portion (if any), returns false otherwise.
+Returns the name of the given tag’s territory or, if not found, the territory portion (if any), returns false otherwise.
 
 An optional second argument, when true, will force it to return the normalized tag if nothing else can be figured out.
 
@@ -1310,11 +1393,11 @@ Returns a copy of the lookup hash of the display names for each known language c
 
 =item get_language_from_code()
 
-Takes one argument, the locale code whose language name you want to find. Defaults to the object's locale.
+Takes one argument, the locale code whose language name you want to find. Defaults to the object’s locale.
 
-Returns the name of the given tag's language, returns false otherwise.
+Returns the name of the given tag’s language, returns false otherwise.
 
-An optional second argument, when true, will force it to return a properly formatted CLDR format display based on if we know the langauge and/or territory if nothing else can be figured out.
+An optional second argument, when true, will force it to return a properly formatted CLDR format display based on if we know the language and/or territory if nothing else can be figured out.
 
 =item get_code_from_language()
 
@@ -1324,13 +1407,13 @@ Returns the locale tag if found, false otherwise.
 
 =item get_native_language_from_code()
 
-Like get_language_from_code() except it returns the name in the given locale's native language.
+Like get_language_from_code() except it returns the name in the given locale’s native language.
 
 =item get_character_orientation_from_code()
 
 Like get_language_from_code() except it returns the character orientation identifier for the given locale. (defaulting to the locale of the object if non is given)
 
-Typically it will be the string 'left-to-right' or 'right-to-left'.
+Typically it will be the string “left-to-right” or “right-to-left”.
 
 See L<http://unicode.org/repos/cldr-tmp/trunk/diff/by_type/misc.layout.html> for more information.
 
@@ -1352,35 +1435,35 @@ Same as get_locale_display_pattern_from_code() except it should use less-overhea
 
 =item get_cldr_number_symbol_decimal()
 
-Returns the decimal point symbol for the object's locale. Takes no arguments.
+Returns the decimal point symbol for the object’s locale. Takes no arguments.
 
 For formatting numbers use get_formatted_decimal().
 
 =item get_cldr_number_symbol_group() 
 
-Returns the integer grouping symbol for the object's locale. Takes no arguments.
+Returns the integer grouping symbol for the object’s locale. Takes no arguments.
 
 For formatting numbers use get_formatted_decimal().
 
 =item get_fallback_list()
 
-Returns a fallback list of locales in the order they apply based on the object's locale.
+Returns a fallback list of locales in the order they apply based on the object’s locale.
 
-The basic list will be: object's locale, object's super if any, the object's CLDR fallback if any, “special lookup” if any, 'en'
+The basic list will be: object’s locale, object’s super if any, the object’s CLDR fallback if any, “special lookup” if any, 'en'
 
     my @list = $fr_ca->get_fallback_list();
     # fr_ca fr en
 
 "special lookup" is a code ref that can be passed in as the first optional arg. 
 
-It is given the object's locale when called and should return a list of locale tags (they will be normalized).
+It is given the object’s locale when called and should return a list of locale tags (they will be normalized).
 
     my @list = $fr_ca->get_fallback_list(sub { return $_[0] =~ m/fr/ ? qw(i_yoda i_love_rhi) : () } );
     # fr_ca fr i_yoda i_love_rhi en
 
 =item get_plural_form()
 
-Takes a number and returns the plural category that the number fits under for the object's locale.
+Takes a number and returns the plural category that the number fits under for the object’s locale.
 
 You can also add an array of items to return instead of the category name. For the details on what arguments a given local needs see L<Locales::DB::Docs::PluralForms>.
 
@@ -1388,7 +1471,7 @@ The array should be the same length of the list of plural form categories for th
 
 The exception to that is when you specify the optional L<Locales::DB::Docs::PluralForms/“Special Zero” Argument>.
 
-For example, 'en' has the plural categories 'one' and 'other', so it'd work like this:
+For example, 'en' has the plural categories “one” and “other”, so it'd work like this:
 
     my $cat = $en->get_plural_form(0); # 'other'
     my $str = $en->get_plural_form(0,'I am 1','I am other'); # I am other
@@ -1422,7 +1505,7 @@ You'll only see this if $locales_object->{'verbose'} is set to true.
 
 =item C<< The category (%s) is not used by this locale. >>
 
-The locale's plural rules come up with a category that is not applicalble to the locale. Default to 'other' at this point.
+The locale’s plural rules come up with a category that is not applicable to the locale. Default to “other” at this point.
 
 =back
 
@@ -1430,7 +1513,7 @@ The locale's plural rules come up with a category that is not applicalble to the
 
 Returns an array of the CLDR plural rule category names that this locale uses.
 
-Their order corresponds to the position of the corresponing value that get_plural_form() uses.
+Their order corresponds to the position of the corresponding value that get_plural_form() uses.
 
 =item supports_special_zeroth()
 
@@ -1450,9 +1533,9 @@ Does not factor in support (or not) of the L<special zeroth category|/supports_s
 
 =item get_list_and()
 
-Stringify an "and" list of items as defined in the CLDR for the object's locale.
+Stringify an "and" list of items as defined in the CLDR for the object’s locale.
 
-Note: get_list_or() will be done one L<CLDR defines the OR-list data|http://unicode.org/cldr/trac/ticket/4051>.
+Note: get_list_or() will be done once L<CLDR defines the OR-list data|http://unicode.org/cldr/trac/ticket/4051>.
 
     $en->get_list_and() # nothing
     $en->get_list_and(1) # 1
@@ -1466,17 +1549,75 @@ Note: get_list_or() will be done one L<CLDR defines the OR-list data|http://unic
     $es->get_list_and(1,2,3) # 1, 2 y 3
     $es->get_list_and(1,2,3,4) # 1, 2, 3 y 3
 
+To help disambiguate ambiguous arguments (none, undef, “”, all space/non-break-space) you can use $loc->{'misc'}{'list_quote_mode'}.
+
+The default value is “all”.
+
+Possible values:
+
+=over 4
+
+=item “all”
+
+quote() all values.
+
+=item “some”
+
+quote() only ambiguous values (none (as if it was “”), undef, “”, all space/non-break-space).
+
+=item “none”
+
+do not quote() any values
+
+=back
+
+If another value is given or the entry does not exist you'll get “none” behavior. If it is set to an unknown value you'll get a carp() of “$self->{misc}{list_quote_mode} is set to an unknown value”.
+
 =item get_list_or()
 
-Stringify an "or" list of items as defined in the CLDR for the object's locale.
+Stringify an "or" list of items as defined in the CLDR for the object’s locale.
 
 This is a stub until L<CLDR defines the OR-list data|http://unicode.org/cldr/trac/ticket/4051>.
 
-Until then it is essentially L</get_list_and()>.
+Until then it is essentially the same as L</get_list_and()>except it uses English rules/grammer for or lists.
+
+Uses $loc->{'misc'}{'list_quote_mode'} the same way get_list_and() does.
+
+=item get_formatted_ellipsis_initial()
+
+Formats the given string per the initial ellipsis pattern.
+
+Truncating for length is the caller’s responsibility since knowing how to do that correctly depends on what the string is (e.g. plain text needs to factor in the encoding or we might corrupt the text, HTML might have a broken or unclosed tag, ANSI might be unclosed or truncated, etc) so it is outside of the scope of the CLDR.
+
+    …foo
+
+=item get_formatted_ellipsis_medial()
+
+Formats the given string per the medial ellipsis pattern.
+
+Truncating for length is the caller’s responsibility since knowing how to do that correctly depends on what the string is (e.g. plain text needs to factor in the encoding or we might corrupt the text, HTML might have a broken or unclosed tag, ANSI might be unclosed or truncated, etc) so it is outside of the scope of the CLDR.
+
+    foo…bar
+
+=item get_formatted_ellipsis_final()
+
+Formats the given string per the medial ellipsis pattern.
+
+Truncating for length is the caller’s responsibility since knowing how to do that correctly depends on what the string is (e.g. plain text needs to factor in the encoding or we might corrupt the text, HTML might have a broken or includes tag, ANSI might be unclosed or truncated, etc) so it is outside of the scope of the CLDR.
+
+    foo…
+
+=item quote()
+
+Quotes the argument with the CLDR delimiters quotation_start and quotation_end.
+
+=item quote_alt()
+
+Quotes the argument with the CLDR delimiters alternate_quotation_start and alternate_quotation_end.
 
 =item get_formatted_decimal()
 
-Return the given number as a string formatted per the locale's CLDR decimal format pattern.
+Return the given number as a string formatted per the locale’s CLDR decimal format pattern.
 
 An optional second argument defines a maximum length of decimal places (default is 6 perl %f, max is 14, if you have a need for a larger max please open an rt w/ context and we may make the max settable in the object)
 
@@ -1498,7 +1639,7 @@ Perl number stringification caveats:
      $l->get_formatted_decimal(10000000001.12345678911234,12); # 10,000,000,001.1235 since it is already truncated  when it comes into the function
      $l->get_formatted_decimal("10000000001.12345678911234",12); # 10,000,000,001.123456789112
 
-=item If the abs integer is > 10_000_000_000 and the decimal part alone stringifies into an exponential number the rounding is not done.
+=item If the abs integer is > 10_000_000_000 and the decimal part alone stringify into an exponential number the rounding is not done.
 
 That is OK though, since this isn't intended to be used in math and you are already aware of how large integers and decimals act oddly on computers right?
 
@@ -1572,9 +1713,9 @@ Returns the resulting array of 1 or 2 normalized (but not validated) items.
 
 =item Locales::get_i_tag_for_string()
 
-Takes a single argument, the locale tag string to tranform into "i" notation.
+Takes a single argument, the locale tag string to transform into "i" notation.
 
-Returns the resulting normailzed locale tag.
+Returns the resulting normalized locale tag.
 
 The standard tag for strings/tags without a standard is an "i" notation tag.
 
@@ -1626,9 +1767,9 @@ Takes a locale tag as the argument and returns true if it is typically an alias 
 
 =item Locales::normalize_for_key_lookup()
 
-Takes a single argument, the phrase string normalize in the same way the names are stored in each locale's lookup hash.
+Takes a single argument, the phrase string normalize in the same way the names are stored in each locale’s lookup hash.
 
-Returns the resulting normailzed string.
+Returns the resulting normalized string.
 
 This is used internally to normalize a given name in the same manner the name-to-code hash keys are normalized.
 
@@ -1670,19 +1811,19 @@ If you eval the returned string you'll have a code reference that returns true (
 
 This is used under the hood to facilitate get_plural_form(). That being the case there probably isn't much use for it to be used directly.
 
-This takes a hashref that contains rules, puts them in the hash, and returns an overlal code ref. Its pretty internal so if you really need the details have agander at the source.
+This takes a hashref that contains rules, puts them in the hash, and returns an overall code ref. Its pretty internal so if you really need the details have a gander at the source.
 
 =item Locales::plural_rule_string_to_javascript_code
 
 Same as Locales::plural_rule_string_to_code() except it returns javascript code instead of perl code.
 
-Used internally when building this distribution's share/misc_info contents.
+Used internally when building this distribution’s share/misc_info contents.
 
 =back
 
 =head1 DIAGNOSTICS
 
-Throws no warning or errors of it's own. If any function or method returns false then the arguments given (or not given) were invalid/not found.
+Throws no warning or errors of it’s own. If any function or method returns false then the arguments given (or not given) were invalid/not found.
 
 Deviations from this are documented per function/method.
 
@@ -1726,13 +1867,13 @@ L<http://cldr.unicode.org/index/bug-reports>.
 
 =head2 BEFORE YOU SUBMIT A BUG REPORT
 
-Please read TODO, DESCRIPTION, and the information below thouroughly to see if your thought is already addressed.
+Please read TODO, DESCRIPTION, and the information below thoroughly to see if your thought is already addressed.
 
 =over 4
 
 =item * A non-English object returns English names.
 
-Data that is not defined in a locale's CLDR data falls back to English.
+Data that is not defined in a locale’s CLDR data falls back to English.
 
 Please report the missing data to the CLDR as per L<http://cldr.unicode.org/index/bug-reports>.
 
@@ -1761,7 +1902,7 @@ For example, viewing UTF-8 characters on a latin1 web page will result in garble
 
 =item * It still looks corrupt!
 
-Some locale's require special fonts to be installed on your system to view them properly.
+Some locale’s require special fonts to be installed on your system to view them properly.
 
 For example Bengali (bn) is like this. As per L<http://www.unicode.org/help/display_problems.html> if you install the proper font it renders correctly.
 
@@ -1785,7 +1926,7 @@ In that case a report about names not being capitalized like we do in English wo
 
 Sometimes something might look strange to us and we'd be tempted to report the problem. Keep in mind though that sometimes locale nuances can cause things to render in a way that non-native speakers may not understand. 
 
-For example Arabic's (ar) right-to-left text direction can seem strange when mixed with latin text. It's simply not wrong. You may be able to improve it by using the direction data to render it better (e.g. CSS or HTML attributes if the output is HTML).
+For example Arabic’s (ar) right-to-left text direction can seem strange when mixed with latin text. It's simply not wrong. You may be able to improve it by using the direction data to render it better (e.g. CSS or HTML attributes if the output is HTML).
 
 Also, CLDR pattern formats can differ per locale.
 

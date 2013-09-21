@@ -1,5 +1,8 @@
 package Locales::DB::Language::kab;
 
+use strict;
+use warnings;
+
 # Auto generated from CLDR
 
 $Locales::DB::Language::kab::VERSION = '0.09';

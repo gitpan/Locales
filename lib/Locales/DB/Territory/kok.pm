@@ -1,5 +1,8 @@
 package Locales::DB::Territory::kok;
 
+use strict;
+use warnings;
+
 # Auto generated from CLDR
 
 $Locales::DB::Territory::kok::VERSION = '0.09';

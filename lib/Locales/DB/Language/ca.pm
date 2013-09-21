@@ -1,5 +1,8 @@
 package Locales::DB::Language::ca;
 
+use strict;
+use warnings;
+
 # Auto generated from CLDR
 
 $Locales::DB::Language::ca::VERSION = '0.09';
@@ -35,7 +38,7 @@ $Locales::DB::Language::ca::cldr_version = '2.0';
         'quotation_end'             => '’',
         'quotation_start'           => '‘'
     },
-    'fallback'    => [ 'es_es' ],
+    'fallback'    => ['es_es'],
     'orientation' => {
         'characters' => "left\-to\-right",
         'lines'      => "top\-to\-bottom"

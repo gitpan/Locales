@@ -1,5 +1,8 @@
 package Locales::DB::Territory::id;
 
+use strict;
+use warnings;
+
 # Auto generated from CLDR
 
 $Locales::DB::Territory::id::VERSION = '0.09';

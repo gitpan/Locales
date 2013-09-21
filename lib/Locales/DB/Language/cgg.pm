@@ -1,5 +1,8 @@
 package Locales::DB::Language::cgg;
 
+use strict;
+use warnings;
+
 # Auto generated from CLDR
 
 $Locales::DB::Language::cgg::VERSION = '0.09';

@@ -78,7 +78,7 @@ $Data::Dumper::Useqq    = 1;
     }
 }
 
-my $v_offset     = '0.18';
+my $v_offset     = '0.19';
 my $mod_version  = $Locales::VERSION - $v_offset;
 my $cldr_version = $Locales::cldr_version;
 my $cldr_db_path;
@@ -243,12 +243,12 @@ sub get_target_structs_from_cldr_for_tag {
       ? (
           ref $raw_struct->{'numbers'}{'symbols'}[$symbols_index]{'group'} eq 'HASH'  ? $raw_struct->{'numbers'}{'symbols'}[$symbols_index]{'group'}{'content'}
         : ref $raw_struct->{'numbers'}{'symbols'}[$symbols_index]{'group'} eq 'ARRAY' ? $raw_struct->{'numbers'}{'symbols'}[$symbols_index]{'group'}->[0]
-        : $raw_struct->{'numbers'}{'symbols'}[$symbols_index]{'group'}
+        :                                                                               $raw_struct->{'numbers'}{'symbols'}[$symbols_index]{'group'}
       )
       : (
           ref $raw_struct->{'numbers'}{'symbols'}{'group'} eq 'HASH'  ? $raw_struct->{'numbers'}{'symbols'}{'group'}{'content'}
         : ref $raw_struct->{'numbers'}{'symbols'}{'group'} eq 'ARRAY' ? $raw_struct->{'numbers'}{'symbols'}{'group'}->[0]
-        : $raw_struct->{'numbers'}{'symbols'}{'group'}
+        :                                                               $raw_struct->{'numbers'}{'symbols'}{'group'}
       );
     if ( ref($_decimal_format_group) eq 'HASH' ) {
         $_decimal_format_group = $_decimal_format_group->{'content'};
@@ -264,7 +264,7 @@ sub get_target_structs_from_cldr_for_tag {
       : (
           ref $raw_struct->{'numbers'}{'symbols'}{'decimal'} eq 'HASH'  ? $raw_struct->{'numbers'}{'symbols'}{'decimal'}{'content'}
         : ref $raw_struct->{'numbers'}{'symbols'}{'decimal'} eq 'ARRAY' ? $raw_struct->{'numbers'}{'symbols'}{'decimal'}->[0]
-        : $raw_struct->{'numbers'}{'symbols'}{'decimal'}
+        :                                                                 $raw_struct->{'numbers'}{'symbols'}{'decimal'}
       );
     if ( ref($_decimal_format_decimal) eq 'HASH' ) {
         $_decimal_format_decimal = $_decimal_format_decimal->{'content'};
@@ -320,12 +320,12 @@ sub get_target_structs_from_cldr_for_tag {
         ? (
               ref $raw_struct->{'numbers'}{'symbols'}[$symbols_index]{'percentSign'} eq 'HASH'  ? $raw_struct->{'numbers'}{'symbols'}[$symbols_index]{'percentSign'}{'content'}
             : ref $raw_struct->{'numbers'}{'symbols'}[$symbols_index]{'percentSign'} eq 'ARRAY' ? $raw_struct->{'numbers'}{'symbols'}[$symbols_index]{'percentSign'}->[0]
-            : $raw_struct->{'numbers'}{'symbols'}[$symbols_index]{'percentSign'}
+            :                                                                                     $raw_struct->{'numbers'}{'symbols'}[$symbols_index]{'percentSign'}
           )
         : (
               ref $raw_struct->{'numbers'}{'symbols'}{'percentSign'} eq 'HASH'  ? $raw_struct->{'numbers'}{'symbols'}{'percentSign'}{'content'}
             : ref $raw_struct->{'numbers'}{'symbols'}{'percentSign'} eq 'ARRAY' ? $raw_struct->{'numbers'}{'symbols'}{'percentSign'}->[0]
-            : $raw_struct->{'numbers'}{'symbols'}{'percentSign'}
+            :                                                                     $raw_struct->{'numbers'}{'symbols'}{'percentSign'}
         )
       )
       || $fallback_lang_misc_info->{'cldr_formats'}{'_percent_format_percent'};
@@ -394,7 +394,7 @@ sub get_target_structs_from_cldr_for_tag {
                 : (
                       ref $raw_struct->{'numbers'}{'decimalFormats'}{'decimalFormatLength'}{'decimalFormat'}{'pattern'} eq 'HASH'  ? $raw_struct->{'numbers'}{'decimalFormats'}{'decimalFormatLength'}{'decimalFormat'}{'pattern'}{'content'}
                     : ref $raw_struct->{'numbers'}{'decimalFormats'}{'decimalFormatLength'}{'decimalFormat'}{'pattern'} eq 'ARRAY' ? $raw_struct->{'numbers'}{'decimalFormats'}{'decimalFormatLength'}{'decimalFormat'}{'pattern'}->[0]
-                    : $raw_struct->{'numbers'}{'decimalFormats'}{'decimalFormatLength'}{'decimalFormat'}{'pattern'}
+                    :                                                                                                                $raw_struct->{'numbers'}{'decimalFormats'}{'decimalFormatLength'}{'decimalFormat'}{'pattern'}
                 )
               )
               || Encode::decode_utf8( $fallback_lang_misc_info->{'cldr_formats'}{'decimal'} ),
@@ -403,7 +403,7 @@ sub get_target_structs_from_cldr_for_tag {
             'percent'                 => (
                   ref $raw_struct->{'numbers'}{'percentFormats'}{'percentFormatLength'}{'percentFormat'}{'pattern'} eq 'HASH'  ? $raw_struct->{'numbers'}{'percentFormats'}{'percentFormatLength'}{'percentFormat'}{'pattern'}{'content'}
                 : ref $raw_struct->{'numbers'}{'percentFormats'}{'percentFormatLength'}{'percentFormat'}{'pattern'} eq 'ARRAY' ? $raw_struct->{'numbers'}{'percentFormats'}{'percentFormatLength'}{'percentFormat'}{'pattern'}->[0]
-                : $raw_struct->{'numbers'}{'percentFormats'}{'percentFormatLength'}{'percentFormat'}{'pattern'}
+                :                                                                                                                $raw_struct->{'numbers'}{'percentFormats'}{'percentFormatLength'}{'percentFormat'}{'pattern'}
               )
               || Encode::decode_utf8( $fallback_lang_misc_info->{'cldr_formats'}{'percent'} ),
             '_percent_format_percent' => $_percent_format_percent,
@@ -456,7 +456,7 @@ sub get_target_structs_from_cldr_for_tag {
                         : $fallback_lang_misc_info->{'delimiters'}{$norm}
                     )
                   )
-              } ( 'quotationStart', 'quotationEnd', 'alternateQuotationStart', 'alternateQuotationEnd' )
+            } ( 'quotationStart', 'quotationEnd', 'alternateQuotationStart', 'alternateQuotationEnd' )
         },
         'plural_forms' => {
 
@@ -552,6 +552,9 @@ sub write_language_module {
     _write_utf8_perl(
         "Language/$tag.pm", qq{package Locales::DB::Language::$tag;
 
+use strict;
+use warnings;
+
 # Auto generated from CLDR
 
 \$Locales::DB::Language::$tag\::VERSION = '$mod_version';
@@ -583,6 +586,9 @@ sub write_territory_module {
 
     _write_utf8_perl(
         "Territory/$tag.pm", qq{package Locales::DB::Territory::$tag;
+
+use strict;
+use warnings;
 
 # Auto generated from CLDR
 
@@ -813,6 +819,9 @@ sub write_native_module {
     _write_utf8_perl(
         "$locales_db/Native.pm", qq{package Locales::DB::Native;
 
+use strict;
+use warnings;
+
 # Auto generated from CLDR
 
 \$Locales::DB::Native::VERSION = '$mod_version';
@@ -856,6 +865,9 @@ sub write_db_loadable_module {
     _write_utf8_perl(
         "$locales_db/Loadable.pm", qq{package Locales::DB::Loadable;
 
+use strict;
+use warnings;
+
 # Auto generated from CLDR
 
 \$Locales::DB::Loadable::VERSION = '$mod_version';
@@ -884,6 +896,9 @@ sub write_character_orientation_module {
 
     _write_utf8_perl(
         "$locales_db/CharacterOrientation.pm", qq{package Locales::DB::CharacterOrientation;
+
+use strict;
+use warnings;
 
 # Auto generated from CLDR
 
@@ -918,6 +933,9 @@ $fallback_lookup_str);
 
     _write_utf8_perl(
         "$locales_db/CharacterOrientation/Tiny.pm", qq{package Locales::DB::CharacterOrientation::Tiny;
+
+use strict;
+use warnings;
 
 # Auto generated from CLDR
 
@@ -958,6 +976,9 @@ sub write_name_pattern_module {
     _write_utf8_perl(
         "$locales_db/LocaleDisplayPattern.pm", qq{package Locales::DB::LocaleDisplayPattern;
 
+use strict;
+use warnings;
+
 # Auto generated from CLDR
 
 \$Locales::DB::LocaleDisplayPattern::VERSION = '$mod_version';
@@ -997,6 +1018,9 @@ $fallback_lookup_str);
     _write_utf8_perl(
         "$locales_db/LocaleDisplayPattern/Tiny.pm", qq{package Locales::DB::LocaleDisplayPattern::Tiny;
 
+use strict;
+use warnings;
+
 # Auto generated from CLDR
 
 \$Locales::DB::LocaleDisplayPattern::Tiny::VERSION = '$mod_version';
@@ -1031,7 +1055,8 @@ sub write_plural_forms_argument_pod {
     my ( $plural_forms, $isfallback ) = @_;
     File::Path::Tiny::mk("$locales_db/Docs") || die "Could not create '$locales_db/Docs': $!";
 
-    my $pod_starts = '__END__';    # this is to prevent mis-parsing for CPAN like rt 76129
+    my $pod_starts = '__END__';                           # this is to help prevent mis-parsing for CPAN like rt 76129 (probably not necessary)
+    my $pkg        = 'Locales::DB::Docs::PluralForms';    # this is to help prevent mis-parsing for CPAN like rt 76129
     my $pod_items  = '';
 
     for my $ent ( @{$plural_forms} ) {
@@ -1052,7 +1077,10 @@ sub write_plural_forms_argument_pod {
 
     # $locales_db/Docs/PluralForms.pm
     _write_utf8_perl(
-        "$locales_db/Docs/PluralForms.pm", qq{package Locales::DB::Docs::PluralForms;
+        "$locales_db/Docs/PluralForms.pm", qq{package $pkg;
+
+use strict;
+use warnings;
 
 # Auto generated from CLDR
 
@@ -1362,7 +1390,7 @@ sub _stringify_hash_no_dumper {
         my $qv = $_[0]->{$k};
         $qk =~ s{\'}{\\\'}g;
         $qv =~ s{\'}{\\\'}g;
-        my $ky = $k          ne $qk ? qq{"$qk"} : qq{'$k'};
+        my $ky = $k ne $qk          ? qq{"$qk"} : qq{'$k'};
         my $vl = $_[0]->{$k} ne $qv ? qq{"$qv"} : qq{'$_[0]->{$k}'};
         $string .= "$ky => $vl,\n";
     }

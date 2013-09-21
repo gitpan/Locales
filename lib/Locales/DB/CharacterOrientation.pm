@@ -1,5 +1,8 @@
 package Locales::DB::CharacterOrientation;
 
+use strict;
+use warnings;
+
 # Auto generated from CLDR
 
 $Locales::DB::CharacterOrientation::VERSION = '0.09';

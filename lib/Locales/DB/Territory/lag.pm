@@ -1,5 +1,8 @@
 package Locales::DB::Territory::lag;
 
+use strict;
+use warnings;
+
 # Auto generated from CLDR
 
 $Locales::DB::Territory::lag::VERSION = '0.09';

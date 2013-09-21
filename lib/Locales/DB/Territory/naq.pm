@@ -1,5 +1,8 @@
 package Locales::DB::Territory::naq;
 
+use strict;
+use warnings;
+
 # Auto generated from CLDR
 
 $Locales::DB::Territory::naq::VERSION = '0.09';

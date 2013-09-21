@@ -1,5 +1,8 @@
 package Locales::DB::Territory::khq;
 
+use strict;
+use warnings;
+
 # Auto generated from CLDR
 
 $Locales::DB::Territory::khq::VERSION = '0.09';
