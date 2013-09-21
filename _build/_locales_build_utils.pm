@@ -12,6 +12,8 @@ use String::Unquotemeta;
 use JSON::Syck;
 use JavaScript::Minifier::XS;
 
+#### this ugliness will be spruced up when we go to CLDR-via-JSON in rt 69340 (no XML voo doo and we can move to TT for mod building) ##
+
 # datetime.json
 our $tripped;
 use Test::Carp sub { $tripped = 1 if $_[0]; };
@@ -78,7 +80,7 @@ $Data::Dumper::Useqq    = 1;
     }
 }
 
-my $v_offset     = '0.19';
+my $v_offset     = '0.20';
 my $mod_version  = $Locales::VERSION - $v_offset;
 my $cldr_version = $Locales::cldr_version;
 my $cldr_db_path;
@@ -1057,6 +1059,7 @@ sub write_plural_forms_argument_pod {
 
     my $pod_starts = '__END__';                           # this is to help prevent mis-parsing for CPAN like rt 76129 (probably not necessary)
     my $pkg        = 'Locales::DB::Docs::PluralForms';    # this is to help prevent mis-parsing for CPAN like rt 76129
+    my $pod_mark   = '=';                                 # this is to help prevent mis-parsing for CPAN like rt 80546 (and not fixed *again* in 0.28)
     my $pod_items  = '';
 
     for my $ent ( @{$plural_forms} ) {
@@ -1092,18 +1095,18 @@ use warnings;
 
 $pod_starts
 
-=encoding utf-8
+${pod_mark}encoding utf-8
 
-=head1 NAME
+${pod_mark}head1 NAME
 
 Locales::DB::Docs::PluralForms - plural form details reference for all
 included locales
 
-=head1 VERSION
+${pod_mark}head1 VERSION
 
 Locales.pm v$mod_version (based on CLDR v$cldr_version)
 
-=head1 DESCRIPTION
+${pod_mark}head1 DESCRIPTION
 
 CLDR L<defines a set of broad plural categories and rules|http://unicode.org/repos/cldr-tmp/trunk/diff/supplemental/language_plural_rules.html> that determine which category any given number will fall under.
 
@@ -1111,42 +1114,40 @@ L<Locales> allows you to determine the plural categories applicable to a specifi
 
 This POD documents which categories and in what order you'd specify them in additional arguments to L<Locales/get_plural_form()> (i.e. the optional arguments after the number).
 
-=head2 “Special Zero” Argument
+${pod_mark}head2 “Special Zero” Argument
 
 In addition to the CLDR category value list you can also specify one additional argument of what to use for zero instead of the value for “other”.
 
 This won't be used if 0 falls under a specific category besides “other”.
 
-=head1 
+${pod_mark}head1 Plural Category Argument Order Reference
 
-=head1 Plural Category Argument Order Reference
-
-=over 4
+${pod_mark}over 4
 
 $pod_items
 
-=back
+${pod_mark}back
 
-=head1 BUGS AND LIMITATIONS
+${pod_mark}head1 BUGS AND LIMITATIONS
 
 Please see L<Locales/BUGS AND LIMITATIONS>
 
-=head2 BEFORE YOU SUBMIT A BUG REPORT
+${pod_mark}head2 BEFORE YOU SUBMIT A BUG REPORT
 
 Please see L<Locales/BEFORE YOU SUBMIT A BUG REPORT>
 
-=head1 AUTHOR
+${pod_mark}head1 AUTHOR
 
 Daniel Muey  C<< <http://drmuey.com/cpan_contact.pl> >>
 
-=head1 LICENCE AND COPYRIGHT
+${pod_mark}head1 LICENCE AND COPYRIGHT
 
 Copyright (c) 2009, Daniel Muey C<< <http://drmuey.com/cpan_contact.pl> >>. All rights reserved.
 
 This module is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself. See L<perlartistic>.
 
-=head1 DISCLAIMER OF WARRANTY
+${pod_mark}head1 DISCLAIMER OF WARRANTY
 
 BECAUSE THIS SOFTWARE IS LICENSED FREE OF CHARGE, THERE IS NO WARRANTY
 FOR THE SOFTWARE, TO THE EXTENT PERMITTED BY APPLICABLE LAW. EXCEPT WHEN

@@ -17,6 +17,8 @@ t/pod.t
 t/perlcritic.t
 t/perltidy.t
 t/pod-spelling.t
+t/pkg-changes.t
+t/pkg-readme.t
 t/03.cldr_db.t 
 t/04.locales_obj.t
 t/05.plural_rules_behavior.t
