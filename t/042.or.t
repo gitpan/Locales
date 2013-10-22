@@ -1,7 +1,7 @@
 
 # Auto generated during CLDR build
 
-use Test::More tests => 13 + 1100;
+use Test::More tests => 13 + 1102;
 
 use lib 'lib', '../lib';
 
@@ -26,7 +26,7 @@ my %terr_lu;
 @lang_lu{@my_lang_codes} = ();
 @terr_lu{@my_terr_codes} = ();
 ok( $Locales::DB::Language::or::cldr_version eq $Locales::cldr_version,  'CLDR version is correct' );
-ok( $Locales::DB::Language::or::VERSION eq ( $Locales::VERSION - 0.20 ), 'VERSION is correct' );
+ok( $Locales::DB::Language::or::VERSION eq ( $Locales::VERSION - 0.21 ), 'VERSION is correct' );
 
 ok( !( grep { !exists $lang_lu{$_} } @en_lang_codes ), 'or languages contains en' );
 ok( !( grep { !exists $terr_lu{$_} } @en_terr_codes ), 'or territories contains en' );
@@ -496,6 +496,9 @@ is( $self_obj->get_character_orientation_from_code('eo'),  $self_obj->get_charac
 
 is( $self_obj->get_locale_display_pattern_from_code('es'), $self_obj->get_locale_display_pattern_from_code_fast('es'), 'get_locale_display_pattern_from_code[_fast] same result for es' );
 is( $self_obj->get_character_orientation_from_code('es'),  $self_obj->get_character_orientation_from_code('es'),       'get_character_orientation_from_code[_fast] same result for es' );
+
+is( $self_obj->get_locale_display_pattern_from_code('es_419'), $self_obj->get_locale_display_pattern_from_code_fast('es_419'), 'get_locale_display_pattern_from_code[_fast] same result for es_419' );
+is( $self_obj->get_character_orientation_from_code('es_419'),  $self_obj->get_character_orientation_from_code('es_419'),       'get_character_orientation_from_code[_fast] same result for es_419' );
 
 is( $self_obj->get_locale_display_pattern_from_code('es_es'), $self_obj->get_locale_display_pattern_from_code_fast('es_es'), 'get_locale_display_pattern_from_code[_fast] same result for es_es' );
 is( $self_obj->get_character_orientation_from_code('es_es'),  $self_obj->get_character_orientation_from_code('es_es'),       'get_character_orientation_from_code[_fast] same result for es_es' );

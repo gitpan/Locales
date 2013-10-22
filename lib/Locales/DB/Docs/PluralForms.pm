@@ -38,8 +38,6 @@ In addition to the CLDR category value list you can also specify one additional 
 
 This won't be used if 0 falls under a specific category besides “other”.
 
-=head1 
-
 =head1 Plural Category Argument Order Reference
 
 =over 4
@@ -847,6 +845,11 @@ You can  L<submit the missing data to the CLDR|http://unicode.org/cldr/trac> if 
     get_plural_form($n, one, other, special_zero)
 
 =item es
+
+    get_plural_form($n, one, other)
+    get_plural_form($n, one, other, special_zero)
+
+=item es_419
 
     get_plural_form($n, one, other)
     get_plural_form($n, one, other, special_zero)

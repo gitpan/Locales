@@ -80,7 +80,7 @@ $Data::Dumper::Useqq    = 1;
     }
 }
 
-my $v_offset     = '0.20';
+my $v_offset     = '0.21';
 my $mod_version  = $Locales::VERSION - $v_offset;
 my $cldr_version = $Locales::cldr_version;
 my $cldr_db_path;
@@ -156,7 +156,9 @@ sub get_target_structs_from_cldr_for_tag {
 
     #### Territories ####
     for my $trr ( keys %{ $raw_struct->{'localeDisplayNames'}{'territories'}{'territory'} } ) {
-        next if $trr =~ m/^\d+$/;
+
+        # Do not skip ISO 3166-1-numeric (e.g. 419, as in es_419)
+        # next if $trr =~ m/^\d+$/;
 
         my $short = $trr;
         $short =~ tr/A-Z/a-z/;

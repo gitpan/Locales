@@ -1,5 +1,12 @@
 Revision history for Perl distribution Locales
 
+0.30  2013-10-21 11:08:58
+    - add new add RELEASE_TESTING tests added in v0.29 to MANIFEST.in
+    - include ISO 3166-1-numeric territories in the CLDR data building
+        - this will result in hard locales being built (e.g. es_419)
+        - this will include all the data for soft locale support (e.g. es_053)
+    - rebuild CLDR (auto generated) to include the ISO 3166-1-numeric data
+
 0.29 2013-09-22 11:55:58
     - more rt 80546: hide package line to fix rt 76129
     - rt 88846, update Changes format (thanks NEILB!)

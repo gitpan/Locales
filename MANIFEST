@@ -207,6 +207,10 @@ lib/Locales/DB/Language/es.pm
 lib/Locales/DB/Territory/es.pm
 t/042.es.t
 t/06.es.t
+lib/Locales/DB/Language/es_419.pm
+lib/Locales/DB/Territory/es_419.pm
+t/042.es_419.t
+t/06.es_419.t
 lib/Locales/DB/Language/es_es.pm
 lib/Locales/DB/Territory/es_es.pm
 t/042.es_es.t
@@ -1050,6 +1054,10 @@ share/misc_info/es.js
 share/code_to_name/es.json
 share/datetime/es.json
 share/functions/es.js
+share/misc_info/es_419.js
+share/code_to_name/es_419.json
+share/datetime/es_419.json
+share/functions/es_419.js
 share/misc_info/es_es.js
 share/code_to_name/es_es.json
 share/datetime/es_es.json
