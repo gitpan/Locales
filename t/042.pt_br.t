@@ -26,7 +26,7 @@ my %terr_lu;
 @lang_lu{@my_lang_codes} = ();
 @terr_lu{@my_terr_codes} = ();
 ok( $Locales::DB::Language::pt_br::cldr_version eq $Locales::cldr_version,  'CLDR version is correct' );
-ok( $Locales::DB::Language::pt_br::VERSION eq ( $Locales::VERSION - 0.21 ), 'VERSION is correct' );
+ok( $Locales::DB::Language::pt_br::VERSION eq ( $Locales::VERSION - 0.22 ), 'VERSION is correct' );
 
 ok( !( grep { !exists $lang_lu{$_} } @en_lang_codes ), 'pt_br languages contains en' );
 ok( !( grep { !exists $terr_lu{$_} } @en_terr_codes ), 'pt_br territories contains en' );

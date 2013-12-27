@@ -3,7 +3,9 @@ package Locales;
 use strict;
 use warnings;
 
-$Locales::VERSION      = '0.30';    # change in POD
+use Module::Want 0.6;
+
+$Locales::VERSION      = '0.31';    # change in POD
 $Locales::cldr_version = '2.0';     # change in POD
 
 #### class methods ####
@@ -34,17 +36,12 @@ sub new {
         my $inc_class = ref($class) ? ref($class) : $class;
         $inc_class =~ s{(?:\:\:|\')}{/}g;    # per Module::Want::get_inc_key()
 
-        if ( !exists $INC{"$inc_class/DB/Language/$tag.pm"} ) {
-            eval "require $class\::DB::Language::$tag" || return;    ## no critic # Module::Want::have_mod("$class\::DB::Language::$tag");
-        }
-
-        if ( !exists $INC{"$inc_class/DB/Territory/$tag.pm"} ) {
-            eval "require $class\::DB::Territory::$tag" || return;    ## no critic # Module::Want::have_mod("$class\::DB::Language::$tag");
-        }
+        have_mod("$class\::DB::Language::$tag")  || return;
+        have_mod("$class\::DB::Territory::$tag") || return;
 
         my ( $language, $territory ) = split_tag( $locale->{'locale'} );
 
-        no strict 'refs';                                             ## no critic
+        no strict 'refs';                    ## no critic
 
         $locale->{'language'}      = $language;
         $locale->{'language_data'} = {
@@ -63,7 +60,7 @@ sub new {
             'name_to_code' => \%{"$class\::DB::Territory::$tag\::name_to_code"},
         };
 
-        $locale->{'misc'}{'list_quote_mode'} = 'all';
+        $locale->{'misc'}{'list_quote_mode'} = 'none';
 
         $singleton_stash{$tag} = bless $locale, $class;
     }
@@ -89,8 +86,8 @@ sub get_native_language_from_code {
 
     my $class = ref($self) ? ref($self) : $self;
     if ( !exists $self->{'native_data'} ) {
-        eval "require $class\::DB::Native;" || return;    ## no critic # Module::Want::have_mod("$class\::DB::Native");
-        no strict 'refs';                                 ## no critic
+        have_mod("$class\::DB::Native") || return;
+        no strict 'refs';    ## no critic
         $self->{'native_data'} = {
             'VERSION'      => \${"$class\::DB::Native::VERSION"},
             'cldr_version' => \${"$class\::DB::Native::cldr_version"},
@@ -199,7 +196,8 @@ sub get_locale_display_pattern_from_code {
 
     my $class = ref($self) ? ref($self) : $self;
     if ( !exists $self->{'locale_display_pattern_data'} ) {
-        eval "require $class\::DB::LocaleDisplayPattern;" || return;                         ## no critic # Module::Want::have_mod("$class\::DB::LocaleDisplayPattern");
+        have_mod("$class\::DB::LocaleDisplayPattern") || return;
+
         no strict 'refs';                                                                    ## no critic
         $self->{'locale_display_pattern_data'} = {
             'VERSION'         => \${"$class\::DB::LocaleDisplayPattern::VERSION"},
@@ -248,7 +246,8 @@ sub get_character_orientation_from_code {
 
     my $class = ref($self) ? ref($self) : $self;
     if ( !exists $self->{'character_orientation_data'} ) {
-        eval "require $class\::DB::CharacterOrientation;" || return;              ## no critic # Module::Want::have_mod("$class\::DB::CharacterOrientation");
+        have_mod("$class\::DB::CharacterOrientation") || return;
+
         no strict 'refs';                                                         ## no critic
         $self->{'character_orientation_data'} = {
             'VERSION'      => \${"$class\::DB::CharacterOrientation::VERSION"},
@@ -741,8 +740,9 @@ sub get_formatted_decimal {
         # END: "This is sort of where the CLDR documentation gets anemic"
     }
 
+    $result =~ s/(?<!\')\.(?!\')/_LOCALES-DECIMAL-PLACEHOLDER_/g;    # _LOCALES-DECIMAL-PLACEHOLDER_' not likley to be in CLDR format ;) - if that does not hold true then append "time . $$" to placeholder
     $result =~ s/(?<!\')\,(?!\')/$self->{language_data}{misc_info}{cldr_formats}{_decimal_format_group}/g;
-    $result =~ s/(?<!\')\.(?!\')/$self->{language_data}{misc_info}{cldr_formats}{_decimal_format_decimal}/g;
+    $result =~ s/_LOCALES-DECIMAL-PLACEHOLDER_/$self->{language_data}{misc_info}{cldr_formats}{_decimal_format_decimal}/g;
 
     # TODO ? turn 0-9 into non0-9 digits if defined as such in CLDR ?
 
@@ -887,10 +887,7 @@ sub tag_is_soft_locale {
 
 sub tag_is_loadable {
     my ( $tag, $as_territory ) = @_;           # not documenting internal $as_territory, just use territory_code_is_known() directly
-
-    if ( !exists $INC{"Locales/DB/Loadable.pm"} ) {
-        eval "require Locales::DB::Loadable" || return;    ## no critic # Module::Want::have_mod("Locales::DB::Loadable") || return;
-    }
+    have_mod("Locales::DB::Loadable") || return;
 
     if ($as_territory) {
         return 1 if exists $Locales::DB::Loadable::territory{$tag};
@@ -903,10 +900,7 @@ sub tag_is_loadable {
 }
 
 sub get_loadable_language_codes {
-    if ( !exists $INC{"Locales/DB/Loadable.pm"} ) {
-        eval "require Locales::DB::Loadable" || return;    ## no critic # Module::Want::have_mod("Locales::DB::Loadable") || return;
-    }
-
+    have_mod("Locales::DB::Loadable") || return;
     return keys %Locales::DB::Loadable::code;
 }
 
@@ -915,7 +909,7 @@ sub territory_code_is_known {
 }
 
 sub split_tag {
-    return split( /_/, normalize_tag( $_[0] ), 2 );        # we only do language[_territory]
+    return split( /_/, normalize_tag( $_[0] ), 2 );    # we only do language[_territory]
 }
 
 sub get_i_tag_for_string {
@@ -1118,6 +1112,8 @@ sub plural_rule_hashref_to_code {
                 # Does $n match $hr->{$cat} ?
 
                 if ( ref( $hr->{'category_rules_compiled'}{$cat} ) ne 'CODE' ) {
+
+                    local $SIG{__DIE__};                          # prevent benign eval from tripping potentially fatal sig handler, moot w/ Module::Want 0.6
                     $hr->{'category_rules_compiled'}{$cat} = eval "$hr->{'category_rules_compiled'}{$cat}";    ## no critic # As of 0.22 this will be skipped for modules included w/ the main dist
                 }
 
@@ -1180,21 +1176,21 @@ Locales - Methods for getting localized CLDR language/territory names (and a sub
 
 =head1 VERSION
 
-This document describes Locales version 0.30
+This document describes Locales version 0.31
 
 =head1 SYNOPSIS
 
     use Locales;
 
     my $locale = Locales->new('en_gb');
-    
+
     print $locale->get_locale(); # 'en_gb'
     print $locale->get_language(); # 'en'
     print $locale->get_territory(); # 'gb'
-    
+
     print $locale->get_language_from_code('fr'); # 'French'
     print $locale->get_code_from_language('French'); # 'fr'
-    
+
     print $locale->get_territory_from_code('us'); # 'United States'
     print $locale->get_code_from_territory('Australia'); # 'au'
 
@@ -1246,11 +1242,11 @@ As described in L</Soft Locales>.
 
 =head1 Soft Locales
 
-As “soft locale” is a language-territory locale that does not fit the L</Supported Locale Criteria> directly but its super does and the territory is known. 
+As “soft locale” is a language-territory locale that does not fit the L</Supported Locale Criteria> directly but its super does and the territory is known.
 
 For example “es-MX” does not fit the criteria but “es” does and “MX” is a valid territory code.
 
-=head1 INTERFACE 
+=head1 INTERFACE
 
 =head2 new()
 
@@ -1296,7 +1292,7 @@ Returns the territory portion of the object’s locale if any (e.g. 'en_au'), un
 
 =item get_soft_locale_fallback()
 
-Takes no arguments. 
+Takes no arguments.
 
 Returns the locale that the object is based on in the case that the given locale (i.e. L</get_locale()>) is a L<soft locale|/Soft Locales>.
 
@@ -1329,19 +1325,19 @@ The boolean argument, when true will do it’s best to determine and return a 1 
 
 =item get_territory_codes()
 
-Take no arguments. 
+Take no arguments.
 
 Returns an unsorted list of known territory codes.
 
 =item get_territory_names()
 
-Take no arguments. 
+Take no arguments.
 
 Returns an unsorted list of the display names for each known territory code.
 
 =item get_territory_lookup()
 
-Take no arguments. 
+Take no arguments.
 
 Returns a copy of the lookup hash of the display names for each known territory code.
 
@@ -1375,19 +1371,19 @@ Alias for get_code_from_territory()
 
 =item get_language_codes()
 
-Take no arguments. 
+Take no arguments.
 
 Returns an unsorted list of known language codes.
 
 =item get_language_names()
 
-Take no arguments. 
+Take no arguments.
 
 Returns an unsorted list of the display names for each known language code.
 
 =item get_language_lookup()
 
-Take no arguments. 
+Take no arguments.
 
 Returns a copy of the lookup hash of the display names for each known language code.
 
@@ -1439,7 +1435,7 @@ Returns the decimal point symbol for the object’s locale. Takes no arguments.
 
 For formatting numbers use get_formatted_decimal().
 
-=item get_cldr_number_symbol_group() 
+=item get_cldr_number_symbol_group()
 
 Returns the integer grouping symbol for the object’s locale. Takes no arguments.
 
@@ -1454,7 +1450,7 @@ The basic list will be: object’s locale, object’s super if any, the object�
     my @list = $fr_ca->get_fallback_list();
     # fr_ca fr en
 
-"special lookup" is a code ref that can be passed in as the first optional arg. 
+"special lookup" is a code ref that can be passed in as the first optional arg.
 
 It is given the object’s locale when called and should return a list of locale tags (they will be normalized).
 
@@ -1476,11 +1472,11 @@ For example, 'en' has the plural categories “one” and “other”, so it'd w
     my $cat = $en->get_plural_form(0); # 'other'
     my $str = $en->get_plural_form(0,'I am 1','I am other'); # I am other
     my $str = $en->get_plural_form(0,'I am 1','I am other','I am nothing'); # I am nothing
-    
+
     my $cat = $en->get_plural_form(1); # 'one'
     my $str = $en->get_plural_form(1,'I am 1','I am other'); # I am 1
     my $str = $en->get_plural_form(1,'I am 1','I am other','I am nothing');  #I am 1
-    
+
     my $cat = $en->get_plural_form(2); # 'other'
     my $str = $en->get_plural_form(2,'I am 1','I am other'); # I am other
     my $str = $en->get_plural_form(2,'I am 1','I am other','I am nothing'); # I am other
@@ -1519,7 +1515,7 @@ Their order corresponds to the position of the corresponding value that get_plur
 
 Takes no arguments, returns a boolean.
 
-It is true if the locale uses the L<Locales::DB::Docs::PluralForms/"“Special Zero” Argument">. 
+It is true if the locale uses the L<Locales::DB::Docs::PluralForms/"“Special Zero” Argument">.
 
 False if it does not.
 
@@ -1527,7 +1523,7 @@ False if it does not.
 
 Takes no arguments.
 
-Returns the number of plural categories applicable to the object’s locale. 
+Returns the number of plural categories applicable to the object’s locale.
 
 Does not factor in support (or not) of the L<special zeroth category|/supports_special_zeroth()>.
 
@@ -1542,7 +1538,7 @@ Note: get_list_or() will be done once L<CLDR defines the OR-list data|http://uni
     $en->get_list_and(1,2) # 1 and 2
     $en->get_list_and(1,2,3) # 1, 2, and 3
     $en->get_list_and(1,2,3,4) # 1, 2, 3, and 3
-    
+
     $es->get_list_and() # nothing
     $es->get_list_and(1) # 1
     $es->get_list_and(1,2) # 1 y 2
@@ -1551,7 +1547,7 @@ Note: get_list_or() will be done once L<CLDR defines the OR-list data|http://uni
 
 To help disambiguate ambiguous arguments (none, undef, “”, all space/non-break-space) you can use $loc->{'misc'}{'list_quote_mode'}.
 
-The default value is “all”.
+The default value is “none”.
 
 Possible values:
 
@@ -1647,7 +1643,7 @@ That is OK though, since this isn't intended to be used in math and you are alre
 
 This is why we have a hard limit of 14 decimal places, to enforce some sense of sanity. You might consider only using the max decimal places argument to make it less than 6 digits long.
 
-=back 
+=back
 
 This method can carp() a few (hopefully self explanatory) things regarding CLDR number format syntax errors:
 
@@ -1683,7 +1679,7 @@ Takes a single argument, the locale tag to normalize.
 
 Returns the normalized tag.
 
-   print Locales::normalize_tag("  en-GB\n "); # 'en_gb'    
+   print Locales::normalize_tag("  en-GB\n "); # 'en_gb'
 
 =item Locales::normalize_tag_for_datetime_locale()
 
@@ -1706,9 +1702,9 @@ Takes a single argument, the locale tag to split into language and territory par
 Returns the resulting array of 1 or 2 normalized (but not validated) items.
 
    my ($language, $territory) = Locales::split_tag("  en-GB\n "); # ('en','gb')
-   
+
    my ($language, $territory) = Locales::split_tag('fr'); # ('fr');
-   
+
    my ($language, $territory) = Locales::split_tag('sr_Cyrl_YU'); # ('sr','cyrl_yu'), yes 'cyrl_yu' is invalid here since Locales doesn't work with the Script variants, good catch
 
 =item Locales::get_i_tag_for_string()
@@ -1862,7 +1858,7 @@ Please report any bugs or feature requests regarding the Locales modules to
 C<bug-locales@rt.cpan.org>, or through the web interface at
 L<http://rt.cpan.org>.
 
-Please report any bugs or feature requests regarding CLDR data as per 
+Please report any bugs or feature requests regarding CLDR data as per
 L<http://cldr.unicode.org/index/bug-reports>.
 
 =head2 BEFORE YOU SUBMIT A BUG REPORT
@@ -1924,7 +1920,7 @@ In that case a report about names not being capitalized like we do in English wo
 
 =item * Is it really mis-formatted?
 
-Sometimes something might look strange to us and we'd be tempted to report the problem. Keep in mind though that sometimes locale nuances can cause things to render in a way that non-native speakers may not understand. 
+Sometimes something might look strange to us and we'd be tempted to report the problem. Keep in mind though that sometimes locale nuances can cause things to render in a way that non-native speakers may not understand.
 
 For example Arabic’s (ar) right-to-left text direction can seem strange when mixed with latin text. It's simply not wrong. You may be able to improve it by using the direction data to render it better (e.g. CSS or HTML attributes if the output is HTML).
 

@@ -15,6 +15,7 @@ WriteMakefile(
             'Test::Carp'          => 0,
             'File::Slurp'         => 0,
             'ExtUtils::MakeMaker' => '6.56',
+            'Module::Want'        => '0.6',
         }
       )
     : (),

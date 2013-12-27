@@ -1,5 +1,10 @@
 Revision history for Perl distribution Locales
 
+???
+    - prevent benign eval from tripping potentially fatal sig handler
+    - simplify lazy loading *a lot* via have_mod()
+    - rt 91549 - chicken and egg swap bug in get_formatted_decimal()
+
 0.30  2013-10-21 11:08:58
     - add new add RELEASE_TESTING tests added in v0.29 to MANIFEST.in
     - include ISO 3166-1-numeric territories in the CLDR data building
