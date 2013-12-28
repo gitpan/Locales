@@ -4,6 +4,7 @@ author:
   - 'Daniel Muey <http://drmuey.com/cpan_contact.pl>'
 build_requires:
   File::Slurp: 0
+  Module::Want: 0.6
   Test::Carp: 0
   Test::More: 0
 configure_requires:
@@ -20,4 +21,4 @@ no_index:
     - t
     - inc
 requires: {}
-version: 0.31
+version: 0.32

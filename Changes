@@ -1,9 +1,15 @@
 Revision history for Perl distribution Locales
 
-???
+0.32  2012-12-28 14:51:42
+    - update BUILD_REQUIRES to match PREREQ_PM
+    - bump README version
+    - re-add missing Changes data
+
+0.31  2013-12-26 17:46:36
     - prevent benign eval from tripping potentially fatal sig handler
     - simplify lazy loading *a lot* via have_mod()
     - rt 91549 - chicken and egg swap bug in get_formatted_decimal()
+    - default list_quote_mode back to mode 'none'
 
 0.30  2013-10-21 11:08:58
     - add new add RELEASE_TESTING tests added in v0.29 to MANIFEST.in

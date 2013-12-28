@@ -23,6 +23,7 @@
       "build" : {
          "requires" : {
             "File::Slurp" : "0",
+            "Module::Want" : "0.6",
             "Test::Carp" : "0",
             "Test::More" : "0"
          }
@@ -37,5 +38,5 @@
       }
    },
    "release_status" : "stable",
-   "version" : "0.31"
+   "version" : "0.32"
 }

@@ -26,7 +26,7 @@ my %terr_lu;
 @lang_lu{@my_lang_codes} = ();
 @terr_lu{@my_terr_codes} = ();
 ok( $Locales::DB::Language::ig::cldr_version eq $Locales::cldr_version,  'CLDR version is correct' );
-ok( $Locales::DB::Language::ig::VERSION eq ( $Locales::VERSION - 0.22 ), 'VERSION is correct' );
+ok( $Locales::DB::Language::ig::VERSION eq ( $Locales::VERSION - 0.23 ), 'VERSION is correct' );
 
 ok( !( grep { !exists $lang_lu{$_} } @en_lang_codes ), 'ig languages contains en' );
 ok( !( grep { !exists $terr_lu{$_} } @en_terr_codes ), 'ig territories contains en' );

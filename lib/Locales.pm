@@ -5,7 +5,7 @@ use warnings;
 
 use Module::Want 0.6;
 
-$Locales::VERSION      = '0.31';    # change in POD
+$Locales::VERSION      = '0.32';    # change in POD
 $Locales::cldr_version = '2.0';     # change in POD
 
 #### class methods ####
@@ -1176,7 +1176,7 @@ Locales - Methods for getting localized CLDR language/territory names (and a sub
 
 =head1 VERSION
 
-This document describes Locales version 0.31
+This document describes Locales version 0.32
 
 =head1 SYNOPSIS
 

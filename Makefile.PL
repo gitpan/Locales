@@ -20,9 +20,10 @@ WriteMakefile(
       )
     : (),
     BUILD_REQUIRES => {
-        'Test::More'  => 0,
-        'Test::Carp'  => 0,
-        'File::Slurp' => 0,
+        'Test::More'   => 0,
+        'Test::Carp'   => 0,
+        'File::Slurp'  => 0,
+        'Module::Want' => '0.6',
     },
     CONFIGURE_REQUIRES => {
         'ExtUtils::MakeMaker' => 6.56,
